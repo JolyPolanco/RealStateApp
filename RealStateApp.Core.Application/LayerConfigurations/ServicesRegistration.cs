@@ -1,0 +1,19 @@
+﻿using Microsoft.Extensions.DependencyInjection;
+using RealStateApp.Core.Application.Interfaces;
+using RealStateApp.Core.Application.Services;
+
+using System.Reflection;
+using System.Text;
+
+namespace RealStateApp.Core.Application.LayerConfigurations
+{
+    public static class ServicesRegistration
+    {
+
+        public static void AddApplicationLayerIOC(this IServiceCollection services)
+        {
+            services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
+            services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+        }
+    }
+}

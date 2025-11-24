@@ -1,7 +1,15 @@
+using RealStateApp.Core.Application.LayerConfigurations;
+using RealStateApp.Infraestructure.Persistence.LayerConfigurations;
+using RealStateApp.Infraestructure.Shared.LayerConfigurations;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddApplicationLayerIOC();
+builder.Services.AddPersistenceLayer();
+builder.Services.AddSharedLayer();
 
 var app = builder.Build();
 
