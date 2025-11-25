@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealStateApp", "RealStateApp\RealStateApp.csproj", "{A8E49984-6E4E-4CE5-B0C3-8CCA4E161611}"
 EndProject
@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealStateApp.Core.Applicati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealStateApp.Core.Domain", "RealStateApp.Core.Domain\RealStateApp.Core.Domain.csproj", "{82D0836B-7843-4F85-854A-7D595E475627}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "WebApi\WebApi.csproj", "{217001C3-9E40-46F3-84BD-176122A5D992}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealStateWebApi", "WebApi\RealStateWebApi.csproj", "{217001C3-9E40-46F3-84BD-176122A5D992}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealStateApp.Infraestructure.Identity", "RealStateApp.Infraestructure.Identity\RealStateApp.Infraestructure.Identity.csproj", "{2CF61B88-B200-4B53-B75C-181AA944D59E}"
 EndProject

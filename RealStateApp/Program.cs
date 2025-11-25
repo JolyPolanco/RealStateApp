@@ -1,4 +1,5 @@
 using RealStateApp.Core.Application.LayerConfigurations;
+using RealStateApp.Infraestructure.Identity.LayerConfigurations;
 using RealStateApp.Infraestructure.Persistence.LayerConfigurations;
 using RealStateApp.Infraestructure.Shared.LayerConfigurations;
 
@@ -8,8 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddApplicationLayerIOC();
-builder.Services.AddPersistenceLayer();
-builder.Services.AddSharedLayer();
+builder.Services.AddPersistenceLayer(builder.Configuration);
+builder.Services.AddSharedLayer(builder.Configuration);
+builder.Services.AddIdentityLayerForWebApp(builder.Configuration);
 
 var app = builder.Build();
 
@@ -23,6 +25,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
