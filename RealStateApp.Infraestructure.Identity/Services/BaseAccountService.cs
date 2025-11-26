@@ -1,0 +1,206 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
+using RealStateApp.Core.Application.Dtos.Email;
+using RealStateApp.Core.Application.Dtos.User;
+using RealStateApp.Core.Application.Interfaces;
+using RealStateApp.Infraestructure.Identity.Entities;
+using System.Text;
+
+namespace RealStateApp.Infraestructure.Identity.Services
+{
+    public class BaseAccountService : IBaseAccountService
+    {
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IEmailService _emailService;
+
+        public BaseAccountService(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager)
+        {
+            _userManager = userManager;
+            _emailService = emailService;
+        }
+
+        public async Task<RegisterUserResponseDto> RegisterAsync(SaveUserDto dto, string? origin)
+        {
+            var response = new RegisterUserResponseDto()
+            {
+                Dni = "",
+                Email = "",
+                FirstName = "",
+                LastName = "",
+                UserName = "",
+            };
+
+            var emailExists = await _userManager.FindByEmailAsync(dto.Email);
+            if (emailExists != null)
+            {
+                response.HasError = true;
+                response.Errors?.Add("Este correo ya está en uso.");
+                return response;
+            }
+
+            AppUser user = new()
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                UserName = dto.UserName,
+                EmailConfirmed = false,
+                Dni = dto.Dni
+            };
+
+            var dtoRole = dto.Roles?.First();
+            if (dtoRole == null)
+            {
+                response.HasError = true;
+                response.Errors?.Add("El rol es requerido.");
+                return response;
+            }
+
+            switch (dtoRole.ToLower())
+            {
+                case "client":
+                    user.IsActive = false;
+                    user.EmailConfirmed = false;
+                    break;
+
+                case "agent":
+                    user.IsActive = false;
+                    user.EmailConfirmed = true;
+                    break;
+
+                case "admin":
+                case "developer":
+                    user.IsActive = true;
+                    user.EmailConfirmed = true;
+                    break;
+            }
+
+            var result = await _userManager.CreateAsync(user, dto.Password);
+
+            if (!result.Succeeded)
+            {
+                response.HasError = true;
+                response.Errors?.AddRange(result.Errors.Select(err => err.Description));
+                return response;
+            }
+
+            await _userManager.AddToRoleAsync(user, dtoRole.ToUpper());
+
+
+            if (dtoRole.ToLower() == "client" && origin != null)
+            {
+                string confirmationUrl = await GetVerificationEmailUri(user, origin);
+                string emailHtml = GetEmailTemplate(user.FirstName, confirmationUrl);
+
+                await _emailService.SendAsync(new EmailRequestDto
+                {
+                    To = dto.Email,
+                    Subject = "Confirma tu cuenta – RealStateApp",
+                    BodyHtml = emailHtml
+                });
+            }
+
+            response.Id = user.Id;
+            response.Email = user.Email!;
+            response.FirstName = user.FirstName;
+            response.LastName = user.LastName;
+            response.UserName = user.UserName!;
+            response.IsVerified = user.EmailConfirmed;
+            response.Roles?.Add(dtoRole.ToUpper());
+
+            return response;
+        }
+
+        public virtual async Task<UserResponseDto> DeleteAsync(string id)
+        {
+            UserResponseDto response = new() { HasError = false, Errors = [] };
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                response.HasError = true;
+                response.Errors.Add("No existe un usuario con este ID.");
+                return response;
+            }
+
+            await _userManager.DeleteAsync(user);
+            return response;
+        }
+
+
+
+        protected async Task<string> GetVerificationEmailUri(AppUser user, string origin)
+        {
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            var route = "Login/ConfirmEmail";
+            var completeUrl = new Uri($"{origin}/{route}");
+
+            var verificationUri = QueryHelpers.AddQueryString(completeUrl.ToString(), "userId", user.Id);
+            verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", encodedToken);
+
+            return verificationUri;
+        }
+
+
+
+        protected async Task<string> GetResetPasswordUri(AppUser user, string origin)
+        {
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            var route = "Login/ResetPassword";
+            var completeUrl = new Uri($"{origin}/{route}");
+
+            var resetUri = QueryHelpers.AddQueryString(completeUrl.ToString(), "userId", user.Id);
+            resetUri = QueryHelpers.AddQueryString(resetUri, "token", encodedToken);
+
+            return resetUri;
+        }
+
+
+
+        private string GetEmailTemplate(string name, string url)
+        {
+            return $@"
+<body style=""font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px;"">
+    <div style=""max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 8px; border: 1px solid #e0e0e0;"">
+        
+        <h2 style=""color: #2b4c7e; text-align: center; margin-top: 0;"">
+            Confirmación de Cuenta – RealStateApp
+        </h2>
+
+        <p style=""font-size: 15px; color: #444;"">
+            Estimado/a <strong>{name}</strong>,
+        </p>
+
+        <p style=""font-size: 15px; color: #555; line-height: 1.6;"">
+            Gracias por registrarse en nuestra plataforma inmobiliaria.  
+            Para activar su cuenta y acceder a nuestros servicios, confirme su correo electrónico.
+        </p>
+
+        <div style=""text-align: center; margin: 25px 0;"">
+            <a href=""{url}""
+               style=""background-color: #2b4c7e; color: white; text-decoration: none; padding: 12px 25px; border-radius: 5px; font-size: 15px;"">
+                Confirmar Cuenta
+            </a>
+        </div>
+
+        <p style=""font-size: 15px; color: #555; line-height: 1.6;"">
+            Si usted no solicitó esta cuenta, puede ignorar este mensaje.
+        </p>
+
+        <hr style=""border: none; height: 1px; background-color: #ddd; margin: 30px 0;"">
+
+        <p style=""font-size: 13px; color: #888; text-align: center; line-height: 1.4;"">
+            © 2025 RealStateApp. Todos los derechos reservados.<br>
+            Este es un mensaje automático, por favor no responder.
+        </p>
+
+    </div>
+</body>";
+        }
+    }
+}
