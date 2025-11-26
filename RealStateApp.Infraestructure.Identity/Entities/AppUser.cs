@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RealStateApp.Infraestructure.Identity.Entities
 {
-    public class AppUser: IdentityUser
+    public class AppUser : IdentityUser
     {
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public bool IsActive { get; set; } = true;
+        public string? Photo { get; set; }
+        public string? Dni { get; set; }
     }
 }
+
+
