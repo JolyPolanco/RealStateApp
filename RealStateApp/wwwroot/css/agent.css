@@ -1,0 +1,53 @@
+﻿/* Paleta de colores */
+:root {
+    --primary-blue: #1F4E79;
+    --secondary-gray: #F2F2F2;
+    --accent-orange: #FF7A00;
+    --text-dark: #333333;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--secondary-gray);
+    color: var(--text-dark);
+    margin: 0;
+}
+
+/* Navbar minimalista */
+.navbar-custom {
+    background-color: var(--primary-blue);
+    padding: 0.8rem 1.5rem;
+}
+
+    .navbar-custom .nav-link {
+        color: white;
+        font-weight: 500;
+        transition: color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+        .navbar-custom .nav-link:hover {
+            color: var(--accent-orange);
+        }
+
+.navbar-brand {
+    color: white;
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+/* Espaciado entre enlaces */
+.navbar-nav .nav-item + .nav-item {
+    margin-left: 1.5rem;
+}
+
+/* Responsive: menú colapsable */
+.navbar-toggler {
+    border-color: white;
+}
+
+.navbar-toggler-icon {
+    color: white;
+}
