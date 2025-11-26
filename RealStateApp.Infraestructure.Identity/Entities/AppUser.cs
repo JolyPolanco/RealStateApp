@@ -9,6 +9,7 @@ namespace RealStateApp.Infraestructure.Identity.Entities
         public bool IsActive { get; set; } = true;
         public string? Photo { get; set; }
         public string? Dni { get; set; }
+  
     }
 }
 

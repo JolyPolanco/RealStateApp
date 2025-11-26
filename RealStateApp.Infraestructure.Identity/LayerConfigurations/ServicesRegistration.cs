@@ -7,10 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using RealStateApp.Core.Application.Dtos.Jwt;
+using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Domain.Settings;
 using RealStateApp.Infraestructure.Identity.Contexts;
 using RealStateApp.Infraestructure.Identity.Entities;
 using RealStateApp.Infraestructure.Identity.Seeds;
+using RealStateApp.Infraestructure.Identity.Services;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
@@ -113,6 +115,11 @@ namespace RealStateApp.Infraestructure.Identity.LayerConfigurations
 
             });
 
+            #region
+            services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
+
+            #endregion
+
         }
         public static void AddIdentityLayerForWebApp(this IServiceCollection services, IConfiguration config)
         {
@@ -176,7 +183,6 @@ namespace RealStateApp.Infraestructure.Identity.LayerConfigurations
 
             });
 
-            // Configurar para incluir roles en claims
             services.AddScoped<Microsoft.AspNetCore.Identity.IUserClaimsPrincipalFactory<AppUser>,
                 Microsoft.AspNetCore.Identity.UserClaimsPrincipalFactory<AppUser, IdentityRole>>();
 
@@ -184,6 +190,7 @@ namespace RealStateApp.Infraestructure.Identity.LayerConfigurations
 
 
             #region Services
+            services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
             #endregion
 
 
@@ -198,9 +205,10 @@ namespace RealStateApp.Infraestructure.Identity.LayerConfigurations
             await DefaultRoles.SeedAsync(roleManager);
 
             await DefaultAdminUser.SeedAsync(userManager);
+            await DefaultAgentUser.SeedAsync(userManager);
+            await DefaultCLientUser.SeedAsync(userManager);
+            await De.SeedAsync(userManager);
 
-           //agregar mas 
-          
         }
 
         private static void  GeneralConfiguration(IServiceCollection services, IConfiguration config)
