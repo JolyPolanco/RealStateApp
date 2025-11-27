@@ -1,0 +1,115 @@
+@model RealStateApp.Core.Application.ViewModels.User.LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = "_LayoutAnonymous";
+}
+
+<div class="container">
+    <div class="row min-vh-100 align-items-center">
+        <div class="col-lg-5 mx-auto">
+            <!-- Card Principal -->
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- Header con Branding -->
+                <div class="card-header bg-primary text-white text-center py-4 border-0">
+                    <i class="fas fa-home fa-3x mb-3"></i>
+                    <h3 class="mb-1 fw-bold">Real State App</h3>
+                    <p class="mb-0 small opacity-75">Tu hogar ideal te espera</p>
+                </div>
+                
+                <!-- Cuerpo del formulario -->
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="text-center mb-4 text-dark fw-bold">Iniciar Sesión</h4>
+                    
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    
+                    @if (Model?.HasError == true)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>@Model.Error
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-controller="Login" asp-action="Index" method="post">
+                        <!-- Usuario -->
+                        <div class="mb-4">
+                            <label asp-for="UserName" class="form-label fw-semibold">
+                                <i class="fas fa-user text-primary me-2"></i>Usuario o Correo
+                            </label>
+                            <input asp-for="UserName" class="form-control form-control-lg" 
+                                   placeholder="Ingresa tu usuario o email" autocomplete="username" />
+                            <span asp-validation-for="UserName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="mb-4">
+                            <label asp-for="Password" class="form-label fw-semibold">
+                                <i class="fas fa-lock text-primary me-2"></i>Contraseña
+                            </label>
+                            <input asp-for="Password" type="password" class="form-control form-control-lg" 
+                                   placeholder="Ingresa tu contraseña" autocomplete="current-password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Botón de Login -->
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                            </button>
+                        </div>
+
+                        <!-- Enlaces adicionales -->
+                        <div class="text-center">
+                            <a asp-controller="Login" asp-action="ForgotPassword" class="text-decoration-none small">
+                                <i class="fas fa-key me-1"></i>¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Footer del Card -->
+                <div class="card-footer bg-light text-center py-3 border-0">
+                    <p class="mb-0 text-muted small">
+                        ¿No tienes cuenta? 
+                        <a asp-controller="User" asp-action="Register" class="text-decoration-none fw-semibold">
+                            <i class="fas fa-user-plus me-1"></i>Únete ahora
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Estadísticas / Features -->
+            <div class="row mt-4 text-center">
+                <div class="col-4">
+                    <div class="p-3">
+                        <i class="fas fa-building fa-2x text-primary mb-2"></i>
+                        <p class="mb-0 small text-muted">Miles de<br>Propiedades</p>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-3">
+                        <i class="fas fa-users fa-2x text-success mb-2"></i>
+                        <p class="mb-0 small text-muted">Agentes<br>Verificados</p>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-3">
+                        <i class="fas fa-shield-alt fa-2x text-info mb-2"></i>
+                        <p class="mb-0 small text-muted">Transacciones<br>Seguras</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

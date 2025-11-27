@@ -1,0 +1,207 @@
+@model RealStateApp.Core.Application.ViewModels.User.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Únete a la app";
+    Layout = "_LayoutAnonymous";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <i class="fas fa-home fa-4x text-primary mb-3"></i>
+                <h2 class="fw-bold text-dark">Únete a Real State App</h2>
+                <p class="text-muted">Encuentra tu hogar ideal o publica tus propiedades</p>
+            </div>
+
+            <!-- Card Principal -->
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    @if (Model?.HasError == true)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>@Model.Error
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-controller="User" asp-action="Register" method="post" enctype="multipart/form-data">
+                        <!-- Tipo de Usuario - Destacado -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-3 text-primary">
+                                <i class="fas fa-user-tag me-2"></i>Selecciona tu Rol
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card h-100 border border-2 role-card" onclick="selectRole('CLIENT', this)">
+                                        <div class="card-body text-center p-4">
+                                            <i class="fas fa-search-location fa-3x text-info mb-3"></i>
+                                            <h6 class="fw-bold">Cliente</h6>
+                                            <p class="small text-muted mb-0">Busco propiedades para comprar o alquilar</p>
+                                            <input type="radio" name="UserType" value="CLIENT" class="d-none" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100 border border-2 role-card" onclick="selectRole('AGENT', this)">
+                                        <div class="card-body text-center p-4">
+                                            <i class="fas fa-briefcase fa-3x text-success mb-3"></i>
+                                            <h6 class="fw-bold">Agente</h6>
+                                            <p class="small text-muted mb-0">Ofrezco y gestiono propiedades</p>
+                                            <input type="radio" name="UserType" value="AGENT" class="d-none" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <span asp-validation-for="UserType" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Información Personal -->
+                        <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">
+                            <i class="fas fa-address-card me-2 text-primary"></i>Información Personal
+                        </h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName" class="form-label fw-semibold">Nombre</label>
+                                <input asp-for="FirstName" class="form-control" placeholder="Tu nombre" />
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label fw-semibold">Apellido</label>
+                                <input asp-for="LastName" class="form-control" placeholder="Tu apellido" />
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Dni" class="form-label fw-semibold">DNI/Cédula</label>
+                                <input asp-for="Dni" class="form-control" placeholder="Tu identificación (11 dígitos)" maxlength="11" />
+                                <span asp-validation-for="Dni" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label fw-semibold">Teléfono</label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="+1 (555) 123-4567" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Foto de Perfil -->
+                        <div class="mb-4">
+                            <label for="Photo" class="form-label fw-semibold">
+                                <i class="fas fa-camera me-2 text-primary"></i>Foto de Perfil
+                            </label>
+                            <input type="file" name="Photo" id="Photo" class="form-control" accept="image/*" required />
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>JPG, PNG o GIF. Máximo 5MB
+                            </div>
+                        </div>
+
+                        <!-- Datos de Cuenta -->
+                        <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">
+                            <i class="fas fa-key me-2 text-primary"></i>Datos de Acceso
+                        </h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="UserName" class="form-label fw-semibold">Nombre de Usuario</label>
+                                <input asp-for="UserName" class="form-control" placeholder="usuario123" autocomplete="username" />
+                                <span asp-validation-for="UserName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label fw-semibold">Correo Electrónico</label>
+                                <input asp-for="Email" class="form-control" placeholder="tu@email.com" autocomplete="email" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Password" class="form-label fw-semibold">Contraseña</label>
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ConfirmPassword" class="form-label fw-semibold">Confirmar Contraseña</label>
+                                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Repite tu contraseña" autocomplete="new-password" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Información adicional por rol -->
+                        <div class="alert alert-info border-info" role="alert">
+                            <h6 class="alert-heading fw-bold">
+                                <i class="fas fa-info-circle me-2"></i>Información Importante
+                            </h6>
+                            <ul class="mb-0 mt-2 small">
+                                <li><strong>Clientes:</strong> Recibirás un correo para confirmar tu cuenta. Revisa tu bandeja de entrada.</li>
+                                <li><strong>Agentes:</strong> Tu cuenta será revisada por un administrador antes de activarse. Te notificaremos cuando esté lista.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Crear Mi Cuenta
+                            </button>
+                            <a asp-controller="Login" asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Ya tengo cuenta
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="row mt-5 text-center g-4">
+                <div class="col-md-4">
+                    <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                    <h6 class="fw-bold">Seguro y Confiable</h6>
+                    <p class="small text-muted">Tus datos están protegidos</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="fas fa-clock fa-3x text-success mb-3"></i>
+                    <h6 class="fw-bold">Proceso Rápido</h6>
+                    <p class="small text-muted">Regístrate en minutos</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="fas fa-headset fa-3x text-info mb-3"></i>
+                    <h6 class="fw-bold">Soporte 24/7</h6>
+                    <p class="small text-muted">Estamos para ayudarte</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function selectRole(role, card) {
+            // Remover selección previa
+            document.querySelectorAll('.role-card').forEach(c => {
+                c.classList.remove('border-primary', 'bg-light');
+                c.classList.add('border-secondary');
+            });
+            
+            // Seleccionar la tarjeta actual
+            card.classList.remove('border-secondary');
+            card.classList.add('border-primary', 'bg-light');
+            
+            // Marcar el radio button
+            card.querySelector('input[type="radio"]').checked = true;
+        }
+        
+        // Estilo hover para las tarjetas de rol
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.style.cursor = 'pointer';
+            card.style.transition = 'all 0.3s ease';
+            
+            card.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('border-primary')) {
+                    this.classList.add('shadow');
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('border-primary')) {
+                    this.classList.remove('shadow');
+                }
+            });
+        });
+    </script>
+}

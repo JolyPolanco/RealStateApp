@@ -13,7 +13,7 @@ namespace RealStateApp.Core.Application.Dtos.User
         public required string UserName { get; set; }
         public required string Email { get; set; }
         public bool IsVerified { get; set; }
-        public bool Photo { get; set; }
+        public string? Photo { get; set; }
 
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
