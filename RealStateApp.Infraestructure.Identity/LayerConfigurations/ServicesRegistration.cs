@@ -207,7 +207,7 @@ namespace RealStateApp.Infraestructure.Identity.LayerConfigurations
             await DefaultAdminUser.SeedAsync(userManager);
             await DefaultAgentUser.SeedAsync(userManager);
             await DefaultCLientUser.SeedAsync(userManager);
-            await De.SeedAsync(userManager);
+            await DefaultDeveloperUser.SeedAsync(userManager);
 
         }
 
