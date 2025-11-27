@@ -6,8 +6,6 @@ namespace RealStateApp.Core.Application.Interfaces
 {
     public interface IGenericService  <Entity, EntityDto> where Entity : class where EntityDto : class
     {
-    
-
             public Task<EntityDto?> AddAsync(EntityDto entityDto);
             public Task<EntityDto?> GetByIdAsync(int id);
             public Task DeleteAsync(int id);
