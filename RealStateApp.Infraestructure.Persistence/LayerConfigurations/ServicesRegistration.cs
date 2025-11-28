@@ -26,6 +26,10 @@ namespace RealStateApp.Infraestructure.Persistence.LayerConfigurations
                         m => m.MigrationsAssembly(typeof(RealStateContext).Assembly.FullName)));
             }
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IPropertyRepository, PropertyRepository>();
+            services.AddScoped<IPropertyTypeRepository, PropertyTypeRepository>();
+            services.AddScoped<IImprovementRepository, ImprovementRepository>();
+            services.AddScoped<ISaleTypeRepository, SaleTypeRepository>();
 
         }
     }

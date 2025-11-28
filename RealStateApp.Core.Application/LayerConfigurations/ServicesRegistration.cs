@@ -14,6 +14,14 @@ namespace RealStateApp.Core.Application.LayerConfigurations
         {
             services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
             services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+
+            services.AddScoped<IPropertyService, PropertyService>();
+            services.AddScoped<IPropertyTypeService, PropertyTypeService>();
+
+            services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<IAdministrationService, AdministrationService>();
+            services.AddScoped<IImpromentService, ImprovementService>();
+
         }
     }
 }

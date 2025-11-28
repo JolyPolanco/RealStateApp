@@ -10,6 +10,8 @@ namespace RealStateApp.Core.Application.Interfaces
     public interface IAccountServiceForWebApp : IBaseAccountService
     {
         Task<UserResponseDto> ConfirmAccountAsync(string token, string? userId = null);
+        Task<UserDto?> GetById(string id);
+        Task<UserDto?> GetByUserName(string name);
         Task SignOutAsync();
     }
 }

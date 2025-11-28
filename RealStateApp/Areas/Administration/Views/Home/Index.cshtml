@@ -1,3 +1,80 @@
-﻿@{
+﻿@using RealStateApp.Core.Application.ViewModels.Dashboards
+@model AdminDashboardViewModel
+
+@{
     Layout = "_AdminLayout";
 }
+
+<div class="container mt-4">
+    <h2 class="mb-4">Dashboard Administrativo</h2>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Propiedades Disponibles</h5>
+                    <p class="card-text display-5">@Model.AvailablePropertiesCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Propiedades Vendidas</h5>
+                    <p class="card-text display-5">@Model.SoldPropertiesCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Agentes Activos</h5>
+                    <p class="card-text display-5">@Model.ActiveAgentsCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <h5 class="card-title">Agentes Inactivos</h5>
+                    <p class="card-text display-5">@Model.InactiveAgentsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Clientes Activos</h5>
+                    <p class="card-text display-5">@Model.ActiveClientsCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Clientes Inactivos</h5>
+                    <p class="card-text display-5">@Model.InactiveClientsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Desarrolladores Activos</h5>
+                    <p class="card-text display-5">@Model.ActiveDevelopersCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-light text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Desarrolladores Inactivos</h5>
+                    <p class="card-text display-5">@Model.InactiveDevelopersCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

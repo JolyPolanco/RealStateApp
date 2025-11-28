@@ -1,0 +1,26 @@
+﻿@using RealStateApp.Core.Application.ViewModels.User
+@model AgentViewModel
+
+@{
+    Layout = "_Layout";
+}
+
+<div class="container d-flex justify-content-center align-items-center mt-5" style="min-height: 60vh;">
+    <div class="card shadow-sm border-0 p-4 text-center" style="max-width: 400px;">
+        <h5 class="mb-3 text-muted">Confirmación de Eliminación</h5>
+        <p>¿Está seguro que desea eliminar el agente <strong>@Model.FirstName @Model.LastName</strong> y todas sus propiedades?</p>
+        <p class="text-muted small">@Model.Email</p>
+        <div class="mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary me-2">Cancelar</a>
+            <form method="post" asp-action="DeleteAgent" asp-controller"="Agents" asp-route-id="@Model.Id" class="d-inline">
+                <button type="submit" class="btn btn-danger">Aceptar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 0.5rem;
+    }
+</style>

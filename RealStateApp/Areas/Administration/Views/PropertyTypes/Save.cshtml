@@ -1,0 +1,24 @@
+﻿@using RealStateApp.Core.Application.ViewModels.Properties
+@model SavePropertyTypeViewModel
+
+<div class="container mt-4">
+
+    <h3 class="fw-bold">@(Model.Id == null ? "Crear Tipo de Propiedad" : "Editar Tipo de Propiedad")</h3>
+
+    <form asp-action="@(Model.Id == null ? "Create" : "Edit")" method="post">
+
+        <div class="mb-3">
+            <label>Nombre</label>
+            <input asp-for="Name" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>Descripción</label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+
+    </form>
+
+</div>

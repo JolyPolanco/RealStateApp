@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using RealStateApp.Core.Application.Dtos.Login;
 using RealStateApp.Core.Application.Dtos.User;
+using RealStateApp.Core.Application.Helpers;
 using RealStateApp.Core.Application.Interfaces;
+using RealStateApp.Core.Domain.Common.Enums;
 using RealStateApp.Infraestructure.Identity.Entities;
 using System;
 using System.Collections.Generic;
@@ -124,5 +127,66 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
             return responseDto;
         }
-    }
+        public async Task<UserDto?> GetByUserName(string name)
+        {
+
+            var user = await _userManager.Users
+                .Where(r => r.UserName.Replace("-", "").Replace(" ", "") == name)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var rolesList = await _userManager.GetRolesAsync(user);
+            var role = EnumMapper<AppRoles>.FromString(rolesList.First());
+
+            var userDto = new UserDto()
+            {
+                Id = user.Id,
+                Email = user.Email ?? "",
+                LastName = user.LastName,
+                FirstName = user.FirstName,
+                UserName = user.UserName ?? "",
+                Dni = user.Dni!,
+                IsVerified = user.EmailConfirmed,
+                IsActive = user.IsActive,
+                Role = EnumMapper<AppRoles>.ToString(role)
+            };
+
+            return userDto;
+        }
+        public async Task<UserDto?> GetById(string id)
+        {
+
+            var user = await _userManager.Users
+                .Where(r => r.Id.Replace("-", "").Replace(" ", "") == id)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var rolesList = await _userManager.GetRolesAsync(user);
+            var role = EnumMapper<AppRoles>.FromString(rolesList.First());
+
+            var userDto = new UserDto()
+            {
+                Id = user.Id,
+                Email = user.Email ?? "",
+                LastName = user.LastName,
+                FirstName = user.FirstName,
+                UserName = user.UserName ?? "",
+                Dni = user.Dni!,
+                IsVerified = user.EmailConfirmed,
+                IsActive = user.IsActive,
+                Role = EnumMapper<AppRoles>.ToString(role)
+            };
+
+            return userDto;
+        }
+    
+}
 }

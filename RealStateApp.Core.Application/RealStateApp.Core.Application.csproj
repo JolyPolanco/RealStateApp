@@ -17,10 +17,4 @@
     <ProjectReference Include="..\RealStateApp.Core.Domain\RealStateApp.Core.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Mappings\DtosAndViewModels\" />
-    <Folder Include="Mappings\EntitiesAndDtos\" />
-    <Folder Include="ViewModels\" />
-  </ItemGroup>
-
 </Project>
