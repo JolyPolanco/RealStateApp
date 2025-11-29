@@ -13,7 +13,8 @@ namespace RealStateApp.Core.Application.Mappings.EntitiesAndDtos
     {
         public ImprovementToDtoMappingProfile()
         {
-            CreateMap<Improvement, ImprovementDto>();
+            CreateMap<Improvement, ImprovementDto>()
+                .ReverseMap();
         }
     }
 }

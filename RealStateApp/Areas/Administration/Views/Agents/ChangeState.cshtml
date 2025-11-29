@@ -2,7 +2,6 @@
 @{
     Layout = "_Layout";
     bool isActivateMode = ViewBag.IsActivateMode ?? false;
-    string actionText = isActivateMode ? "activar" : "desactivar";
     string headerText = isActivateMode ? "Confirmación de Activación" : "Confirmación de Desactivación";
     string messageText = isActivateMode
         ? "¿Está seguro que desea activar este agente?"
@@ -10,15 +9,20 @@
 }
 
 <div class="container d-flex justify-content-center align-items-center mt-5" style="min-height: 60vh;">
-    <div class="card border-0 shadow-sm p-4 text-center" style="max-width: 450px;">
-        <h4 class="mb-3 text-muted">@headerText</h4>
-        <p class="mb-4">@messageText</p>
+    <div class="card confirmation-card p-5 text-center shadow">
+        <h4 class="fw-semibold text-dark mb-3">@headerText</h4>
+
+        <p class="text-muted mb-4">@messageText</p>
 
         <div class="d-flex justify-content-center gap-3">
-            <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancelar</a>
+            <a asp-area="Administration" asp-controller="Agents" asp-action="Index" class="btn btn-light-custom px-4">
+                Cancelar
+            </a>
 
-            <form method="post" asp-action="ToggleState" asp-route-id="@Model" asp-controller"="Agents">
-                <button type="submit" class="btn btn-@(isActivateMode ? "success" : "warning") px-4">
+            <form method="post" asp-area="Administration" asp-controller="Agents" asp-action="ToggleState">
+                <input type="hidden" name="id" value="@Model" />
+
+                <button type="submit" class="btn btn-action-custom px-4">
                     @(isActivateMode ? "Activar" : "Desactivar")
                 </button>
             </form>
@@ -27,24 +31,47 @@
 </div>
 
 <style>
-    .card {
-        border-radius: 0.75rem;
-        transition: transform 0.2s ease-in-out;
+    .confirmation-card {
+        background: #ffffff;
+        border-radius: 1rem;
+        max-width: 450px;
+        border: 1px solid #e7e9ec;
+        transition: all .25s ease-in-out;
     }
 
-        .card:hover {
-            transform: translateY(-5px);
+        .confirmation-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
         }
 
-    .btn {
+    .btn-light-custom {
+        background-color: #f3f4f6;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        min-width: 130px;
         font-weight: 500;
+        border-radius: 0.6rem;
+        transition: .2s ease-in-out;
     }
 
-    .btn-outline-secondary {
-        min-width: 120px;
+        .btn-light-custom:hover {
+            background-color: #e5e7eb;
+            border-color: #c7cbd1;
+        }
+
+    .btn-action-custom {
+        background-color: @(isActivateMode ? "#34a853" : "#f4b400");
+        border: none;
+        color: #fff;
+        min-width: 130px;
+        font-weight: 500;
+        border-radius: 0.6rem;
+        transition: .2s ease-in-out;
     }
 
-    .btn-success, .btn-warning {
-        min-width: 120px;
-    }
+        .btn-action-custom:hover {
+            opacity: .9;
+            transform: scale(1.03);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+        }
 </style>

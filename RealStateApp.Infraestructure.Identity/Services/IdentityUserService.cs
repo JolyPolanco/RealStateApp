@@ -54,7 +54,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
             if (user != null)
             {
-                user.IsActive = false;
+                user.IsActive =!user.IsActive;
                 await _userManager.UpdateAsync(user);
 
             }
@@ -107,10 +107,11 @@ namespace RealStateApp.Infraestructure.Identity.Services
                     LastName = user.LastName,
                     IsActive = user.IsActive,
                     IsVerified = user.EmailConfirmed,
-                    PropertiesCount = dictionary[user.Id]
+                    PropertiesCount = dictionary.GetValueOrDefault(user.Id, 0)
                 })
                 .ToList();
         }
+
 
         public async Task<List<UserDto>> GetUsersByRole(string role, string displayRole)
         {

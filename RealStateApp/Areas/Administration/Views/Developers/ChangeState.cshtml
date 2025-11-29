@@ -1,12 +1,13 @@
 ﻿@model string
 @{
     Layout = "_Layout";
-    bool isActivateMode = ViewBag.IsActivateMode ?? false;
-    string actionText = isActivateMode ? "activar" : "desactivar";
-    string headerText = isActivateMode ? "Confirmación de Activación" : "Confirmación de Desactivación";
+
+    bool isActivateMode = ViewBag.IsActivateMode;
+    string name = ViewBag.UserName ?? "";
+    string headerText = isActivateMode ? "Activar Desarrollador" : "Desactivar Desarrollador";
     string messageText = isActivateMode
-        ? "¿Está seguro que desea activar este desarrollador?"
-        : "¿Está seguro que desea desactivar este desarrollador?";
+        ? $"¿Desea activar a {name}?"
+        : $"¿Desea desactivar a {name}?";
 }
 
 <div class="container d-flex justify-content-center align-items-center mt-5" style="min-height: 60vh;">
@@ -15,36 +16,19 @@
         <p class="mb-4">@messageText</p>
 
         <div class="d-flex justify-content-center gap-3">
+
             <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancelar</a>
 
-            <form method="post" asp-action="ToggleState" asp-route-id="@Model" asp-controller"="Developers">
-                <button type="submit" class="btn btn-@(isActivateMode ? "success" : "warning") px-4">
+            <form method="post"
+                  asp-action="ChangeState"
+                  asp-route-id="@Model"
+                  asp-controller="Developers">
+                <button type="submit"
+                        class="btn btn-@(isActivateMode ? "success" : "warning") px-4">
                     @(isActivateMode ? "Activar" : "Desactivar")
                 </button>
             </form>
+
         </div>
     </div>
 </div>
-
-<style>
-    .card {
-        border-radius: 0.75rem;
-        transition: transform 0.2s ease-in-out;
-    }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-    .btn {
-        font-weight: 500;
-    }
-
-    .btn-outline-secondary {
-        min-width: 120px;
-    }
-
-    .btn-success, .btn-warning {
-        min-width: 120px;
-    }
-</style>

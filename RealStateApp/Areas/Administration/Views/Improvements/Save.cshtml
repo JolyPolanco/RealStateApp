@@ -1,39 +1,82 @@
-﻿@using RealStateApp.Core.Application.ViewModels.Improvement
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using RealStateApp.Core.Application.ViewModels.Improvement
 @model ImprovementViewModel
 
-
 @{
-Layout = "_AdminLayout";
-bool editing = Model.Id != 0;
+    Layout = "_AdminLayout";
+    bool isEdit = Model.Id != 0;
+    string title = isEdit ? "Editar Mejora" : "Crear Mejora";
 }
 
+<div class="container mt-5" style="max-width: 600px;">
 
-<div class="container mt-4" style="max-width: 600px;">
-<div class="card shadow-sm p-4">
-<h4 class="mb-3 text-secondary">@(editing ? "Editar Mejora" : "Crear Mejora")</h4>
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-light border-0 py-3 rounded-top-4">
+            <h4 class="fw-semibold m-0 text-secondary">@title</h4>
+        </div>
 
+        <div class="card-body p-4">
+            <form asp-controller="Improvements"
+                  asp-action="@(isEdit ? "Edit" : "Create")"
+                  method="post"
+                  class="needs-validation" novalidate>
 
-<form method="post">
-<div class="mb-3">
-<label class="form-label">Nombre</label>
-<input asp-for="Name" class="form-control" />
-<span asp-validation-for="Name" class="text-danger small"></span>
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Nombre</label>
+                    <input asp-for="Name" class="form-control rounded-3" placeholder="Ej. Jardín Mejorado" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Descripción</label>
+                    <textarea asp-for="Description" class="form-control rounded-3" rows="3" placeholder="Descripción de la mejora"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" asp-controller="Improvements" class="btn btn-outline-secondary px-4 rounded-3">
+                        Volver
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4 rounded-3 shadow-sm">
+                        @(isEdit ? "Guardar" : "Crear")
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
 </div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 
-<div class="mb-3">
-<label class="form-label">Descripción</label>
-<textarea asp-for="Description" class="form-control" rows="3"></textarea>
-<span asp-validation-for="Description" class="text-danger small"></span>
-</div>
+    <script>
+        $(document).on("input", "input, textarea", function () {
+            $(".text-danger").fadeOut();
+        });
+    </script>
+}
 
+<style>
+    .form-control {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
 
-<div class="d-flex justify-content-between mt-4">
-<a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
-<button type="submit" class="btn btn-primary">@(editing ? "Guardar" : "Crear")</button>
-</div>
-</form>
-</div>
-</div>
+    .card-header h4 {
+        font-size: 1.25rem;
+    }
 
+    .card {
+        border-radius: 0.75rem;
+        transition: transform 0.15s ease-in-out;
+    }
 
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+    .btn {
+        min-width: 120px;
+    }
+</style>

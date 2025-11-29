@@ -3,7 +3,7 @@
 
 @{
     Layout = "_AdminLayout";
-  
+
     bool isEdit = !string.IsNullOrEmpty(Model.Id);
     string title = isEdit ? "Editar desarrollador" : "Crear desarrollador";
 }
@@ -11,39 +11,68 @@
 <div class="container mt-5" style="max-width: 600px;">
     <h3 class="mb-4 text-muted fw-light">@title</h3>
 
-    <form asp-action="@(isEdit ? "Edit" : "Create")" method="post" asp-controller="Developers">
+    <form asp-action="@(isEdit ? "Edit" : "Create")"
+          asp-controller="Developers"
+          method="post">
+
         <div class="mb-3">
             <label class="form-label">Nombre</label>
             <input asp-for="FirstName" class="form-control" required />
         </div>
+
         <div class="mb-3">
             <label class="form-label">Apellido</label>
             <input asp-for="LastName" class="form-control" required />
         </div>
+
         <div class="mb-3">
             <label class="form-label">Cédula</label>
             <input asp-for="Dni" class="form-control" required />
         </div>
+
         <div class="mb-3">
             <label class="form-label">Correo</label>
             <input asp-for="Email" type="email" class="form-control" required />
         </div>
+
         <div class="mb-3">
             <label class="form-label">Usuario</label>
             <input asp-for="UserName" class="form-control" required />
         </div>
+
+        <!-- PASSWORD -->
         <div class="mb-3">
             <label class="form-label">Contraseña</label>
-            <input asp-for="Password" type="password" class="form-control" @(isEdit ? "" : "required") />
+
+            @if (isEdit)
+            {
+                <input asp-for="Password" type="password" class="form-control" />
+            }
+            else
+            {
+                <input asp-for="Password" type="password" class="form-control" required />
+            }
         </div>
+
+        <!-- CONFIRM PASSWORD -->
         <div class="mb-3">
             <label class="form-label">Confirmar Contraseña</label>
-            <input asp-for="ConfirmPassword" type="password" class="form-control" @(isEdit ? "" : "required") />
+
+            @if (isEdit)
+            {
+                <input asp-for="ConfirmPassword" type="password" class="form-control" />
+            }
+            else
+            {
+                <input asp-for="ConfirmPassword" type="password" class="form-control" required />
+            }
         </div>
 
         <div class="d-flex justify-content-between mt-4">
             <a asp-action="Index" class="btn btn-outline-secondary px-4">Volver</a>
-            <button type="submit" class="btn btn-primary px-4">@(isEdit ? "Guardar" : "Crear")</button>
+            <button type="submit" class="btn btn-primary px-4">
+                @(isEdit ? "Guardar" : "Crear")
+            </button>
         </div>
     </form>
 </div>

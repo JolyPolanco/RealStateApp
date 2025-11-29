@@ -14,7 +14,9 @@ namespace RealStateApp.Core.Application.Mappings.EntitiesAndDtos
         public PropertyTypeToDtoMappingProfile()
         {
             CreateMap<PropertyType, PropertyTypeDto>()
-                .ForMember(dest=> dest.PropertiesCount, opt=> opt.MapFrom(dest=> dest.Properties.Count()));
+                .ForMember(dest => dest.PropertiesCount, opt => opt.MapFrom(dest => dest.Properties.Count()))
+                .ReverseMap();
+                 
         }
     }
 }

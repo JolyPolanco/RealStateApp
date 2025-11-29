@@ -1,19 +1,19 @@
-﻿@using RealStateApp.Core.Application.ViewModels.User
-@model AgentViewModel
+﻿@using RealStateApp.Core.Application.ViewModels.Properties
+@model PropertyTypeViewModel
 
 @{
     Layout = "_Layout";
 }
 
 <div class="container d-flex justify-content-center align-items-center mt-5" style="min-height: 60vh;">
-    <div class="card shadow-sm border-0 p-4 text-center" style="max-width: 400px;">
+    <div class="card shadow-sm border-0 p-4 text-center" style="max-width: 450px;">
         <h5 class="mb-3 text-muted">Confirmación de Eliminación</h5>
-        <p>¿Está seguro que desea eliminar el agente <strong>@Model.FirstName @Model.LastName</strong> y todas sus propiedades?</p>
-        <p class="text-muted small">@Model.Email</p>
-        <div class="mt-4">
-            <a asp-action="Index" class="btn btn-outline-secondary me-2">Cancelar</a>
-            <form method="post" asp-action="DeleteAgent" asp-controller"="PropertyTypes" asp-route-id="@Model.Id" class="d-inline">
-                <button type="submit" class="btn btn-danger">Aceptar</button>
+        <p>¿Está seguro que desea eliminar el tipo de propiedad <strong>@Model.Name</strong> y toda su información asociada?</p>
+      
+        <div class="mt-4 d-flex justify-content-center gap-3">
+            <a asp-action="Index" asp-controller="PropertyTypes" class="btn btn-outline-secondary px-4 rounded-3">Cancelar</a>
+            <form method="post" asp-action="Delete" asp-controller="PropertyTypes" asp-route-id="@Model.Id" class="d-inline">
+                <button type="submit" class="btn btn-danger px-4 rounded-3">Aceptar</button>
             </form>
         </div>
     </div>
@@ -21,6 +21,15 @@
 
 <style>
     .card {
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+    .btn {
+        min-width: 110px;
     }
 </style>

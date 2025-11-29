@@ -6,59 +6,148 @@
 }
 
 <div class="container mt-5">
+
     <h2 class="mb-4 fw-light text-muted">Agentes Registrados</h2>
 
-    <table class="table table-borderless align-middle">
-        <thead class="text-uppercase text-muted small">
-            <tr>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Correo</th>
-                <th>Propiedades</th>
-                <th>Estado</th>
-                <th class="text-end">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var agent in Model)
-            {
-                <tr>
-                    <td>@agent.FirstName</td>
-                    <td>@agent.LastName</td>
-                    <td>@agent.Email</td>
-                    <td>@agent.PropertiesCount</td>
-               
-                    <td>
-                        <span class="badge @(agent.IsActive ? "bg-success" : "bg-danger")">
-                            @(agent.IsActive ? "Activo" : "Inactivo")
-                        </span>
-                    </td>
-                    <td class="text-end">
-                        <a asp-controller"="Agents" asp-action="@(agent.IsActive ? "Deactivate" : "Activate")" asp-route-id="@agent.Id" class="d-inline">
-                         
-                        </a>
-                        <a asp-action="ConfirmDelete" asp-route-id="@agent.Id" class="btn btn-sm btn-outline-danger ms-2">
-                            Eliminar
-                        </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="table-wrapper p-3 rounded-4 shadow-sm bg-white">
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-people display-4 mb-3"></i>
+                <h5 class="fw-light">No hay agentes registrados</h5>
+                <p class="small">Cuando existan agentes, aparecerán en esta lista.</p>
+            </div>
+        }
+        else
+        {
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase text-muted small">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Correo</th>
+                        <th>Propiedades</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var agent in Model)
+                    {
+                        <tr>
+                            <td>@agent.FirstName</td>
+                            <td>@agent.LastName</td>
+                            <td>@agent.Email</td>
+                            <td>@agent.PropertiesCount</td>
+
+                            <td>
+                                <span class="badge @(agent.IsActive ? "bg-success" : "bg-danger")">
+                                    @(agent.IsActive ? "Activo" : "Inactivo")
+                                </span>
+                            </td>
+
+                            <td class="text-end">
+                                <a asp-controller="Agents"
+                                   asp-action="@(agent.IsActive ? "Deactivate" : "Activate")"
+                                   asp-route-id="@agent.Id"
+                                   class="btn btn-sm @(agent.IsActive ? "btn-outline-warning" : "btn-outline-success") me-2">
+                                    @(agent.IsActive ? "Desactivar" : "Activar")
+                                </a>
+
+                                <a asp-controller="Agents"
+                                   asp-action="ConfirmDelete"
+                                   asp-route-id="@agent.Id"
+                                   class="btn btn-sm btn-outline-danger">
+                                    Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
 </div>
 
+
 <style>
-    .table-borderless tbody tr:hover {
-        background-color: #f8f9fa;
+
+    /* Caja envolvente de la tabla */
+    .table-wrapper {
+        min-height: 350px; /* Altura fija mínima */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        border-radius: 16px !important;
     }
 
+    /* Tabla */
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fb;
+    }
+
+    thead tr {
+        background-color: #f1f3f5 !important;
+    }
+
+    .table td, .table th {
+        padding: 0.9rem 0.75rem;
+        vertical-align: middle;
+    }
+
+    /* Badges */
     .badge {
-        font-size: 0.8rem;
-        padding: 0.4em 0.6em;
+        font-size: 0.75rem;
+        padding: 0.45em 0.65em;
+        border-radius: 8px;
     }
 
-    .btn-outline-warning, .btn-outline-success, .btn-outline-danger {
-        font-size: 0.8rem;
-        padding: 0.25rem 0.5rem;
+    /* Botones estéticos */
+    .btn-sm {
+        padding: 0.35rem 0.65rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .btn-sm:hover {
+            transform: scale(1.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+    .btn-outline-warning {
+        border-color: #e0a800;
+        color: #e0a800;
+    }
+
+        .btn-outline-warning:hover {
+            background-color: #e0a800;
+            color: white;
+        }
+
+    .btn-outline-success {
+        border-color: #2e8b57;
+        color: #2e8b57;
+    }
+
+        .btn-outline-success:hover {
+            background-color: #2e8b57;
+            color: white;
+        }
+
+    .btn-outline-danger {
+        border-color: #d9534f;
+        color: #d9534f;
+    }
+
+        .btn-outline-danger:hover {
+            background-color: #d9534f;
+            color: white;
+        }
+
+    .empty-icon {
+        color: #adb5bd;
     }
 </style>

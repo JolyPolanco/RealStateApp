@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using RealStateApp.Core.Application.Dtos.Email;
@@ -13,103 +14,121 @@ namespace RealStateApp.Infraestructure.Identity.Services
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IEmailService _emailService;
+        protected readonly IMapper _mapper;
 
-        public BaseAccountService(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager)
+        public BaseAccountService(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager, IMapper mapper)
         {
             _userManager = userManager;
             _emailService = emailService;
+            _mapper = mapper;
         }
 
         public async Task<RegisterUserResponseDto> RegisterAsync(SaveUserDto dto, string? origin)
         {
-            var response = new RegisterUserResponseDto()
+            RegisterUserResponseDto response = new()
             {
-                Dni = "",
-                Email = "",
-                FirstName = "",
-                LastName = "",
-                UserName = "",
+                HasError = false,
+                Errors = new List<string>(),
+                UserName = string.Empty,
+                Email = string.Empty,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                Dni = string.Empty
             };
 
-            var emailExists = await _userManager.FindByEmailAsync(dto.Email);
-            if (emailExists != null)
+            try
             {
-                response.HasError = true;
-                response.Errors?.Add("Este correo ya está en uso.");
-                return response;
-            }
-
-            AppUser user = new()
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                UserName = dto.UserName,
-                EmailConfirmed = false,
-                Dni = dto.Dni
-            };
-
-            var dtoRole = dto.Roles?.First();
-            if (dtoRole == null)
-            {
-                response.HasError = true;
-                response.Errors?.Add("El rol es requerido.");
-                return response;
-            }
-
-            switch (dtoRole.ToLower())
-            {
-                case "client":
-                    user.IsActive = false;
-                    user.EmailConfirmed = false;
-                    break;
-
-                case "agent":
-                    user.IsActive = false;
-                    user.EmailConfirmed = true;
-                    break;
-
-                case "admin":
-                case "developer":
-                    user.IsActive = true;
-                    user.EmailConfirmed = true;
-                    break;
-            }
-
-            var result = await _userManager.CreateAsync(user, dto.Password);
-
-            if (!result.Succeeded)
-            {
-                response.HasError = true;
-                response.Errors?.AddRange(result.Errors.Select(err => err.Description));
-                return response;
-            }
-
-            await _userManager.AddToRoleAsync(user, dtoRole.ToUpper());
-
-
-            if (dtoRole.ToLower() == "client" && origin != null)
-            {
-                string confirmationUrl = await GetVerificationEmailUri(user, origin);
-                string emailHtml = GetEmailTemplate(user.FirstName, confirmationUrl);
-
-                await _emailService.SendAsync(new EmailRequestDto
+                var emailExists = await _userManager.FindByEmailAsync(dto.Email);
+                if (emailExists != null)
                 {
-                    To = dto.Email,
-                    Subject = "Confirma tu cuenta – RealStateApp",
-                    BodyHtml = emailHtml
-                });
+                    response.HasError = true;
+                    response.Errors.Add($"Este correo ({dto.Email}) ya está en uso.");
+                    return response;
+                }
+
+                var userNameExists = await _userManager.FindByNameAsync(dto.UserName);
+                if (userNameExists != null)
+                {
+                    response.HasError = true;
+                    response.Errors.Add($"Este nombre de usuario ({dto.UserName}) ya está en uso.");
+                    return response;
+                }
+
+                AppUser user = new()
+                {
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Email = dto.Email,
+                    UserName = dto.UserName,
+                    EmailConfirmed = false,
+                    Dni = dto.Dni,
+                    PhoneNumber = dto.Phone,
+                    Photo = dto.Photo
+                };
+
+                var dtoRole = dto.Roles?.First();
+                if (dtoRole == null)
+                {
+                    response.HasError = true;
+                    response.Errors.Add("El rol es requerido.");
+                    return response;
+                }
+
+                switch (dtoRole.ToLower())
+                {
+                    case "client":
+                        user.IsActive = false;
+                        user.EmailConfirmed = false;
+                        break;
+
+                    case "agent":
+                        user.IsActive = false;
+                        user.EmailConfirmed = true;
+                        break;
+
+                    case "admin":
+                    case "developer":
+                        user.IsActive = true;
+                        user.EmailConfirmed = true;
+                        break;
+                }
+
+                var result = await _userManager.CreateAsync(user, dto.Password);
+
+                if (!result.Succeeded)
+                {
+                    response.HasError = true;
+                    response.Errors.AddRange(result.Errors.Select(err => err.Description));
+                    return response;
+                }
+
+                await _userManager.AddToRoleAsync(user, dtoRole.ToUpper());
+
+                if (dtoRole.ToLower() == "client" && origin != null)
+                {
+                    string confirmationUrl = await GetVerificationEmailUri(user, origin);
+                    string emailHtml = GetEmailTemplate(user.FirstName, confirmationUrl);
+
+                    await _emailService.SendAsync(new EmailRequestDto
+                    {
+                        To = dto.Email,
+                        Subject = "Confirma tu cuenta – RealStateApp",
+                        BodyHtml = emailHtml
+                    });
+                }
+
+                response = _mapper.Map<RegisterUserResponseDto>(user);
+                response.Roles = new List<string> { dtoRole.ToUpper() };
+                
+                return response;
             }
-
-            response.Id = user.Id;
-            response.Email = user.Email!;
-            response.FirstName = user.FirstName;
-            response.LastName = user.LastName;
-            response.UserName = user.UserName!;
-            response.IsVerified = user.EmailConfirmed;
-            response.Roles?.Add(dtoRole.ToUpper());
-
-            return response;
+            catch (Exception ex)
+            {
+                response.HasError = true;
+                response.Errors ??= new List<string>();
+                response.Errors.Add($"Error interno: {ex.Message}");
+                return response;
+            }
         }
         public virtual async Task<EditUserResponseDto> EditUser(SaveUserDto saveDto, bool? isCreated = false)
         {
@@ -205,7 +224,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
         public virtual async Task<UserResponseDto> DeleteAsync(string id)
         {
-            UserResponseDto response = new() { HasError = false, Errors = [] };
+            UserResponseDto response = new() { HasError = false, Errors = new List<string>() };
 
             var user = await _userManager.FindByIdAsync(id);
 
@@ -219,8 +238,6 @@ namespace RealStateApp.Infraestructure.Identity.Services
             await _userManager.DeleteAsync(user);
             return response;
         }
-
-
 
         protected async Task<string> GetVerificationEmailUri(AppUser user, string origin)
         {
@@ -236,8 +253,6 @@ namespace RealStateApp.Infraestructure.Identity.Services
             return verificationUri;
         }
 
-
-
         protected async Task<string> GetResetPasswordUri(AppUser user, string origin)
         {
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -251,8 +266,6 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
             return resetUri;
         }
-
-
 
         private string GetEmailTemplate(string name, string url)
         {

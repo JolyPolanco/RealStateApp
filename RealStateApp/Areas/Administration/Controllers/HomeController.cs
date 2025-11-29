@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Application.ViewModels.Dashboards;
@@ -8,6 +9,8 @@ namespace RealStateApp.Areas.Administration.Controllers
 {
 
     [Area("Administration")]
+    [Authorize(Roles = "ADMIN")]
+
     public class HomeController : Controller
     {
         private IDashboardService _dashboardService;

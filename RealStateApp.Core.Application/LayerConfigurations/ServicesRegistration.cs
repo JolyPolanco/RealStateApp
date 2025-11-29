@@ -12,7 +12,7 @@ namespace RealStateApp.Core.Application.LayerConfigurations
 
         public static void AddApplicationLayerIOC(this IServiceCollection services)
         {
-            services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
+            services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
 
             services.AddScoped<IPropertyService, PropertyService>();
@@ -21,6 +21,7 @@ namespace RealStateApp.Core.Application.LayerConfigurations
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IAdministrationService, AdministrationService>();
             services.AddScoped<IImpromentService, ImprovementService>();
+            services.AddScoped<ISaleTypeService, SaleTypeService>();
 
         }
     }

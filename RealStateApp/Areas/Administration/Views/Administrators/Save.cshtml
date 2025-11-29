@@ -2,57 +2,118 @@
 @model SaveBasicUserViewModel
 
 @{
-    Layout = "_AdminLayout";
-  
+    Layout = "_Layout";
+
     bool isEdit = !string.IsNullOrEmpty(Model.Id);
     string title = isEdit ? "Editar Administrador" : "Crear Administrador";
 }
 
-<div class="container mt-5" style="max-width: 600px;">
-    <h3 class="mb-4 text-muted fw-light">@title</h3>
+<div class="container d-flex justify-content-center mt-5 mb-5">
+    <div class="form-card shadow-lg p-4 rounded-4">
 
-    <form asp-action="@(isEdit ? "Edit" : "Create")" method="post" asp-controller="Administrators">
-        <div class="mb-3">
-            <label class="form-label">Nombre</label>
-            <input asp-for="FirstName" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Apellido</label>
-            <input asp-for="LastName" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Cédula</label>
-            <input asp-for="Dni" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Correo</label>
-            <input asp-for="Email" type="email" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Usuario</label>
-            <input asp-for="UserName" class="form-control" required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Contraseña</label>
-            <input asp-for="Password" type="password" class="form-control" @(isEdit ? "" : "required") />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Confirmar Contraseña</label>
-            <input asp-for="ConfirmPassword" type="password" class="form-control" @(isEdit ? "" : "required") />
-        </div>
+        <h3 class="mb-4 text-center text-secondary fw-light">@title</h3>
 
-        <div class="d-flex justify-content-between mt-4">
-            <a asp-action="Index" class="btn btn-outline-secondary px-4">Volver</a>
-            <button type="submit" class="btn btn-primary px-4">@(isEdit ? "Guardar" : "Crear")</button>
-        </div>
-    </form>
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger error-card shadow-sm" style="border-radius: 0.75rem;">
+                <strong>Error:</strong> @ViewBag.ErrorMessage
+            </div>
+        }
+
+        <form asp-action="@(isEdit ? "Edit" : "Create")"
+              asp-controller="Administrators"
+              asp-area="Administration"
+              method="post">
+
+            <input asp-for="Id" type="hidden" />
+
+            <!-- RESUMEN DE VALIDACIÓN -->
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="FirstName" class="form-label fw-semibold"></label>
+                    <input asp-for="FirstName" class="form-control input-soft" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LastName" class="form-label fw-semibold"></label>
+                    <input asp-for="LastName" class="form-control input-soft" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Dni" class="form-label fw-semibold"></label>
+                <input asp-for="Dni" class="form-control input-soft" />
+                <span asp-validation-for="Dni" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label fw-semibold"></label>
+                <input asp-for="Email" class="form-control input-soft" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label fw-semibold"></label>
+                <input asp-for="UserName" class="form-control input-soft" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+
+            <!-- PASSWORD SIEMPRE REQUERIDO -->
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label fw-semibold"></label>
+                <input asp-for="Password" type="password" class="form-control input-soft" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control input-soft" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">Volver</a>
+                <button type="submit" class="btn btn-primary px-4 rounded-3 shadow-sm">
+                    @(isEdit ? "Guardar" : "Crear")
+                </button>
+            </div>
+
+        </form>
+    </div>
 </div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).on("input", "input", function () {
+            $(".error-card").fadeOut();
+        });
+    </script>
+}
+
 <style>
-    .container form {
-        background-color: #ffffff;
-        padding: 2rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    .form-card {
+        width: 100%;
+        max-width: 550px;
+        background: #ffffff;
+        border-radius: 1rem;
+        border: 1px solid #e7e7e7;
     }
+
+    .input-soft {
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        border: 1px solid #d9d9d9;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .input-soft:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.20);
+        }
 </style>

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RealStateApp.Core.Domain.Entities;
 namespace RealStateApp.Core.Application.Dtos.Properties
 {
     public class PropertyDto
@@ -25,7 +24,6 @@ namespace RealStateApp.Core.Application.Dtos.Properties
             public required string AgentId { get; set; }
 
             public PropertyType PropertyType { get; set; } = null!;
-            public SaleType SaleType { get; set; } = null!;
 
           
         }

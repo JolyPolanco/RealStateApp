@@ -24,38 +24,30 @@ namespace RealStateApp.Infraestructure.Shared.Services
         }
         public async Task SendAsync(EmailRequestDto request)
         {
-            try
+            request.ToRange?.Add(request.To ?? "");
+            MimeMessage email = new MimeMessage()
             {
-                request.ToRange?.Add(request.To ?? "");
-                MimeMessage email = new MimeMessage()
-                {
-                    Sender = MailboxAddress.Parse(_settings.EmailFrom),
-                    Subject = request.Subject
-                };
-                foreach (var toItem in request.ToRange ?? [])
-                {
-                    email.To.Add(MailboxAddress.Parse(toItem));
-
-                }
-
-                BodyBuilder builder = new BodyBuilder()
-                {
-                    HtmlBody = request.BodyHtml
-                };
-                email.Body = builder.ToMessageBody();
-
-                using MailKit.Net.Smtp.SmtpClient smtpClient = new();
-                await smtpClient.ConnectAsync(_settings.SmptHost, _settings.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
-                await smtpClient.AuthenticateAsync(_settings.SmtpUser, _settings.SmtpPass);
-                await smtpClient.SendAsync(email);
-                await smtpClient.DisconnectAsync(true);
-
+                Sender = MailboxAddress.Parse(_settings.EmailFrom),
+                Subject = request.Subject
+            };
+            foreach (var toItem in request.ToRange ?? [])
+            {
+                email.To.Add(MailboxAddress.Parse(toItem));
 
             }
-            catch (Exception ex) 
-            {
 
-            }
+            BodyBuilder builder = new BodyBuilder()
+            {
+                HtmlBody = request.BodyHtml
+            };
+            email.Body = builder.ToMessageBody();
+
+            using MailKit.Net.Smtp.SmtpClient smtpClient = new();
+            smtpClient.CheckCertificateRevocation = false;
+            await smtpClient.ConnectAsync(_settings.SmptHost, _settings.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
+            await smtpClient.AuthenticateAsync(_settings.SmtpUser, _settings.SmtpPass);
+            await smtpClient.SendAsync(email);
+            await smtpClient.DisconnectAsync(true);
         }
     }
 }

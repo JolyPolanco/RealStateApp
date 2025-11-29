@@ -9,10 +9,11 @@
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
         public required string Dni { get; set; }
-        public  string ?Photo { get; set; }
+        public string? Photo { get; set; }
+        public string? Phone { get; set; }
+        public string? ConfirmPassword { get; set; }
 
-        public List<string>? Roles { get; set; }
-
+        public List<string> Roles { get; set; } = new List<string>();
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using RealStateApp.Core.Application.Dtos.Login;
@@ -20,11 +21,13 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IEmailService _emailService;
 
-        public AccountServiceForWebApp(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager) : base(userManager, emailService, signInManager)
+        public AccountServiceForWebApp(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager, IMapper mapper) : base(userManager, emailService, signInManager, mapper)
         {
             _userManager = userManager;
-            _signInManager=signInManager;
+            _signInManager = signInManager;
+            _emailService = emailService;
         }
         public virtual async Task<UserResponseDto> ConfirmAccountAsync(string token, string? userId = null)
         {
@@ -84,12 +87,25 @@ namespace RealStateApp.Infraestructure.Identity.Services
         public async Task<LoginResponseDto> AuthenticateAsync(LoginDto loginDto)
         {
 
-            LoginResponseDto responseDto = new LoginResponseDto() { Email = "", Id = "", UserName = "", HasError = false };
+            LoginResponseDto responseDto = new LoginResponseDto() 
+            { 
+                HasError = false,
+                Id = string.Empty,
+                Email = string.Empty,
+                UserName = string.Empty
+            };
+            
+            // Intentar buscar por nombre de usuario primero, luego por email
             var user = await _userManager.FindByNameAsync(loginDto.Username);
             if (user == null)
             {
+                user = await _userManager.FindByEmailAsync(loginDto.Username);
+            }
+            
+            if (user == null)
+            {
                 responseDto.HasError = true;
-                responseDto.Error = $"No hay ningún usuario con el nombre de usuario {loginDto.Username}";
+                responseDto.Error = $"No hay ningún usuario con el nombre de usuario o correo {loginDto.Username}";
                 return responseDto;
             }
 
@@ -117,11 +133,9 @@ namespace RealStateApp.Infraestructure.Identity.Services
                 return responseDto;
 
             }
+            
+            responseDto = _mapper.Map<LoginResponseDto>(user);
             var rolesList = await _userManager.GetRolesAsync(user);
-            responseDto.Id = user.Id;
-            responseDto.UserName = user.UserName ?? "";
-            responseDto.Email = user.Email ?? "";
-            responseDto.IsVerified = user.EmailConfirmed && user.IsActive;
             responseDto.Roles = rolesList.ToList();
 
 
@@ -161,7 +175,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
         {
 
             var user = await _userManager.Users
-                .Where(r => r.Id.Replace("-", "").Replace(" ", "") == id)
+                .Where(r => r.Id == id)
                 .FirstOrDefaultAsync();
 
             if (user == null)
@@ -188,5 +202,96 @@ namespace RealStateApp.Infraestructure.Identity.Services
             return userDto;
         }
     
-}
+
+
+
+        public async Task<UserResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto dto)
+        {
+            UserResponseDto response = new()
+            {
+                HasError = false,
+                Errors = new List<string>()
+            };
+
+            var user = await _userManager.FindByNameAsync(dto.Username);
+            if (user == null)
+            {
+                response.HasError = true;
+                response.Errors.Add($"No existe ningún usuario con el nombre de usuario {dto.Username}");
+                return response;
+            }
+
+            if (!user.EmailConfirmed || !user.IsActive)
+            {
+                response.HasError = true;
+                response.Errors.Add("Esta cuenta no está activa o no ha sido confirmada");
+                return response;
+            }
+
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetToken));
+
+            var resetUrl = $"{dto.Origin}/Login/ResetPassword?userId={user.Id}&token={encodedToken}";
+
+            await _emailService.SendAsync(new Core.Application.Dtos.Email.EmailRequestDto
+            {
+                To = user.Email,
+                Subject = "Restablecer Contraseña - Real State App",
+                BodyHtml = $@"
+                    <h2>Restablecer Contraseña</h2>
+                    <p>Hola {user.FirstName},</p>
+                    <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para continuar:</p>
+                    <p><a href='{resetUrl}' style='background-color: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>Restablecer Contraseña</a></p>
+                    <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
+                    <p>Este enlace expirará en 12 horas.</p>
+                    <br/>
+                    <p>Saludos,<br/>El equipo de Real State App</p>"
+            });
+
+            response.Message = "Se ha enviado un correo con las instrucciones para restablecer tu contraseña";
+            return response;
+        }
+
+        public async Task<UserResponseDto> ResetPasswordAsync(ResetPasswordRequestDto dto)
+        {
+            UserResponseDto response = new()
+            {
+                HasError = false,
+                Errors = new List<string>()
+            };
+
+            var user = await _userManager.FindByIdAsync(dto.Id);
+            if (user == null)
+            {
+                response.HasError = true;
+                response.Errors.Add("No existe ningún usuario asociado a esta solicitud");
+                return response;
+            }
+
+            try
+            {
+                var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(dto.Token));
+                var result = await _userManager.ResetPasswordAsync(user, decodedToken, dto.Password);
+
+                if (result.Succeeded)
+                {
+                    response.Message = "Tu contraseña ha sido restablecida exitosamente";
+                    return response;
+                }
+
+                response.HasError = true;
+                foreach (var error in result.Errors)
+                {
+                    response.Errors.Add(error.Description);
+                }
+                return response;
+            }
+            catch
+            {
+                response.HasError = true;
+                response.Errors.Add("El token de restablecimiento es inválido o ha expirado");
+                return response;
+            }
+        }
+    }
 }

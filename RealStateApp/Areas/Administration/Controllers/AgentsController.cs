@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using RealStateApp.Core.Application.Interfaces;
@@ -7,6 +8,8 @@ using System.Collections.Generic;
 
 namespace RealStateApp.Areas.Administration.Controllers
 {
+    [Area("Administration")]
+    [Authorize(Roles = "ADMIN")]
     public class AgentsController : Controller
     {
         private readonly IAdministrationService _administrationService;
@@ -43,22 +46,20 @@ namespace RealStateApp.Areas.Administration.Controllers
         }
 
 
-        public async Task<IActionResult> Deactivate(string id)
+        public IActionResult Deactivate(string id)
         {
-            await _administrationService.ToogleState(id);
             ViewBag.IsActivateMode = false;
-            return View("ChangeState");
+            return View("ChangeState",id);
         }
-        public async Task<IActionResult> Activate(string id)
+        public  IActionResult Activate(string id)
         {
-            await _administrationService.ToogleState(id);
             ViewBag.IsActivateMode = true;
 
-            return View("ChangeState");
+            return View("ChangeState",id);
         }
 
         [HttpPost]
-        public async Task<IActionResult> ToogleState(string id)
+        public async Task<IActionResult> ToggleState(string id)
         {
             await _administrationService.ToogleState(id);
 

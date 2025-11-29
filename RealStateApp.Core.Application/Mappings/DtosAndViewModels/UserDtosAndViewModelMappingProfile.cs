@@ -17,6 +17,7 @@ namespace RealStateApp.Core.Application.Mappings.DtosAndViewModels
         {
             CreateMap<UserDto, UserViewModel>();
             CreateMap<SaveBasicUserViewModel, SaveUserDto>();
+            CreateMap<UserDto, SaveBasicUserViewModel>();
 
             CreateMap<AgentDto, AgentViewModel>();
 

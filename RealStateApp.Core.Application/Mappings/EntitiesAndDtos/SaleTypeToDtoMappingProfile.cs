@@ -14,7 +14,8 @@ namespace RealStateApp.Core.Application.Mappings.EntitiesAndDtos
         public SaleTypeToDtoMappingProfile()
         {
             CreateMap<SaleType, SaleTypeDto>()
-                .ForMember(dest => dest.PropertiesCount, opt => opt.MapFrom(src => src.Properties.Count()));
+                .ForMember(dest => dest.PropertiesCount, opt => opt.MapFrom(src => src.Properties.Count()))
+                .ReverseMap();
         }
     }
 }

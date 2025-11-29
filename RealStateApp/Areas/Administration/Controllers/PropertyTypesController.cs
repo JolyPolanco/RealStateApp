@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RealStateApp.Core.Application.Dtos.Properties;
 using RealStateApp.Core.Application.Interfaces;
@@ -7,6 +8,7 @@ using RealStateApp.Core.Application.ViewModels.Properties;
 namespace RealStateApp.Areas.Administration.Controllers
 {
     [Area("Administration")]
+    [Authorize(Roles = "ADMIN")]
     public class PropertyTypesController : Controller
     {
         private readonly IPropertyTypeService _propertyTypeService;
@@ -18,9 +20,9 @@ namespace RealStateApp.Areas.Administration.Controllers
             _mapper = mapper;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var types = _propertyTypeService.GetAllListWithInclude(new List<string> { "Properties" });
+            var types = await _propertyTypeService.GetAllListWithInclude(new List<string> { "Properties" });
             var vms = _mapper.Map<List<PropertyTypeViewModel>>(types);
             return View(vms);
         }
