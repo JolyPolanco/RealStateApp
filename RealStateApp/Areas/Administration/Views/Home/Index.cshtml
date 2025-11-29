@@ -1,3 +1,199 @@
-﻿@{
+﻿@using RealStateApp.Core.Application.ViewModels.Dashboards
+@model AdminDashboardViewModel
+
+@{
     Layout = "_AdminLayout";
 }
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-secondary fw-light">Dashboard </h2>
+
+    <div class="row g-4">
+        <!-- Propiedades Disponibles -->
+        <div class="col-md-3">
+            <div class="stat-card shadow-sm">
+                <div class="icon-circle bg-primary-light text-primary">
+                    <i class="bi bi-house-door-fill"></i>
+                </div>
+                <h5 class="stat-title">Propiedades Disponibles</h5>
+                <p class="stat-value">@Model.AvailablePropertiesCount</p>
+            </div>
+        </div>
+
+        <!-- Propiedades Vendidas -->
+        <div class="col-md-3">
+            <div class="stat-card shadow-sm">
+                <div class="icon-circle bg-success-light text-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <h5 class="stat-title">Propiedades Vendidas</h5>
+                <p class="stat-value">@Model.SoldPropertiesCount</p>
+            </div>
+        </div>
+
+        <!-- Agentes Activos -->
+        <div class="col-md-3">
+            <div class="stat-card shadow-sm">
+                <div class="icon-circle bg-info-light text-info">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <h5 class="stat-title">Agentes Activos</h5>
+                <p class="stat-value">@Model.ActiveAgentsCount</p>
+            </div>
+        </div>
+
+        <!-- Agentes Inactivos -->
+        <div class="col-md-3">
+            <div class="stat-card shadow-sm">
+                <div class="icon-circle bg-secondary-light text-secondary">
+                    <i class="bi bi-person-x-fill"></i>
+                </div>
+                <h5 class="stat-title">Agentes Inactivos</h5>
+                <p class="stat-value">@Model.InactiveAgentsCount</p>
+            </div>
+        </div>
+
+        <!-- Clientes Activos -->
+        <div class="col-md-3">
+            <div class="stat-card shadow-sm">
+                <div class="icon-circle bg-warning-light text-warning">
+                    <i class="bi bi-person-check-fill"></i>
+                </div>
+                <h5 class="stat-title">Clientes Activos</h5>
+                <p class="stat-value">@Model.ActiveClientsCount</p>
+            </div>
+        </div>
+
+        <!-- Clientes Inactivos -->
+        <div class="col-md-3">
+            <div class="stat-card shadow-sm">
+                <div class="icon-circle bg-danger-light text-danger">
+                    <i class="bi bi-person-dash-fill"></i>
+                </div>
+                <h5 class="stat-title">Clientes Inactivos</h5>
+                <p class="stat-value">@Model.InactiveClientsCount</p>
+            </div>
+        </div>
+
+        <!-- Desarrolladores Activos -->
+        <div class="col-md-3">
+            <div class="stat-card shadow-sm">
+                <div class="icon-circle bg-dark-light text-dark">
+                    <i class="bi bi-code-slash"></i>
+                </div>
+                <h5 class="stat-title">Desarrolladores Activos</h5>
+                <p class="stat-value">@Model.ActiveDevelopersCount</p>
+            </div>
+        </div>
+
+        <!-- Desarrolladores Inactivos -->
+        <div class="col-md-3">
+            <div class="stat-card shadow-sm">
+                <div class="icon-circle bg-light text-muted border">
+                    <i class="bi bi-slash-circle"></i>
+                </div>
+                <h5 class="stat-title">Desarrolladores Inactivos</h5>
+                <p class="stat-value">@Model.InactiveDevelopersCount</p>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    :root {
+        --primary: #2E86C1;
+        --primary-light: #D6EAF8;
+        --success-light: #D5F5E3;
+        --info-light: #D6EAF8;
+        --secondary-light: #F2F3F4;
+        --warning-light: #FCF3CF;
+        --danger-light: #FADBD8;
+        --dark-light: #E5E7E9;
+    }
+
+    /* Todas las columnas se mantienen proporcionales */
+    .col-md-4 {
+        display: flex;
+    }
+
+    .stat-card {
+        width: 100%;
+        background: #ffffff;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        transition: 0.3s ease;
+        /* Nuevo: centra el contenido */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+    .icon-circle {
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
+    }
+
+        .icon-circle i {
+            font-size: 2rem;
+            line-height: 1;
+            display: block;
+        }
+
+    .stat-title {
+        font-size: 1rem;
+        color: #6c757d;
+        margin: 0;
+    }
+
+    .stat-value {
+        font-size: 2.2rem;
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    /* Colores */
+    .bg-primary-light {
+        background: var(--primary-light);
+    }
+
+    .bg-success-light {
+        background: var(--success-light);
+    }
+
+    .bg-info-light {
+        background: var(--info-light);
+    }
+
+    .bg-secondary-light {
+        background: var(--secondary-light);
+    }
+
+    .bg-warning-light {
+        background: var(--warning-light);
+    }
+
+    .bg-danger-light {
+        background: var(--danger-light);
+    }
+
+    .bg-dark-light {
+        background: var(--dark-light);
+    }
+
+    /* Evitar scroll oculto en el contenedor */
+    .container {
+        overflow: visible;
+    }
+</style>

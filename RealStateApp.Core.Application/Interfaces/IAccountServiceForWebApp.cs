@@ -7,6 +7,8 @@ namespace RealStateApp.Core.Application.Interfaces
     {
         Task<LoginResponseDto> AuthenticateAsync(LoginDto dto);
         Task<UserResponseDto> ConfirmAccountAsync(string token, string? userId = null);
+        Task<UserDto?> GetById(string id);
+        Task<UserDto?> GetByUserName(string name);
         Task<UserResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto dto);
         Task<UserResponseDto> ResetPasswordAsync(ResetPasswordRequestDto dto);
         Task SignOutAsync();

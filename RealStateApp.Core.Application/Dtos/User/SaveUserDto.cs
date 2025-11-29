@@ -13,7 +13,7 @@
         public string? Phone { get; set; }
         public string? ConfirmPassword { get; set; }
 
-        public List<string>? Roles { get; set; }
+        public List<string> Roles { get; set; } = new List<string>();
 
     }
 }

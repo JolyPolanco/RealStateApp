@@ -191,6 +191,9 @@ namespace RealStateApp.Infraestructure.Identity.LayerConfigurations
 
             #region Services
             services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
+            services.AddScoped<IUserService, IdentityUserService>();
+
+
             #endregion
 
 
