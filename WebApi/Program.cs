@@ -4,6 +4,7 @@ using RealStateApp.Infraestructure.Identity.LayerConfigurations;
 using RealStateApp.Infraestructure.Persistence.LayerConfigurations;
 using RealStateApp.Infraestructure.Shared.LayerConfigurations;
 using RealStateWebApi.Extensions;
+using RealStateWebApi.Handlers;
 using System.Globalization;
 using WebApi.Extensions;
 
@@ -25,6 +26,7 @@ builder.Services.AddIdentityLayerForWebApi(builder.Configuration);
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHealthChecks();
+builder.Services.AddProblemDetails();
 
 
 
@@ -33,6 +35,7 @@ builder.Services.AddApiVersioningExtension();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler> ();
 
 var app = builder.Build();
 await app.Services.RunIdentitySeedAsync();
@@ -44,8 +47,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseExceptionHandler();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseHealthChecks("/health");
 app.MapControllers();
 
