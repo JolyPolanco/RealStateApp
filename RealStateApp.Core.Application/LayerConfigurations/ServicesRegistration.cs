@@ -2,8 +2,7 @@
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Application.Services;
 
-using System.Reflection;
-using System.Text;
+
 
 namespace RealStateApp.Core.Application.LayerConfigurations
 {
@@ -14,6 +13,20 @@ namespace RealStateApp.Core.Application.LayerConfigurations
         {
             services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+
+            services.AddScoped<IPropertyService, PropertyService>();
+            services.AddScoped<IPropertyTypeService, PropertyTypeService>();
+
+            services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<IAdministrationService, AdministrationService>();
+            services.AddScoped<IImpromentService, ImprovementService>();
+            services.AddScoped<ISaleTypeService, SaleTypeService>();
+
+
+            services.AddScoped<IFavoritePropertyService, FavoritePropertyService>();
+            services.AddScoped<IOfferService, OfferService>();
+            services.AddScoped<IHomeClienteService, HomeClientService>();
+            services.AddScoped<IMessageService, MessageService>();
         }
     }
 }

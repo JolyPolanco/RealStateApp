@@ -16,6 +16,9 @@ namespace RealStateApp.Core.Application.Services
             _mapper=mapper;
             _repo=repo;
         }
+
+
+
         public virtual async Task<EntityDto?> AddAsync(EntityDto entityDto)
         {
             try
@@ -33,7 +36,9 @@ namespace RealStateApp.Core.Application.Services
         }
 
 
-        public async Task DeleteAsync(int id)
+
+
+        public virtual async Task DeleteAsync(int id)
         {
             try
             {

@@ -1,0 +1,34 @@
+﻿@model string
+@{
+    Layout = "_Layout";
+
+    bool isActivateMode = ViewBag.IsActivateMode;
+    string name = ViewBag.UserName ?? "";
+    string headerText = isActivateMode ? "Activar Desarrollador" : "Desactivar Desarrollador";
+    string messageText = isActivateMode
+        ? $"¿Desea activar a {name}?"
+        : $"¿Desea desactivar a {name}?";
+}
+
+<div class="container d-flex justify-content-center align-items-center mt-5" style="min-height: 60vh;">
+    <div class="card border-0 shadow-sm p-4 text-center" style="max-width: 450px;">
+        <h4 class="mb-3 text-muted">@headerText</h4>
+        <p class="mb-4">@messageText</p>
+
+        <div class="d-flex justify-content-center gap-3">
+
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancelar</a>
+
+            <form method="post"
+                  asp-action="ChangeState"
+                  asp-route-id="@Model"
+                  asp-controller="Developers">
+                <button type="submit"
+                        class="btn btn-@(isActivateMode ? "success" : "warning") px-4">
+                    @(isActivateMode ? "Activar" : "Desactivar")
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,132 @@
+﻿@using RealStateApp.Core.Application.ViewModels.User
+@model List<UserViewModel>
+
+@{
+    Layout = "_AdminLayout";
+}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-light text-muted m-0">Desarrolladores Registrados</h2>
+
+        <a asp-controller="Developers"
+           asp-action="Create"
+           class="btn btn-primary px-4 rounded-3 shadow-sm">
+            <i class="bi bi-person-plus me-1"></i> Crear Desarrollador
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4" style="overflow:hidden;">
+
+        @* SI NO HAY REGISTROS *@
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-person-x fs-1 text-muted"></i>
+                <h5 class="text-muted mt-3">No hay desarrolladores registrados</h5>
+                <p class="text-secondary small">Use el botón “Crear Desarrollador” para agregar uno nuevo.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+
+                <table class="table mb-0 table-borderless custom-table">
+                    <thead class="bg-light text-muted text-uppercase small">
+                        <tr>
+                            <th class="ps-4">Nombre</th>
+                            <th>Apellido</th>
+                            <th>Correo</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var dev in Model)
+                        {
+                            <tr class="row-item">
+                                <td class="ps-4">@dev.FirstName</td>
+                                <td>@dev.LastName</td>
+                                <td>@dev.Email</td>
+
+                                <td>
+                                    <span class="badge @(dev.IsActive ? "bg-success" : "bg-danger") rounded-pill px-3">
+                                        @(dev.IsActive ? "Activo" : "Inactivo")
+                                    </span>
+                                </td>
+
+                                <td class="text-end pe-4">
+
+                                    <a asp-controller="Developers"
+                                       asp-action="@(dev.IsActive ? "Deactivate" : "Activate")"
+                                       asp-route-id="@dev.Id"
+                                       class="btn btn-sm @(dev.IsActive ? "btn-outline-danger" : "btn-outline-success") rounded-pill px-3 me-2">
+                                        <i class="bi @(dev.IsActive ? "bi-x-circle" : "bi-check-circle")"></i>
+                                        @(dev.IsActive ? "Desactivar" : "Activar")
+                                    </a>
+
+                                    <a asp-controller="Developers"
+                                       asp-action="Edit"
+                                       asp-route-id="@dev.Id"
+                                       class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    /* Tabla moderna */
+    .custom-table thead {
+        letter-spacing: .04em;
+        font-weight: 600;
+    }
+
+    /* Espaciado visual entre filas */
+    .custom-table tbody tr.row-item {
+        background: #ffffff;
+        transition: background 0.15s ease;
+        border-bottom: 8px solid #f4f6fa;
+    }
+
+        .custom-table tbody tr.row-item:hover {
+            background: #f8f9fc;
+        }
+
+    /* Altura mínima para mejorar estética */
+    .custom-table tbody tr td {
+        padding-top: 1.1rem;
+        padding-bottom: 1.1rem;
+    }
+
+    /* Redondeo superior de la tabla */
+    .custom-table thead tr th:first-child {
+        border-top-left-radius: 0.6rem;
+    }
+
+    .custom-table thead tr th:last-child {
+        border-top-right-radius: 0.6rem;
+    }
+
+    /* Botones más finos */
+    .btn-sm {
+        padding: 0.35rem 0.7rem;
+        font-size: .8rem;
+    }
+
+    /* Sombra de la card un poco más suave */
+    .card {
+        border-radius: 0.9rem !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+    }
+</style>

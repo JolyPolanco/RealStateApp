@@ -1,0 +1,664 @@
+﻿@model DetailsPropertyCompleteViewModel
+
+@{
+    Layout = "_ClientLayout";
+    ViewData["Title"] = "Detalle de la propiedad";
+}
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900">Detalle de la propiedad</h1>
+            <p class="text-sm text-gray-500 mt-1">Información completa, contacto con el agente, ofertas y chat.</p>
+        </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+
+                <div class="relative w-full h-72 md:h-96 bg-gray-100">
+                    @if (Model.DetailsPropertyViewModel.Images != null && Model.DetailsPropertyViewModel.Images.Any())
+                    {
+                        <div id="slides" class="relative w-full h-full">
+                            @for (int i = 0; i < Model.DetailsPropertyViewModel.Images.Count; i++)
+                            {
+                                var img = Model.DetailsPropertyViewModel.Images[i];
+                                <img data-index="@i" src="@img"
+                                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 @(i == 0 ? "" : "hidden")" />
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <img src="/images/placeholder-house.jpg" alt="No image" class="w-full h-full object-cover" />
+                    }
+
+
+                    <button id="prevBtn" class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow hover:bg-white">
+                        <svg class="h-5 w-5 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <button id="nextBtn" class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow hover:bg-white">
+                        <svg class="h-5 w-5 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+
+
+                    <div id="dots" class="absolute left-1/2 -translate-x-1/2 bottom-3 flex gap-2">
+                        @if (Model.DetailsPropertyViewModel.Images != null)
+                        {
+                            for (int d = 0; d < Model.DetailsPropertyViewModel.Images.Count; d++)
+                            {
+                                <button data-dot="@d" class="w-2 h-2 rounded-full bg-white/50"></button>
+                            }
+                        }
+                    </div>
+
+                    <div class="absolute left-4 top-4 bg-white/95 px-3 py-2 rounded-lg shadow">
+                        <div class="text-xs text-gray-600">Código</div>
+                        <div class="text-sm font-semibold">@Model.DetailsPropertyViewModel.Code</div>
+                    </div>
+                </div>
+
+
+                <div class="px-6 py-4">
+                    <div class="flex items-start justify-between gap-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">@Model.DetailsPropertyViewModel.PropertyType</h2>
+                            <p class="text-sm text-gray-500 mt-0.5">@Model.DetailsPropertyViewModel.SaleType</p>
+                        </div>
+
+                        <div class="text-right">
+                            <div class="text-xl md:text-2xl font-extrabold text-blue-600">RD$ @string.Format("{0:N2}", Model.DetailsPropertyViewModel.Price)</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 grid grid-cols-3 gap-4 text-sm text-gray-700">
+                        <div class="flex flex-col items-center bg-white shadow rounded-lg p-3">
+                            <span class="text-xs text-gray-500">Habitaciones</span>
+                            <div class="flex items-center gap-1 mt-1">
+                                <img src="~/Images/room.png" class="h-5 w-5 object-contain" />
+                                <span class="font-medium"> @Model.DetailsPropertyViewModel.Bedrooms </span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center bg-white shadow rounded-lg p-3">
+                            <span class="text-xs text-gray-500">Baños</span>
+                            <div class="flex items-center gap-1 mt-1">
+                                <img src="~/Images/bathroom.png" class="h-5 w-5 object-contain" />
+                                <span class="font-medium"> @Model.DetailsPropertyViewModel.Bathrooms </span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center bg-white shadow rounded-lg p-3">
+                            <span class="text-xs text-gray-500">Tamaño</span>
+                            <div class="flex items-center gap-1 mt-1">
+                                <img src="~/Images/modern-house.png" class="h-5 w-5 object-contain" />
+                                <span class="font-medium"> @Model.DetailsPropertyViewModel.SizeInMeters m²</span>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <hr class="my-4" />
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Descripción</h3>
+                        <p class="mt-2 text-gray-700">@Model.DetailsPropertyViewModel.Description</p>
+                    </div>
+
+                    <div class="mt-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Mejoras</h3>
+                        @if (Model.DetailsPropertyViewModel.Inproments != null && Model.DetailsPropertyViewModel.Inproments.Any())
+                        {
+                            <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach (var imp in Model.DetailsPropertyViewModel.Inproments)
+                                {
+                                    <div class="bg-white shadow rounded-lg p-3 hover:shadow-lg transition-shadow">
+                                        <span class="text-gray-700">@imp</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="mt-2 text-gray-500">No hay mejoras registradas.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <aside class="space-y-6">
+
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Mis ofertas</h3>
+
+                    <button id="open-offer-modal"
+                            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white"
+                            style="background-color: @(Model.DesableButtonOffer ? "#9CA3AF" : "#2563EB")"
+                            @(Model.DesableButtonOffer ? "disabled" : "")>
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16M4 12h16" /></svg>
+                        Nueva oferta
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    @if (Model.DataListOffer != null && Model.DataListOffer.Any())
+                    {
+                        <ul class="space-y-3">
+                            @foreach (var offer in Model.DataListOffer)
+                            {
+                                <li class="border rounded-lg p-3 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm text-gray-600">@offer.Date.ToString("dd MMM yyyy")</div>
+                                        <div class="text-base font-medium">RD$ @string.Format("{0:N2}", offer.Amount)</div>
+                                        <div class="text-sm mt-1">
+                                            @if (offer.Status == OfferStatus.Pending)
+                                            {
+                                                <span class="px-2 py-1 rounded text-yellow-800 bg-yellow-100">Pendiente</span>
+                                            }
+                                            else if (offer.Status == OfferStatus.Accepted)
+                                            {
+                                                <span class="px-2 py-1 rounded text-green-800 bg-green-100">Aceptada</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="px-2 py-1 rounded text-red-800 bg-red-100">Rechazada</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-500">#@offer.Id</div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="text-sm text-gray-500">No has realizado ofertas para esta propiedad.</div>
+                    }
+                </div>
+            </div>
+
+
+
+
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Mensajes</h3>
+                    <span class="text-sm text-gray-500">Conversación con el agente</span>
+                </div>
+
+                <div id="chat-messages" class="p-3 flex-1 overflow-auto max-h-40">
+                    @await Html.PartialAsync(
+                    "NewMessagePartial",
+                                        Model.DataConversactionList,
+                                        new ViewDataDictionary(ViewData) { { "CurrentUserId", Model.CreateMessageViewModel.SenderUserId } }
+                                        )
+                </div>
+            </div>
+
+
+            <div class="bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-lg p-6 flex flex-col gap-4">
+
+                <div class="flex justify-center">
+                    <img src="@(string.IsNullOrWhiteSpace(Model.DetailsPropertyViewModel.UrlImage) ? "/images/avatar-placeholder.png" : Model.DetailsPropertyViewModel.UrlImage)"
+                         class="w-24 h-24 rounded-full object-cover border-4 border-indigo-100 shadow-md" />
+                </div>
+
+
+                <div class="text-center">
+                    <div class="text-sm text-gray-500">Agente</div>
+                    <div class="text-xl font-bold text-gray-900">@Model.DetailsPropertyViewModel.Name</div>
+                </div>
+
+
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-2 text-gray-700">
+                        <svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12h2a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4 0H6a2 2 0 00-2 2v4a2 2 0 002 2h6m4 0v4a2 2 0 01-2 2h-4a2 2 0 01-2-2v-4" />
+                        </svg>
+                        <span class="font-medium">@Model.DetailsPropertyViewModel.Email</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-gray-700">
+                        <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h18v14H3V5z" />
+                        </svg>
+                        <span class="font-medium">@Model.DetailsPropertyViewModel.PhoneNumber</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-gray-700">
+                        <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 15.46l-5.27-.61a1 1 0 00-1 .27l-2.2 2.2a16.06 16.06 0 01-7.2-7.2l2.2-2.2a1 1 0 00.27-1L8.54 3H3a1 1 0 00-1 1 19 19 0 0019 19 1 1 0 001-1v-5.46z" />
+                        </svg>
+                        <span class="font-medium">@Model.DetailsPropertyViewModel.PhoneNumber (WhatsApp)</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex justify-center">
+                    <button id="open-chat-btn"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-lg transition">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.97-4.03 9-9 9a8.96 8.96 0 01-4.95-1.46L3 21l1.46-3.06A8.96 8.96 0 013 12c0-4.97 4.03-9 9-9s9 4.03 9 9z" />
+                        </svg>
+                        Mensajes
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="bg-white rounded-lg shadow p-4 text-sm text-gray-600">
+                <div><strong>Ubicación:</strong> @Model.DetailsPropertyViewModel.Name</div>
+                <div class="mt-2"><strong>Código:</strong> @Model.DetailsPropertyViewModel.Code</div>
+            </div>
+        </aside>
+    </div>
+</section>
+
+
+<div id="offer-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4 transition-opacity duration-300">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl transform transition-transform duration-300 scale-95">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-semibold text-gray-800">Enviar Oferta</h3>
+            <button id="close-offer" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="mb-4 rounded-md bg-yellow-50 border border-yellow-200 p-4 flex justify-between items-center" id="error-message">
+                <p class="text-yellow-800 font-medium">@TempData["Error"]</p>
+                <button onclick="this.parentElement.remove()" class="text-yellow-800 font-bold">&times;</button>
+            </div>
+        }
+
+
+        <form asp-action="CreateOffer" asp-controller="Offer" asp-area="Clients" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@Model.DetailsPropertyViewModel.Id" />
+            <input type="hidden" name="ClientId" value="@Model.CreateOfferViewModel.ClientId" />
+            <input type="hidden" name="Date" value="@Model.CreateOfferViewModel.Date" />
+
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Monto (RD$)</label>
+                <input name="Amount"
+                       type="text"
+                       value="@Model.CreateOfferViewModel.Amount"
+                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 placeholder-gray-400"
+                       placeholder="Ej: 100000" />
+                <span class="text-red-500 text-sm mt-1 block" id="amount-error"></span>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button type="button" id="cancel-offer" class="px-5 py-2 rounded-lg border hover:bg-gray-100 transition">Cancelar</button>
+                <button type="submit" class="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+                        @(Model.CreateOfferViewModel.DisableButton ? "disabled" : "")>
+                    Enviar oferta
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<div id="chat-panel" class="fixed z-50 right-6 bottom-6 w-80 md:w-96 bg-white rounded-lg shadow-lg hidden flex-col overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-2 border-b">
+        <div class="flex items-center gap-3">
+            <img src="@(string.IsNullOrWhiteSpace(Model.DetailsPropertyViewModel.UrlImage) ? "/images/avatar-placeholder.png" : Model.DetailsPropertyViewModel.UrlImage)" class="w-8 h-8 rounded-full object-cover" />
+            <div>
+                <div class="text-sm font-semibold">@Model.DetailsPropertyViewModel.Name</div>
+                <div class="text-xs text-gray-500">Agente</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="close-chat" class="text-gray-500 hover:text-gray-700">Cerrar</button>
+        </div>
+    </div>
+
+    <div class="p-3 flex-1 overflow-auto" style="max-height:320px;">
+        @if (Model.DataConversactionList != null && Model.DataConversactionList.Any())
+        {
+            foreach (var msg in Model.DataConversactionList.OrderBy(m => m.Date))
+            {
+                var mine = msg.SenderUserId == Model.CreateMessageViewModel.SenderUserId;
+
+                <div class="mb-3 flex @(mine ? "justify-end" : "justify-start")">
+                    <div class="px-3 py-2 rounded-lg text-sm @(mine ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-800")">
+                        <div>@msg.Content</div>
+                        <div class="text-xs text-gray-200 mt-1">@msg.Date.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-sm text-gray-500">No hay mensajes todavía.</div>
+        }
+
+    </div>
+
+    <div class="p-3 border-t">
+        <form id="formMessage"
+              asp-action="CreateMensagge"
+              asp-controller="Menssage"
+              asp-area="Clients"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="PropertyId" value="@Model.DetailsPropertyViewModel.Id" />
+            <input type="hidden" name="SenderUserId" value="@Model.CreateMessageViewModel.SenderUserId" />
+            <input type="hidden" name="ReceiverUserId" value="@Model.DetailsPropertyViewModel.AgentId" />
+            <input type="hidden" name="Date" value="@Model.CreateMessageViewModel.Date" />
+
+            <textarea name="Content"
+                      rows="2"
+                      class="w-full px-3 py-2 border rounded-lg"
+                      placeholder="Escribe tu mensaje..."></textarea>
+
+            <span id="errorMessage" class="text-red-500 text-sm"></span>
+            <span id="msgError" class="text-red-500 text-sm"></span>
+
+
+            <button type="submit"
+                    class="px-3 py-2 bg-indigo-600 text-white rounded-lg">
+                Enviar
+            </button>
+        </form>
+
+
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        (function () {
+            const slides = document.querySelectorAll('#slides img');
+            if (!slides || slides.length === 0) return;
+
+            let idx = 0;
+            const show = (i) => {
+                slides.forEach((s, si) => {
+                    s.classList.toggle('block', si === i);
+                    s.classList.toggle('hidden', si !== i);
+                });
+                document.querySelectorAll('#dots button')?.forEach(b => b.classList.remove('bg-white'));
+                const btn = document.querySelector('#dots button[data-dot="' + i + '"]');
+                if (btn) btn.classList.add('bg-white');
+            };
+
+            document.getElementById('prevBtn')?.addEventListener('click', () => {
+                idx = (idx - 1 + slides.length) % slides.length;
+                show(idx);
+            });
+            document.getElementById('nextBtn')?.addEventListener('click', () => {
+                idx = (idx + 1) % slides.length;
+                show(idx);
+            });
+
+            document.querySelectorAll('#dots button')?.forEach(b => {
+                b.addEventListener('click', (e) => {
+                    idx = parseInt(e.currentTarget.getAttribute('data-dot'));
+                    show(idx);
+                });
+            });
+
+            show(0);
+        })();
+
+        const offerModal = document.getElementById('offer-modal');
+        document.getElementById('open-offer-modal')?.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (this.hasAttribute('disabled')) return;
+            offerModal.classList.remove('hidden');
+            offerModal.classList.add('flex');
+        });
+
+        const closeOffer = () => {
+            offerModal.classList.add('hidden');
+            offerModal.classList.remove('flex');
+        };
+
+        document.getElementById('close-offer')?.addEventListener('click', closeOffer);
+        document.getElementById('cancel-offer')?.addEventListener('click', closeOffer);
+
+        const offerForm = document.querySelector('#offer-modal form');
+
+        offerForm.addEventListener('submit', async function(e){
+            e.preventDefault();
+
+            const formData = new FormData(offerForm);
+
+            try {
+                const response = await fetch(offerForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': formData.get('__RequestVerificationToken')
+                    }
+                });
+
+                const result = await response.json();
+
+                if(result.success){
+
+                    window.location.href = result.redirectUrl;
+                } else {
+
+                    let errorDiv = document.getElementById('error-message');
+                    if(!errorDiv){
+                        errorDiv = document.createElement('div');
+                        errorDiv.id = 'error-message';
+                        errorDiv.className = 'mb-4 rounded-md bg-yellow-50 border border-yellow-200 p-4 flex justify-between items-center';
+                        offerForm.prepend(errorDiv);
+                    }
+                    errorDiv.innerHTML = `
+                        <p class="text-yellow-800 font-medium">${result.message}</p>
+                        <button onclick="this.parentElement.remove()" class="text-yellow-800 font-bold">&times;</button>
+                    `;
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Ocurrió un error inesperado, intenta nuevamente.");
+            }
+        });
+
+
+
+        //model del mensaje
+
+                    const chatPanel = document.getElementById('chat-panel');
+
+
+        document.getElementById('open-chat-btn')?.addEventListener('click', function () {
+            chatPanel.classList.remove('hidden');
+            const chatContainer = chatPanel.querySelector('.p-3.flex-1');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+
+
+        document.getElementById('close-chat')?.addEventListener('click', function () {
+            chatPanel.classList.add('hidden');
+        });
+
+
+        document.getElementById("formMessage").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const form = new FormData(this);
+            const content = form.get("Content")?.trim();
+
+            if (!content) {
+                document.getElementById("msgError").innerText = "Debes escribir un mensaje válido antes de enviarlo.";
+                return;
+            }
+
+            try {
+                const response = await fetch(this.action, {
+                    method: "POST",
+                    body: form,
+                    headers: {
+                        "RequestVerificationToken": form.get("__RequestVerificationToken")
+                    }
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    document.getElementById("msgError").innerText = result.message;
+                    return;
+                }
+
+
+                const chatContainer = chatPanel.querySelector('.p-3.flex-1');
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'mb-3 flex justify-end';
+                msgDiv.innerHTML = `
+                    <div class="px-3 py-2 rounded-lg text-sm bg-blue-600 text-white">
+                        <div>${content}</div>
+                        <div class="text-xs text-gray-200 mt-1">${new Date().toLocaleString()}</div>
+                    </div>
+                `;
+                chatContainer.appendChild(msgDiv);
+
+
+                this.querySelector('textarea[name="Content"]').value = '';
+
+
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+
+                document.getElementById("msgError").innerText = "";
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById("msgError").innerText = "Ocurrió un error inesperado, intenta nuevamente.";
+            }
+        });
+
+        //
+
+
+                const chatContainer = document.getElementById('chat-messages');
+        const propertyId = '@Model.DetailsPropertyViewModel.Id';
+        const agentId = '@Model.DetailsPropertyViewModel.AgentId';
+        const currentUserId = '@Model.CreateMessageViewModel.SenderUserId';
+
+
+        async function updateChat() {
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const res = await fetch('/Clients/Message/PartialMessages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        propertyId: propertyId,
+                        agentId: agentId,
+                        __RequestVerificationToken: token
+                    })
+                });
+
+                const html = await res.text();
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+
+
+                tempDiv.querySelectorAll('[data-id]').forEach(msg => {
+                    if (!chatContainer.querySelector(`[data-id="${msg.dataset.id}"]`)) {
+                        chatContainer.appendChild(msg);
+                    }
+                });
+
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+
+        setInterval(updateChat, 5000);
+
+
+        document.getElementById("formMessage").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const form = new FormData(this);
+            const content = form.get("Content")?.trim();
+
+            if (!content) {
+                document.getElementById("msgError").innerText = "Debes escribir un mensaje válido antes de enviarlo.";
+                return;
+            }
+
+            try {
+                const response = await fetch(this.action, {
+                    method: "POST",
+                    body: form,
+                    headers: {
+                        "RequestVerificationToken": form.get("__RequestVerificationToken")
+                    }
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    document.getElementById("msgError").innerText = result.message;
+                    return;
+                }
+
+
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'mb-3 flex justify-end';
+                msgDiv.dataset.id = result.messageId;
+                msgDiv.innerHTML = `
+                    <div class="px-3 py-2 rounded-lg text-sm bg-blue-600 text-white">
+                        <div>${content}</div>
+                        <div class="text-xs text-gray-200 mt-1">${new Date().toLocaleString()}</div>
+                    </div>
+                `;
+                chatContainer.appendChild(msgDiv);
+
+                this.querySelector('textarea[name="Content"]').value = '';
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                document.getElementById("msgError").innerText = "";
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById("msgError").innerText = "Ocurrió un error inesperado, intenta nuevamente.";
+            }
+        });
+
+        // Scroll automático al cargar
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    </script>
+}
+
+
+
+<style>
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+
+
+
+

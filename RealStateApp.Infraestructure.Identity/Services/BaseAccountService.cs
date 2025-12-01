@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using RealStateApp.Core.Application.Dtos.Email;
 using RealStateApp.Core.Application.Dtos.User;
 using RealStateApp.Core.Application.Interfaces;
@@ -128,6 +129,97 @@ namespace RealStateApp.Infraestructure.Identity.Services
                 response.Errors.Add($"Error interno: {ex.Message}");
                 return response;
             }
+        }
+        public virtual async Task<EditUserResponseDto> EditUser(SaveUserDto saveDto, bool? isCreated = false)
+        {
+            bool isNotCreated = !(isCreated ?? false);
+
+            EditUserResponseDto response = new()
+            {
+                Email = "",
+                Id = "",
+                LastName = "",
+                Name = "",
+                UserName = "",
+                HasError = false,
+                Dni = "",
+                IsVerified = true,
+                Errors = []
+            };
+
+            // Validación de username duplicado
+            var userWithSameUserName = await _userManager.Users
+                .FirstOrDefaultAsync(w => w.UserName == saveDto.UserName && w.Id != saveDto.Id);
+
+            if (userWithSameUserName != null)
+            {
+                response.HasError = true;
+                response.Errors.Add($"The username '{saveDto.UserName}' is already taken.");
+                return response;
+            }
+
+            // Validación de email duplicado
+            var userWithSameEmail = await _userManager.Users
+                .FirstOrDefaultAsync(w => w.Email == saveDto.Email && w.Id != saveDto.Id);
+
+            if (userWithSameEmail != null)
+            {
+                response.HasError = true;
+                response.Errors.Add($"The email '{saveDto.Email}' is already taken.");
+                return response;
+            }
+
+            var user = await _userManager.FindByIdAsync(saveDto.Id ?? "");
+
+            if (user == null)
+            {
+                response.HasError = true;
+                response.Errors.Add("No account was found with this user ID.");
+                return response;
+            }
+
+            user.FirstName = saveDto.FirstName;
+            user.LastName = saveDto.LastName;
+            user.UserName = saveDto.UserName;
+            user.Email = saveDto.Email;
+            user.Dni = saveDto.Dni;
+
+            if (saveDto.Photo != null)
+            {
+                user.Photo = saveDto.Photo;
+
+            }
+
+            if (!string.IsNullOrWhiteSpace(saveDto.Password) && isNotCreated)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var resultChange = await _userManager.ResetPasswordAsync(user, token, saveDto.Password);
+
+                if (resultChange != null && !resultChange.Succeeded)
+                {
+                    response.HasError = true;
+                    response.Errors.AddRange(resultChange.Errors.Select(s => s.Description).ToList());
+                    return response;
+                }
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                response.HasError = true;
+                response.Errors.AddRange(result.Errors.Select(s => s.Description).ToList());
+                return response;
+            }
+
+
+            response.Id = user.Id;
+            response.Email = user.Email ?? "";
+            response.UserName = user.UserName ?? "";
+            response.Name = user.FirstName;
+            response.LastName = user.LastName;
+            response.IsVerified = user.EmailConfirmed;
+            return response;
         }
 
         public virtual async Task<UserResponseDto> DeleteAsync(string id)
