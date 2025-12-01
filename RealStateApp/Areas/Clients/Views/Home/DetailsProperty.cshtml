@@ -281,7 +281,7 @@
         <form asp-action="CreateOffer" asp-controller="Offer" asp-area="Clients" method="post" novalidate>
             @Html.AntiForgeryToken()
             <input type="hidden" name="Id" value="@Model.DetailsPropertyViewModel.Id" />
-            <input type="hidden" name="ClientId" value="@Model.CreateOfferViewModel.ClientId" />
+            <input type="hidden" name="ClientId" value="@Model.CreateOfferViewModel!.ClientId" />
             <input type="hidden" name="Date" value="@Model.CreateOfferViewModel.Date" />
 
             <div class="mb-5">
