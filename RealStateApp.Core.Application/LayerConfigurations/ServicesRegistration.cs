@@ -22,7 +22,7 @@ namespace RealStateApp.Core.Application.LayerConfigurations
             services.AddScoped<IAdministrationService, AdministrationService>();
             services.AddScoped<IImpromentService, ImprovementService>();
             services.AddScoped<ISaleTypeService, SaleTypeService>();
-
+            services.AddMediatR(opt => opt.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
         }
     }
 }
