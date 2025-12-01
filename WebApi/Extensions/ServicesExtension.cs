@@ -28,6 +28,7 @@ namespace WebApi.Extensions
                 });
 
                 options.DescribeAllParametersInCamelCase();
+                options.EnableAnnotations();
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
