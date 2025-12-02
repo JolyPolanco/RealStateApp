@@ -196,6 +196,8 @@ namespace RealStateApp.Infraestructure.Identity.Services
                 Dni = user.Dni!,
                 IsVerified = user.EmailConfirmed,
                 IsActive = user.IsActive,
+                Photo = user.Photo ?? "",
+                PhoneNumber = user.PhoneNumber ?? "",
                 Role = EnumMapper<AppRoles>.ToString(role)
             };
 

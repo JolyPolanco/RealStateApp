@@ -12,3 +12,4 @@ namespace RealStateApp.Core.Domain.Settings
         public required string DisplayName { get; set; }
     }
 }
+

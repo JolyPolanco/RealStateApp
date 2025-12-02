@@ -4,9 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using RealStateApp.Core.Application.Behaviors;
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Application.Services;
-
 using System.Reflection;
-using System.Text;
+
+
 
 namespace RealStateApp.Core.Application.LayerConfigurations
 {
@@ -25,9 +25,19 @@ namespace RealStateApp.Core.Application.LayerConfigurations
             services.AddScoped<IAdministrationService, AdministrationService>();
             services.AddScoped<IImpromentService, ImprovementService>();
             services.AddScoped<ISaleTypeService, SaleTypeService>();
+
+
+            services.AddScoped<IFavoritePropertyService, FavoritePropertyService>();
+            services.AddScoped<IOfferService, OfferService>();
+            services.AddScoped<IHomeClienteService, HomeClientService>();
+            services.AddScoped<IMessageService, MessageService>();
+
             services.AddMediatR(opt => opt.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+
 
 
 

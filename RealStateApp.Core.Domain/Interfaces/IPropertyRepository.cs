@@ -11,5 +11,8 @@ namespace RealStateApp.Core.Domain.Interfaces
     {
         Task DeleteAgentProperties(string AgentId);
         Task<Dictionary<string, int>> GetAgentsPropertiesCount();
+
+        Task<Property> GetByCode(string code);
+      
     }
 }

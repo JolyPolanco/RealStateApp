@@ -26,8 +26,10 @@ namespace RealStateApp.Core.Application.Dtos.User
 
         public required string Role { get; set; }
 
+        public string? Photo {  get; set; }
+        public string? PhoneNumber {  get; set; }
         public bool IsActive { get; set; }
-  
+        
 
 
 

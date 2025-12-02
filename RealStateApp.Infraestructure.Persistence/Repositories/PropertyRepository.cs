@@ -41,6 +41,9 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
             _context.SaveChanges();
         }
 
-
+        public async Task<Property> GetByCode(string code)
+        {
+            return await _context.Set<Property>().FirstOrDefaultAsync(s => s.Code == code);
+        }
     }
 }

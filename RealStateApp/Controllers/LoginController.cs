@@ -141,7 +141,7 @@ namespace RealStateApp.Controllers
             {
                 "ADMIN" => RedirectToRoute(new { controller = "Home", action = "Index" , area="Administration"}),
                 "AGENT" => RedirectToRoute(new { controller = "Agents", action = "Index" }),
-                "CLIENT" => RedirectToRoute(new { controller = "Home", action = "Index" }),
+                "CLIENT" => RedirectToRoute(new { area = "Clients", controller = "Home", action = "Index" }),
                 _ => RedirectToRoute(new { controller = "Login", action = "Index" })
             };
         }
