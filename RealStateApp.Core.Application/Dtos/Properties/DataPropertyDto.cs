@@ -17,6 +17,7 @@ namespace RealStateApp.Core.Application.Dtos.Properties
         public required string  SaleType { get; set; }
         public bool IsFavorite { get; set; }
         public int FavoriteId { get; set; }
+        public string? AgentId { get; set; }
 
 
      

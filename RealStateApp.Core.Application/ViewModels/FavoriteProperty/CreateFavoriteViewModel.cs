@@ -11,5 +11,6 @@ namespace RealStateApp.Core.Application.ViewModels.FavoriteProperty
         public int PropertyId { get; set; }
         public bool IsFavorite { get; set; }
         public int FavoriteId { get; set; }
+        public string? ReturnUrl {  get; set; }
     }
 }

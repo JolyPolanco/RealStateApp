@@ -29,7 +29,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
             _identityContext = identityDbContext;
 
         }
-        
+
         public virtual async Task<UserResponseDto> DeleteAsync(string id)
         {
             UserResponseDto response = new() { HasError = false, Errors = [] };
@@ -54,7 +54,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
             if (user != null)
             {
-                user.IsActive =!user.IsActive;
+                user.IsActive = !user.IsActive;
                 await _userManager.UpdateAsync(user);
 
             }
@@ -129,6 +129,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
                     IsActive = user.IsActive,
                     UserName = user.UserName!,
                     Role = displayRole,
+                    Photo = user.Photo!,    
                     IsVerified = user.EmailConfirmed
                 })
                 .ToList();
@@ -139,7 +140,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
             return await GetUsersByRole("ADMIN", EnumMapper<AppRoles>.ToString(AppRoles.ADMIN));
 
         }
-     
+
         public async Task<List<UserDto>> GetUsersDevelopersOnly()
         {
             return await GetUsersByRole("DEVELOPER", EnumMapper<AppRoles>.ToString(AppRoles.DEVELOPER));
@@ -153,11 +154,11 @@ namespace RealStateApp.Infraestructure.Identity.Services
         }
 
 
-        private async Task <int> GetActiveByRoleCount(string role)
+        private async Task<int> GetActiveByRoleCount(string role)
         {
             var users = await _userManager.GetUsersInRoleAsync(role);
 
-          return users.Where(r=>r.IsActive).Count();
+            return users.Where(r => r.IsActive).Count();
         }
 
         private async Task<int> GetInactiveByRoleCount(string role)
@@ -200,7 +201,10 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
         }
 
-      
+        public async Task<List<UserDto>> GetUsersAgentnOnly()
+        {
+            return await GetUsersByRole("AGENT", EnumMapper<AppRoles>.ToString(AppRoles.AGENT));
+        }
     }
 
 }

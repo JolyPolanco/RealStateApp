@@ -45,5 +45,13 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
         {
             return await _context.Set<Property>().FirstOrDefaultAsync(s => s.Code == code);
         }
+
+
+
+        public async Task<List<Property>> GetListByAgentId(string AgenteId)
+        {
+            return await _context.Set<Property>().Where(s => s.AgentId == AgenteId
+            && s.Status == Core.Domain.Common.Enums.PropertyStatus.Available).ToListAsync();
+        }
     }
 }

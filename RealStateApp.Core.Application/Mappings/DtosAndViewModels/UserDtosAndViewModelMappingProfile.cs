@@ -20,6 +20,8 @@ namespace RealStateApp.Core.Application.Mappings.DtosAndViewModels
             CreateMap<UserDto, SaveBasicUserViewModel>();
 
             CreateMap<AgentDto, AgentViewModel>();
+            CreateMap<UserDto, AgentDataDto>()
+                .ReverseMap();
 
         }
     }
