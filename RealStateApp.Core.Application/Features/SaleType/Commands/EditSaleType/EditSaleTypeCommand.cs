@@ -25,11 +25,13 @@ namespace RealStateApp.Core.Application.Features.SaleType.Commands.EditSaleType
         }
         public async Task<Unit> Handle(EditSaleTypeCommand request, CancellationToken cancellationToken)
         {
+         
+
 
             Domain.Entities.SaleType? getEntity = await _repository.GetByIdAsync(request.Id);
 
             if (getEntity == null)
-                throw new ArgumentNullException("Tipo de venta no encontrada con ese Id");
+                throw new ArgumentNullException("Id Invalido");
 
             Domain.Entities.SaleType? entity = new()
             {

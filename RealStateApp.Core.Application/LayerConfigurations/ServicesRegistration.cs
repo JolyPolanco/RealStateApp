@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using RealStateApp.Core.Application.Behaviors;
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Application.Services;
 
@@ -23,6 +26,11 @@ namespace RealStateApp.Core.Application.LayerConfigurations
             services.AddScoped<IImpromentService, ImprovementService>();
             services.AddScoped<ISaleTypeService, SaleTypeService>();
             services.AddMediatR(opt => opt.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+
+
         }
     }
 }
