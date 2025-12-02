@@ -9,5 +9,11 @@ namespace RealStateApp.Core.Domain.Interfaces
 {
     public interface IImprovementRepository : IGenericRepository<Improvement>
     {
+
+
+
+        Task<List<Improvement>> GetAllListById(int id);     
+
+
     }
 }

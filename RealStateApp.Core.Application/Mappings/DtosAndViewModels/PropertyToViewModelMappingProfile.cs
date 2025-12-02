@@ -12,6 +12,15 @@ namespace RealStateApp.Core.Application.Mappings.DtosAndViewModels
             CreateMap<PropertyTypeDto, PropertyTypeViewModel>();
             CreateMap<PropertyTypeDto, SavePropertyTypeViewModel>();
 
+
+
+
+            CreateMap<DataPropertyDto, DataPropertyViewModel>()
+                .ReverseMap();
+
+            CreateMap<DetailsPropertyDto, DetailsPropertyViewModel>()
+                .ReverseMap();
+
         }
     }
 }

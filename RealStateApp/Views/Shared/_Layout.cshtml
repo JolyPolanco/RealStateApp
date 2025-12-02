@@ -45,38 +45,6 @@
                             </li>
                         </ul>
                     }
-                    else if (User.IsInRole("CLIENT"))
-                    {
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                    <i class="fas fa-home me-1"></i>Home
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Agent" asp-action="Index">
-                                    <i class="fas fa-users me-1"></i>Agentes
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Property" asp-action="MyFavorites">
-                                    <i class="fas fa-heart me-1"></i>Mis Propiedades
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user-circle me-1"></i>@User.Identity.Name
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Login" asp-action="Logout">
-                                            <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    }
                     else if (User.IsInRole("AGENT"))
                     {
                         <ul class="navbar-nav ms-auto">

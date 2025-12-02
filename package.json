@@ -1,0 +1,30 @@
+{
+  "name": "app-realstate-nousss",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kelvin-star07/App-RealState-nousss.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Kelvin-star07/App-RealState-nousss/issues"
+  },
+  "homepage": "https://github.com/Kelvin-star07/App-RealState-nousss#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17"
+  },
+   "scripts": {
+  "watch:css": "tailwindcss -i ./wwwroot/css/tailwind.css -o ./wwwroot/css/site.css --watch"
+}
+
+}

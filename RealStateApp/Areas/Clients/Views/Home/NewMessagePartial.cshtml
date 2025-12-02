@@ -1,0 +1,23 @@
+﻿@model List<RealStateApp.Core.Application.ViewModels.Message.DataConversactionViewModel>
+
+@{
+    var currentUserId = ViewData["CurrentUserId"] as string;
+}
+
+@if (Model != null && Model.Any())
+{
+    foreach (var msg in Model.OrderBy(m => m.Date))
+    {
+        var isSender = msg.SenderUserId == currentUserId;
+        <div class="mb-3 flex @(isSender ? "justify-end" : "justify-start")" data-id="@msg.Id">
+            <div class="px-3 py-2 rounded-lg text-sm @(isSender ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-800")">
+                <div>@msg.Content</div>
+                <div class="text-xs mt-1 text-gray-400">@msg.Date.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="text-sm text-gray-500">No hay mensajes todavía.</div>
+}
