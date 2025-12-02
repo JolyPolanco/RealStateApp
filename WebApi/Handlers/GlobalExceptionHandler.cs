@@ -7,6 +7,7 @@ namespace RealStateWebApi.Handlers
 {
     public class GlobalExceptionHandler : IExceptionHandler
     {
+
         public async ValueTask<bool> TryHandleAsync(
             HttpContext httpContext,
             Exception exception,
@@ -14,7 +15,7 @@ namespace RealStateWebApi.Handlers
         {
             string title = "Unexpected error";
             int status = (int)HttpStatusCode.InternalServerError;
-
+            string details = exception.Message;
             switch (exception)
             {
                 case ApiException api:
@@ -46,13 +47,17 @@ namespace RealStateWebApi.Handlers
                     break;
 
                 case ArgumentException:
-                case ValidationException:
                     status = (int)HttpStatusCode.BadRequest;
                     title = "Bad request";
                     break;
 
+                case RealStateApp.Core.Application.Exceptions.ValidationException:
+                    status = (int)HttpStatusCode.BadRequest;
+                    title = "Bad request";
+                    details= ((RealStateApp.Core.Application.Exceptions.ValidationException) exception).Errors.Aggregate((a, b) => a + "," + b);
+                    break;
+
                 default:
-                    // Deja valores por defecto
                     break;
             }
 
@@ -60,7 +65,7 @@ namespace RealStateWebApi.Handlers
             {
                 Title = title,
                 Status = status,
-                Details = exception.Message,
+                Detail = details,
                 Instance = httpContext.Request.Path
             };
 

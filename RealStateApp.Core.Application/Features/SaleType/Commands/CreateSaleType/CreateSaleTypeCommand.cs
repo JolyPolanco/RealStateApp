@@ -1,9 +1,11 @@
 ﻿using MediatR;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Application.Features.Improvement.Commands.CreateImprovement;
 using RealStateApp.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,8 +34,14 @@ namespace RealStateApp.Core.Application.Features.SaleType.Commands.CreateSaleTyp
                 Description = request.Description,
                 Name = request.Name,
             };
+           
+
+
             entity = await _saleTypeRepository.AddAsync(entity);
-            return entity != null ? entity.Id : 0;
+
+            if (entity == null)
+                throw new ApiException("Internal server error", (int)HttpStatusCode.InternalServerError);
+            return entity.Id;
         }
     }
 
