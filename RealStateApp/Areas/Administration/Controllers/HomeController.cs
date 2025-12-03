@@ -13,17 +13,17 @@ namespace RealStateApp.Areas.Administration.Controllers
 
     public class HomeController : Controller
     {
-        private IDashboardService _dashboardService;
+        private IAdministrationService _administrationService;
         private readonly IMapper _mapper;
 
-        public HomeController(IDashboardService dashboardService, IMapper mapper)
+        public HomeController(IAdministrationService administrationService, IMapper mapper)
         {
-            _dashboardService=dashboardService;
+            _administrationService = administrationService;
             _mapper = mapper;
         }
         public async Task<IActionResult> Index()
         {
-          var statsDto= await  _dashboardService.GetAdminStats();
+          var statsDto= await _administrationService.GetAdminStats();
             return View(_mapper.Map<AdminDashboardViewModel>(statsDto));
         }
     }

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace RealStateApp.Core.Application.Features.SaleType.Commands.DeleteSaleTyp
             var entity = await _repository.GetByIdAsync(request.Id);
 
             if (entity == null)
-                throw new ArgumentNullException("Tipo de venta no encontrado con ese Id");
+                throw new ApiException("Entity  not found with this id");
 
             await _repository.DeleteAsync(request.Id);
             return Unit.Value;

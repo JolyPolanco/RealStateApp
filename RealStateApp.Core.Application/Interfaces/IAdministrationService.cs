@@ -1,4 +1,5 @@
-﻿using RealStateApp.Core.Application.Dtos.User;
+﻿using RealStateApp.Core.Application.Dtos.DashBoards;
+using RealStateApp.Core.Application.Dtos.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace RealStateApp.Core.Application.Interfaces
     {
         Task DeleteAgentAndProperties(string id);
         Task<List<UserDto>> GetAdministrators();
+        Task<AdminStatsDto> GetAdminStats();
         Task<List<AgentDto>> GetAgents();
         Task<List<UserDto>> GetDevelopers();
         Task ToogleState(string id);

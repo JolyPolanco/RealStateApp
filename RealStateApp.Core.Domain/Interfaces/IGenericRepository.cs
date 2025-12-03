@@ -9,7 +9,7 @@ namespace RealStateApp.Core.Domain.Interfaces
     public interface IGenericRepository <Entity>
     {
 
-        Task<Entity> AddAsync(Entity entity);
+        Task<Entity?> AddAsync(Entity entity);
         public Task<Entity?> GetByIdAsync(int id);
         Task DeleteAsync(int id);
         Task<List<Entity>?> GetAllList();

@@ -1,10 +1,12 @@
 ﻿using MediatR;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Domain.Entities;
 using RealStateApp.Core.Domain.Interfaces;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +16,7 @@ namespace RealStateApp.Core.Application.Features.Improvement.Commands.CreateImpr
     /// <summary>
     /// Parameters for creating a property improvement
     /// </summary>
-    public class CreateImpromentCommand:IRequest<int>
+    public class CreateImprovementCommand:IRequest<int>
     {
         /// <example>Cámaras de seguridad</example>
         [SwaggerParameter(Description="Nombre de  la mejora")]
@@ -24,7 +26,7 @@ namespace RealStateApp.Core.Application.Features.Improvement.Commands.CreateImpr
         public required string Description { get; set; }
     }
 
-    public class CreateImprovementCommandHandler : IRequestHandler<CreateImpromentCommand, int>
+    public class CreateImprovementCommandHandler : IRequestHandler<CreateImprovementCommand, int>
     {
 
         private readonly IImprovementRepository _improvementRepository;
@@ -32,16 +34,19 @@ namespace RealStateApp.Core.Application.Features.Improvement.Commands.CreateImpr
         {
             _improvementRepository = improvementRepository;
         }
-        public async Task<int> Handle(CreateImpromentCommand request, CancellationToken cancellationToken)
+        public async Task<int> Handle(CreateImprovementCommand request, CancellationToken cancellationToken)
         {
-            Domain.Entities.Improvement entity = new()
+            Domain.Entities.Improvement ?entity = new()
             {
                 Id = 0,
                 Description = request.Description,
                 Name = request.Name,
             };
             entity = await _improvementRepository.AddAsync(entity);
-           return entity != null  ? entity.Id : 0;
+
+            if (entity == null)
+                throw new ApiException("Error creating entity", (int)HttpStatusCode.InternalServerError);
+            return entity.Id;
         }
     }
 }

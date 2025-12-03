@@ -13,30 +13,27 @@ using System.Threading.Tasks;
 
 namespace RealStateApp.Core.Application.Features.SaleType.Queries.GetAll
 {
-    public class GetAllSaleTypeQuery : IRequest<SaleTypeResponseDto>
+    public class GetAllSaleTypeQuery : IRequest<IList<SaleTypeDto>>
     {
     }
 
-    public class GetAllImprovementQueryHandler : IRequestHandler<GetAllSaleTypeQuery, SaleTypeResponseDto>
+    public class GetAllSaleTypeQueryHandler : IRequestHandler<GetAllSaleTypeQuery, IList<SaleTypeDto>>
     {
         private readonly ISaleTypeRepository _repository;
         private readonly IMapper _mapper;
 
-        public GetAllImprovementQueryHandler(ISaleTypeRepository repository, IMapper mapper)
+        public GetAllSaleTypeQueryHandler(ISaleTypeRepository repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
         }
-        public async Task<SaleTypeResponseDto> Handle(GetAllSaleTypeQuery request, CancellationToken cancellationToken)
+        public async Task<IList<SaleTypeDto>> Handle(GetAllSaleTypeQuery request, CancellationToken cancellationToken)
         {
             var listEntitiesQuery = _repository.GetAllQuery();
 
             var listEntityDtos = await listEntitiesQuery.ProjectTo<SaleTypeDto>(_mapper.ConfigurationProvider).ToListAsync();
 
-            return new SaleTypeResponseDto
-            {
-                Sales = listEntityDtos
-            };
+            return listEntityDtos;
         }
     }
     }

@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RealStateApp.Core.Application\RealStateApp.Core.Application.csproj" />
     <ProjectReference Include="..\RealStateApp.Core.Domain\RealStateApp.Core.Domain.csproj" />
+    <ProjectReference Include="..\RealStateApp.Infraestructure.Identity\RealStateApp.Infraestructure.Identity.csproj" />
     <ProjectReference Include="..\RealStateApp.Infraestructure.Persistence\RealStateApp.Infraestructure.Persistence.csproj" />
   </ItemGroup>
 
@@ -34,7 +35,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\SaleType\Queries\" />
+    <Folder Include="Features\Agents\Commands\" />
+    <Folder Include="Features\Agents\Queries\" />
+    <Folder Include="Features\PropertyType\Commands\" />
+    <Folder Include="Features\PropertyType\Queries\" />
+    <Folder Include="Features\Property\Commands\" />
+    <Folder Include="Features\Property\Queries\" />
   </ItemGroup>
 
 </Project>
