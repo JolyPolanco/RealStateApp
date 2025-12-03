@@ -19,12 +19,14 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
 
 
 
-        public virtual async Task<Entity> AddAsync(Entity entity)
+        public virtual async Task<Entity?> AddAsync(Entity entity)
         {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
 
-            await _context.Set<Entity>().AddAsync(entity);
+            var result =await _context.Set<Entity>().AddAsync(entity);
             await _context.SaveChangesAsync();
-            return entity;
+            return result !=null? entity :null;
 
 
         }

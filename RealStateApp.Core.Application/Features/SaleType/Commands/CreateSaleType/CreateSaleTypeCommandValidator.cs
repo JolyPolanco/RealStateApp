@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace RealStateApp.Core.Application.Features.SaleType.Commands.CreateSaleType
 {
-    public class CreateSaleTypeCommandValidator : AbstractValidator<CreateSaleTypeCommand>
+    public class EditSaleTypeCommandValidator : AbstractValidator<CreateSaleTypeCommand>
     {
-        public CreateSaleTypeCommandValidator()
+        public EditSaleTypeCommandValidator()
         {
             RuleFor(st => st.Name)
                 .NotEmpty()

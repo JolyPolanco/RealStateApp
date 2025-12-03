@@ -1,4 +1,5 @@
-﻿using RealStateApp.Core.Application.Dtos.User;
+﻿using RealStateApp.Core.Application.Dtos.DashBoards;
+using RealStateApp.Core.Application.Dtos.User;
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Domain.Interfaces;
 using System;
@@ -22,6 +23,22 @@ namespace RealStateApp.Core.Application.Services
 
 
 
+        public async Task<AdminStatsDto> GetAdminStats()
+        {
+            return new AdminStatsDto
+            {
+                ActiveAgentsCount = await _userService.GetActiveAgentsCount(),
+                InactiveAgentsCount = await _userService.GetInactiveAgentsCount(),
+                ActiveDevelopersCount = await _userService.GetActiveDevelopersCount(),
+                InactiveDevelopersCount = await _userService.GetInactiveAgentsCount(),
+                ActiveClientsCount = await _userService.GetActiveClientsCount(),
+                InactiveClientsCount = await _userService.GetInactiveClientsCount(),
+                AvailablePropertiesCount = await _propertyRepository.GetAvailablePropertiesCount(),
+                SoldPropertiesCount = await _propertyRepository.GetSoldPropertiesCount()
+
+
+            };
+        }
         public async Task DeleteAgentAndProperties(string id)
         {
            await _userService.DeleteAsync(id);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RealStateApp.Core.Domain.Common.Enums;
 using RealStateApp.Core.Domain.Entities;
 using RealStateApp.Core.Domain.Interfaces;
 using RealStateApp.Infraestructure.Persistence.Contexts;
@@ -44,6 +45,23 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
         public async Task<Property> GetByCode(string code)
         {
             return await _context.Set<Property>().FirstOrDefaultAsync(s => s.Code == code);
+        }
+
+        public async  Task<int> GetAgentPropertiesCount(string id)
+        {
+            return await _context.Set<Property>().Where(r=>r.AgentId == id).CountAsync();
+
+           
+        }
+
+        public async Task<int> GetAvailablePropertiesCount()
+        {
+            return await _context.Set<Property>().Where(r => r.Status == PropertyStatus.Available).CountAsync();
+        }
+
+        public async Task<int> GetSoldPropertiesCount()
+        {
+            return await _context.Set<Property>().Where(r => r.Status == PropertyStatus.Sold).CountAsync();
         }
     }
 }
