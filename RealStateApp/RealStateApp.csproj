@@ -23,6 +23,10 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Icon\" />
+    <Folder Include="wwwroot\Images\Properties\1\" />
+    <Folder Include="wwwroot\Images\Properties\2\" />
+    <Folder Include="wwwroot\Images\Properties\3\" />
+    <Folder Include="wwwroot\Images\Users\" />
   </ItemGroup>
 
 </Project>

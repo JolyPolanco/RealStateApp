@@ -83,18 +83,7 @@
                 </div>
             }
 
-            <!-- Typing Indicator -->
-            <div id="typingIndicator" class="hidden mb-3">
-                <div class="flex justify-start">
-                    <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none px-4 py-2 shadow">
-                        <div class="flex gap-1">
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Typing Indicator se creará dinámicamente -->
         </div>
 
         <!-- Input area -->
@@ -132,7 +121,6 @@
         const chatContainer = document.getElementById('chatContainer');
         const messageInput = document.getElementById('messageInput');
         const chatForm = document.getElementById('chatForm');
-        const typingIndicator = document.getElementById('typingIndicator');
         
         // Crear conexión SignalR
         const connection = new signalR.HubConnectionBuilder()
@@ -168,29 +156,49 @@
         }
 
         // Recibir mensajes
+        // Recibir mensajes
         connection.on("ReceiveMessage", function (data) {
             // Solo procesar mensajes de esta propiedad
             if (data.propertyId === propertyId) {
                 addMessageToChat(data);
-            }
-        });
-
-        // Typing indicator
-        let typingTimer;
-        connection.on("UserTyping", function (data) {
-            if (data.propertyId === propertyId && data.senderId !== currentUserId && data.isTyping) {
-                typingIndicator.classList.remove('hidden');
-                chatContainer.scrollTop = chatContainer.scrollHeight;
                 
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(() => {
-                    typingIndicator.classList.add('hidden');
-                }, 3000);
-            } else if (!data.isTyping) {
-                typingIndicator.classList.add('hidden');
+                // Limpiar indicador de "escribiendo"
+                document.getElementById('typingIndicator')?.remove();
             }
         });
 
+        // Indicador de "escribiendo" - igual que en agente
+        connection.on("UserTyping", function (data) {
+            if (data.propertyId === propertyId && data.senderId !== currentUserId) {
+                let typingIndicator = document.getElementById('typingIndicator');
+                
+                if (data.isTyping) {
+                    if (!typingIndicator) {
+                        typingIndicator = document.createElement('div');
+                        typingIndicator.id = 'typingIndicator';
+                        typingIndicator.className = 'flex justify-start mb-3';
+                        typingIndicator.innerHTML = `
+                            <div style="max-width: 70%;">
+                                <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none px-4 py-2 shadow">
+                                    <p class="text-sm text-gray-600">
+                                        <span class="inline-block">
+                                            <span class="inline-block w-2 h-2 bg-gray-400 rounded-full animate-bounce mr-1" style="animation-delay: 0s"></span>
+                                            <span class="inline-block w-2 h-2 bg-gray-400 rounded-full animate-bounce mr-1" style="animation-delay: 0.2s"></span>
+                                            <span class="inline-block w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                                        </span>
+                                        Escribiendo...
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                        chatContainer.appendChild(typingIndicator);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                } else {
+                    typingIndicator?.remove();
+                }
+            }
+        });
         // Conectar
         connection.start()
             .then(function () {

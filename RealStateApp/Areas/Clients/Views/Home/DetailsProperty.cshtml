@@ -261,8 +261,8 @@
 </section>
 
 
-<div id="offer-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4 transition-opacity duration-300">
-    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl transform transition-transform duration-300 scale-95">
+<div id="offer-modal" style="display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.5); padding: 1rem;">
+    <div style="background-color: white; border-radius: 1rem; width: 100%; max-width: 28rem; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-semibold text-gray-800">Enviar Oferta</h3>
             <button id="close-offer" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
@@ -383,10 +383,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 
     <script>
+        // ========== Variables Globales ==========
         const propertyId = @Model.DetailsPropertyViewModel.Id;
         const agentId = '@Model.DetailsPropertyViewModel.AgentId';
         const currentUserId = '@Model.CreateMessageViewModel.SenderUserId';
-        const chatContainer = chatPanel.querySelector('.p-3.flex-1');
+        const chatPanel = document.getElementById('chat-panel');
+        const chatContainer = chatPanel?.querySelector('.p-3.flex-1');
+        const formMessage = document.getElementById("formMessage");
+        const messageTextarea = formMessage?.querySelector('textarea[name="Content"]');
+        const offerModal = document.getElementById('offer-modal');
+        let typingTimer;
         
         // ========== SignalR Setup ==========
         const connection = new signalR.HubConnectionBuilder()
@@ -503,17 +509,20 @@
             show(0);
         })();
 
-        const offerModal = document.getElementById('offer-modal');
+        // ========== Offer Modal ==========
         document.getElementById('open-offer-modal')?.addEventListener('click', function (e) {
             e.preventDefault();
-            if (this.hasAttribute('disabled')) return;
-            offerModal.classList.remove('hidden');
-            offerModal.classList.add('flex');
+            if (this.hasAttribute('disabled')) {
+                console.log('Button is disabled');
+                return;
+            }
+            console.log('Opening offer modal');
+            offerModal.style.display = 'flex';
         });
 
         const closeOffer = () => {
-            offerModal.classList.add('hidden');
-            offerModal.classList.remove('flex');
+            console.log('Closing offer modal');
+            offerModal.style.display = 'none';
         };
 
         document.getElementById('close-offer')?.addEventListener('click', closeOffer);
@@ -563,11 +572,7 @@
 
 
         // ========== Chat Panel & Message Form ==========
-        const chatPanel = document.getElementById('chat-panel');
-        const formMessage = document.getElementById("formMessage");
-        const messageTextarea = formMessage.querySelector('textarea[name="Content"]');
-        let typingTimer;
-
+        
         // Abrir chat panel
         document.getElementById('open-chat-btn')?.addEventListener('click', function () {
             chatPanel.classList.remove('hidden');

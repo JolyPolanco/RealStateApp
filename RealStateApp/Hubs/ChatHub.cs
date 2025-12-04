@@ -37,27 +37,19 @@ namespace RealStateApp.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        /// <summary>
-        /// Join a property chat room
-        /// </summary>
         public async Task JoinPropertyChat(int propertyId)
         {
             var groupName = $"property_{propertyId}";
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
         }
 
-        /// <summary>
-        /// Leave a property chat room
-        /// </summary>
+
         public async Task LeavePropertyChat(int propertyId)
         {
             var groupName = $"property_{propertyId}";
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
         }
 
-        /// <summary>
-        /// Send a message to a property chat
-        /// </summary>
         public async Task SendMessage(int propertyId, string receiverId, string content)
         {
             var senderId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -96,9 +88,6 @@ namespace RealStateApp.Hubs
             });
         }
 
-        /// <summary>
-        /// Notify that user is typing
-        /// </summary>
         public async Task NotifyTyping(int propertyId, string receiverId, bool isTyping)
         {
             var senderId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -119,9 +108,6 @@ namespace RealStateApp.Hubs
             });
         }
 
-        /// <summary>
-        /// Get online status for a user
-        /// </summary>
         public static bool IsUserOnline(string userId)
         {
             return _userConnections.ContainsKey(userId);
