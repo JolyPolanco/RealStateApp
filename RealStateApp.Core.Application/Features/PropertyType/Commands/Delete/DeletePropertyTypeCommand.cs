@@ -17,13 +17,12 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Commands.Delete
     }
     public class DeletePropertyTypeCommandHandler : IRequestHandler<DeletePropertyTypeCommand, Unit>
     {
-        private IPropertyRepository _repository;
-        private readonly IMapper _mapper;
+        private IPropertyTypeRepository _repository;
 
-        public DeletePropertyTypeCommandHandler(IPropertyRepository repository, IMapper mapper)
+        public DeletePropertyTypeCommandHandler(IPropertyTypeRepository repository)
         {
             _repository=repository;
-            _mapper = mapper;
+        
 
         }
         public async Task<Unit> Handle(DeletePropertyTypeCommand request, CancellationToken cancellationToken)
@@ -31,7 +30,7 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Commands.Delete
             var entity = await _repository.GetByIdAsync(request.Id);
 
             if (entity == null)
-                throw new ArgumentNullException("Tipo de propiedad no encontrado con ese Id");
+                throw new ArgumentNullException("Entity not found with this id");
 
             await _repository.DeleteAsync(request.Id);
             return Unit.Value;

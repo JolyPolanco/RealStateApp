@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Application.Features.Improvement.Commands.CreateImprovement;
 using RealStateApp.Core.Domain.Interfaces;
 using System;
@@ -31,7 +32,7 @@ namespace RealStateApp.Core.Application.Features.Improvement.Commands.DeleteImpr
             var entity = await _improvementRepository.GetByIdAsync(request.Id);
 
             if (entity == null)
-                throw new ArgumentNullException("Mejora no encontrada con ese Id");
+                throw new ApiException("Entity  not found with this id");
 
             await _improvementRepository.DeleteAsync(request.Id);
             return Unit.Value;

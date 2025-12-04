@@ -21,7 +21,6 @@ namespace RealStateApp.Core.Application.LayerConfigurations
             services.AddScoped<IPropertyService, PropertyService>();
             services.AddScoped<IPropertyTypeService, PropertyTypeService>();
 
-            services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IAdministrationService, AdministrationService>();
             services.AddScoped<IImpromentService, ImprovementService>();
             services.AddScoped<ISaleTypeService, SaleTypeService>();

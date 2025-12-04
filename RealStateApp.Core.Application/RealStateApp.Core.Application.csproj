@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Agents\Queries\GetAgentPropertiesDetails\" />
     <Folder Include="Features\Message\" />
     <Folder Include="Features\Property\Commands\EditProperty\" />
     <Folder Include="Features\Property\Commands\DeleteProperty\" />

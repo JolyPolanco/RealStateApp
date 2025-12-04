@@ -5,6 +5,7 @@ using RealStateApp.Core.Application.Features.PropertyType.Queries.GetAllWithIncl
 using RealStateApp.Core.Application.Features.SaleType.Commands.CreateSaleType;
 using RealStateApp.Core.Application.Features.SaleType.Commands.DeleteSaleType;
 using RealStateApp.Core.Application.Features.SaleType.Commands.EditSaleType;
+using RealStateApp.Core.Application.Features.SaleType.Queries.GetAllWithInclude;
 using RealStateApp.Core.Application.Features.SaleType.Queries.GetById;
 using RealStateApp.Core.Application.ViewModels.User;
 
@@ -20,15 +21,11 @@ namespace RealStateWebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> Create(SaveSaleTypeApiRequestDto request)
+        public async Task<IActionResult> Create(CreateSaleTypeCommand command)
         {
 
-            var response = await Mediator.Send(new CreateSaleTypeCommand() 
-            {
-                Description=request.Description,
-                Name=request.Name,
-            
-            });
+            var response = await Mediator.Send(command); 
+          
           
 
             return Created();
@@ -41,16 +38,14 @@ namespace RealStateWebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public async Task<IActionResult >Update(int Id, SaveSaleTypeApiRequestDto request)
+        public async Task<IActionResult >Update(int Id, EditSaleTypeCommand command)
         {
-
-            var response = await Mediator.Send(new EditSaleTypeCommand()
+            if (Id != command.Id)
             {
-                Id = Id,
-                Description = request.Description,
-                Name = request.Name,
-
-            });
+                return BadRequest("The ID in the URL does not match the request body.");
+            }
+            var response = await Mediator.Send(command);
+          
 
 
             return Ok();
@@ -66,13 +61,13 @@ namespace RealStateWebApi.Controllers.v1
         public async Task<IActionResult >GetAllList()
         {
 
-            var response = await Mediator.Send(new GetAllPropertyTypeWithIncludeQuery());
-            if (response.PropertyTypes == null || response.PropertyTypes.Count == 0)
+            var response = await Mediator.Send(new GetAllSaleTypeWithIncludeQuery());
+            if (response == null || response.Count == 0)
             {
                 return NoContent();
             }
 
-            return Ok(response.PropertyTypes);
+            return Ok(response);
         }
 
         [HttpGet("{Id}")]
@@ -91,6 +86,7 @@ namespace RealStateWebApi.Controllers.v1
         [HttpDelete("{Id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "ADMIN")]
 
         public async Task<IActionResult> Delete([FromRoute]int Id)
         {

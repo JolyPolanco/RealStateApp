@@ -13,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace RealStateApp.Core.Application.Features.PropertyType.Queries.GetAll
 {
-    public class GetAllPropertyTypeQuery :  IRequest<PropertyTypeResponseDto>
+    public class GetAllPropertyTypeQuery :  IRequest<IList<PropertyTypeDto>>
     {
 
     }
 
 
-    public class GetAllPropertyTypeQueryHandler : IRequestHandler<GetAllPropertyTypeQuery, PropertyTypeResponseDto>
+    public class GetAllPropertyTypeQueryHandler : IRequestHandler<GetAllPropertyTypeQuery, IList<PropertyTypeDto>>
     {
         private IPropertyTypeRepository _repository;
         private IMapper _mapper;
@@ -29,16 +29,13 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Queries.GetAll
             _repository= repository;
             _mapper= mapper;
         }
-        public  async Task<PropertyTypeResponseDto> Handle(GetAllPropertyTypeQuery request, CancellationToken cancellationToken)
+        public  async Task<IList<PropertyTypeDto>> Handle(GetAllPropertyTypeQuery request, CancellationToken cancellationToken)
         {
             var listEntitiesQuery = _repository.GetAllQuery();
 
             var listEntityDtos = await listEntitiesQuery.ProjectTo<PropertyTypeDto>(_mapper.ConfigurationProvider).ToListAsync();
 
-            return new PropertyTypeResponseDto
-            {
-                PropertyTypes = listEntityDtos
-            };
+            return listEntityDtos;
         }
     }
 }

@@ -2,33 +2,34 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using RealStateApp.Core.Application.Dtos.Properties;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace RealStateApp.Core.Application.Features.PropertyType.Commands.Create
 {
-    public class CreatePropertyTypeCommand: IRequest<PropertyTypeDto>
+    public class CreatePropertyTypeCommand: IRequest<int>
     {
         public required string Name { get; set; }
         public required string Description { get; set; }
     }
 
    
-    public class CreatePropertyTypeCommandHandler : IRequestHandler<CreatePropertyTypeCommand, PropertyTypeDto>
+    public class CreatePropertyTypeCommandHandler : IRequestHandler<CreatePropertyTypeCommand, int>
     {
         private IPropertyTypeRepository _repository;
-        private IMapper _mapper;
 
-        public CreatePropertyTypeCommandHandler(IPropertyTypeRepository repository, IMapper mapper)
+        public CreatePropertyTypeCommandHandler(IPropertyTypeRepository repository)
         {
             _repository = repository;
-            _mapper = mapper;
+         
         }
-        public async Task<PropertyTypeDto> Handle(CreatePropertyTypeCommand request, CancellationToken cancellationToken)
+        public async Task<int> Handle(CreatePropertyTypeCommand request, CancellationToken cancellationToken)
         {
 
             var entity = await _repository.AddAsync(new Domain.Entities.PropertyType
@@ -38,7 +39,8 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Commands.Create
                 Id = 0
             });
 
-         return _mapper.Map<PropertyTypeDto>(entity);
+            if (entity == null) throw new  ApiException("Error creating Property Type", HttpStatusCode.InternalServerError);
+         return entity.Id;
         }
     }
 }
