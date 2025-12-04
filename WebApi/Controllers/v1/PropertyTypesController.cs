@@ -20,7 +20,7 @@ namespace RealStateWebApi.Controllers.v1
     public class PropertyTypesController : BaseApiController
     {
 
-
+        /*
         [HttpGet]
 
         [Consumes(MediaTypeNames.Application.Json)]
@@ -29,7 +29,7 @@ namespace RealStateWebApi.Controllers.v1
             Description = "Retorna el listado"
             )]
        
-
+        */
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]

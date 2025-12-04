@@ -65,7 +65,7 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
 
             // Crear PropertyType
             var repoPropertyType = new PropertyTypeRepository(context);
-            var propertyType = await repoPropertyType.AddAsync(new PropertyType
+            var propertyType = await repoPropertyType.AddAsync(new RealStateApp.Core.Domain.Entities.PropertyType
             {
                 Name = "PropertyType1",
                 Description = "PropertyType1 Description"

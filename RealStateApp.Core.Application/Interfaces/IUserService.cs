@@ -15,7 +15,7 @@ namespace RealStateApp.Core.Application.Interfaces
         Task<int> GetInactiveClientsCount();
         Task<int> GetInactiveDevelopersCount();
         Task<List<UserDto>> GetUsersAdminOnly();
-        Task<List<AgentDto>> GetUsersAgentOnly(Dictionary<string, int> dictionary);
+        Task<IList<AgentDto>> GetUsersAgentOnly(Dictionary<string, int> dictionary);
         Task<List<UserDto>> GetUsersByRole(string role, string displayRole);
         Task<List<UserDto>> GetUsersDevelopersOnly();
         Task<bool> SetStatus(string id, bool status);

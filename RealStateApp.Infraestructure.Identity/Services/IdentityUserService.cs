@@ -108,7 +108,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
         }
 
 
-        public async Task<List<AgentDto>> GetUsersAgentOnly(Dictionary<string, int> dictionary)
+        public async Task<IList<AgentDto>> GetUsersAgentOnly(Dictionary<string, int> dictionary)
         {
             var agents = await _userManager.GetUsersInRoleAsync(AppRoles.AGENT.ToString());
 

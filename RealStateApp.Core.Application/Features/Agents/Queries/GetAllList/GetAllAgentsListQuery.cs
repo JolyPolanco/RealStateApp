@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using RealStateApp.Core.Application.Dtos.User;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Domain.Common.Enums;
 using RealStateApp.Core.Domain.Interfaces;
@@ -27,9 +28,15 @@ namespace RealStateApp.Core.Application.Features.Agents.Queries.GetAllList
         }
         public async Task<IList<AgentDto>> Handle(GetAllAgentsListQuery request, CancellationToken cancellationToken)
         {
-
             var dictionary = await _propertyRepository.GetAgentsPropertiesCount();
-            var dtos=await _userService.GetUsersAgentOnly(dictionary);
+
+            if (dictionary == null)
+                throw new ApiException("Properties count data not available");
+
+            var dtos = await _userService.GetUsersAgentOnly(dictionary);
+
+            if (dtos == null)
+                throw new ApiException("Agents data not available");
 
             return dtos;
         }

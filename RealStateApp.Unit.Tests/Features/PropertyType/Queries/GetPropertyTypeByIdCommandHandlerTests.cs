@@ -3,11 +3,12 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using RealStateApp.Core.Application.Features.SaleType.Queries.GetAll;
-using RealStateApp.Core.Application.Features.SaleType.Queries.GetAllWithInclude;
+using RealStateApp.Core.Application.Exceptions;
+using RealStateApp.Core.Application.Features.PropertyType.Queries.GetAll;
+using RealStateApp.Core.Application.Features.PropertyType.Queries.GetById;
+using RealStateApp.Core.Application.Features.SaleType.Queries.GetById;
 using RealStateApp.Core.Application.Mappings.EntitiesAndDtos;
 using RealStateApp.Core.Domain.Common.Enums;
-using RealStateApp.Core.Domain.Entities;
 using RealStateApp.Infraestructure.Identity.Contexts;
 using RealStateApp.Infraestructure.Identity.Entities;
 using RealStateApp.Infraestructure.Persistence.Contexts;
@@ -18,50 +19,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
+namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
 {
-    public class GetAllWithIncludeSaleTypesQueryHandlerTests
+    public class GetPropertyTypeByIdCommandHandlerTests
     {
-
-
         private readonly DbContextOptions<RealStateContext> _dbOptions;
-        private readonly DbContextOptions<IdentityContext> _IdentitydbOptions;
-        private readonly IMapper _mapper;
-        public GetAllWithIncludeSaleTypesQueryHandlerTests()
+        private DbContextOptions<IdentityContext> _IdentitydbOptions;
+        private IMapper _mapper;
+
+        public GetPropertyTypeByIdCommandHandlerTests()
         {
+            _dbOptions = new DbContextOptionsBuilder<RealStateContext>()
+                .UseInMemoryDatabase(databaseName: $"InMemoryDb_{Guid.NewGuid()}")
+                .Options;
+
             var loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.AddConsole();
             });
-            var mapperConfig = new MapperConfiguration(cfg =>
+            var config = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile<SaleTypeToDtoMappingProfile>();
-                cfg.AddProfile<PropertyToDtoMappingProfile>();
-                cfg.AddProfile<PropertyTypeToDtoMappingProfile>();
             }, loggerFactory);
-            _mapper = mapperConfig.CreateMapper();
-
-            _dbOptions = new DbContextOptionsBuilder<RealStateContext>()
-                .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
-                .Options;
-
             _IdentitydbOptions = new DbContextOptionsBuilder<IdentityContext>()
-              .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
-              .Options;
-
+             .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
+             .Options;
+            _mapper = config.CreateMapper();
         }
 
         [Fact]
-        public async Task Handle_ShouldReturnListWithInclude_WhenSaleTypesExist()
+        public async Task Handle_ShouldReturnPropertyTypeResponseDto_WhenIdExists()
         {
             // Arrange
             using var context = new RealStateContext(_dbOptions);
             using var identityContext = new IdentityContext(_IdentitydbOptions);
 
-            // SaleTypes
-            context.SaleTypes.AddRange(
-                new RealStateApp.Core.Domain.Entities.SaleType { Id = 1, Name = "Sale type1", Description = "Description1" },
-                new RealStateApp.Core.Domain.Entities.SaleType { Id = 2, Name = "Sale type2", Description = "Description2" }
+            context.PropertyTypes.AddRange(
+                new Core.Domain.Entities.PropertyType { Id = 1, Name = "Property Type1", Description = "Description1" },
+                new Core.Domain.Entities.PropertyType { Id = 2, Name = "Property Type2", Description = "Description2" }
             );
 
             await context.SaveChangesAsync();
@@ -113,7 +108,7 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
                 .Should()
                 .BeTrue();
 
-            // Crear Property
+            // Crear Property asociada al SaleType 1
             context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
@@ -121,7 +116,7 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
                 Price = 233,
                 Code = "12344",
                 Bedrooms = 2,
-                Description = "Decription",
+                Description = "Description",
                 SizeInMeters = 120,
                 Status = PropertyStatus.Available,
                 PropertyTypeId = propertyType.Id,
@@ -133,47 +128,44 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
             var createdProperty = context.Properties.FirstOrDefault();
             createdProperty.Should().NotBeNull();
             createdProperty!.SaleTypeId.Should().Be(1);
-            createdProperty.PropertyTypeId.Should().Be(propertyType.Id);
-            createdProperty.AgentId.Should().Be(agent.Id);
 
             // Act
             var repository = new SaleTypeRepository(context);
-            var handler = new GetAllSaleTypeWithIncludeQueryHandler(repository, _mapper);
+            var handler = new GetSaleTypeByIdQueryHandler(repository, _mapper);
 
-            var result = await handler.Handle(new GetAllSaleTypeWithIncludeQuery(), CancellationToken.None);
+            var query = new GetSaleTypeByIdQuery { Id = 1 };
+
+            var result = await handler.Handle(query, CancellationToken.None);
 
             // Assert
-            result.Should().HaveCount(2);
+            result.Should().NotBeNull();
 
-            result.Select(r => r.Name)
-                  .Should()
-                  .Contain(new[] { "Sale type1", "Sale type2" });
+            result.Id.Should().Be(1);
+            result.Name.Should().Be("Sale type1");
+            result.Description.Should().Be("Description1");
 
-            // Validación del include mediante el contador
-            var saleType1 = result.First(r => r.Id == 1);
-            var saleType2 = result.First(r => r.Id == 2);
-
-            saleType1.PropertiesCount.Should().Be(1);
-            saleType2.PropertiesCount.Should().Be(0);
+            result.PropertiesCount.Should().Be(1);
         }
-
 
 
         [Fact]
-        public async Task Handle_ShouldReturnEmptyList_WhenNoSaleTypesExist()
+        public async Task Handle_ShouldThrowApiException_WhenIdDoesNotExist()
         {
             // Arrange
             using var context = new RealStateContext(_dbOptions);
-            var repository = new SaleTypeRepository(context);
-            var handler = new GetAllSaleTypeWithIncludeQueryHandler(repository, _mapper);
+            var repository = new PropertyTypeRepository(context);
+            var handler = new GetPropertyTypeByIdQueryHandler(repository, _mapper);
+
+            var query = new GetPropertyTypeByIdQuery { Id = 999 };
 
             // Act
-            var result = await handler.Handle(new GetAllSaleTypeWithIncludeQuery(), CancellationToken.None);
-
+            Func<Task> act = async () => await handler.Handle(query, CancellationToken.None);
             // Assert
-            result.Should().BeEmpty();
+            await act.Should().ThrowAsync<ApiException>()
+                .WithMessage("Invalid Id");
         }
-    }
 
 
-    }
+    
+}
+}

@@ -3,11 +3,10 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using RealStateApp.Core.Application.Features.SaleType.Queries.GetAll;
+using RealStateApp.Core.Application.Features.PropertyType.Queries.GetAllWithInclude;
 using RealStateApp.Core.Application.Features.SaleType.Queries.GetAllWithInclude;
 using RealStateApp.Core.Application.Mappings.EntitiesAndDtos;
 using RealStateApp.Core.Domain.Common.Enums;
-using RealStateApp.Core.Domain.Entities;
 using RealStateApp.Infraestructure.Identity.Contexts;
 using RealStateApp.Infraestructure.Identity.Entities;
 using RealStateApp.Infraestructure.Persistence.Contexts;
@@ -18,16 +17,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
+namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
 {
-    public class GetAllWithIncludeSaleTypesQueryHandlerTests
+    public class GetAllPropertyTypesWithIncludeCommandHandlerTests
     {
-
-
         private readonly DbContextOptions<RealStateContext> _dbOptions;
         private readonly DbContextOptions<IdentityContext> _IdentitydbOptions;
         private readonly IMapper _mapper;
-        public GetAllWithIncludeSaleTypesQueryHandlerTests()
+        public GetAllPropertyTypesWithIncludeCommandHandlerTests()
         {
             var loggerFactory = LoggerFactory.Create(builder =>
             {
@@ -52,31 +49,20 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
         }
 
         [Fact]
-        public async Task Handle_ShouldReturnListWithInclude_WhenSaleTypesExist()
+        public async Task GetAllPropertyTypeWithInclude_ShouldReturnListWithCorrectPropertyCounts()
         {
             // Arrange
             using var context = new RealStateContext(_dbOptions);
             using var identityContext = new IdentityContext(_IdentitydbOptions);
 
-            // SaleTypes
-            context.SaleTypes.AddRange(
-                new RealStateApp.Core.Domain.Entities.SaleType { Id = 1, Name = "Sale type1", Description = "Description1" },
-                new RealStateApp.Core.Domain.Entities.SaleType { Id = 2, Name = "Sale type2", Description = "Description2" }
+            // Crear PropertyTypes
+            context.PropertyTypes.AddRange(
+                new Core.Domain.Entities.PropertyType { Id = 1, Name = "Property Type1", Description = "Description1" },
+                new Core.Domain.Entities.PropertyType { Id = 2, Name = "Property Type2", Description = "Description2" }
             );
 
             await context.SaveChangesAsync();
-            context.SaleTypes.Count().Should().Be(2);
-
-            // Crear PropertyType
-            var repoPropertyType = new PropertyTypeRepository(context);
-            var propertyType = await repoPropertyType.AddAsync(new RealStateApp.Core.Domain.Entities.PropertyType
-            {
-                Name = "PropertyType1",
-                Description = "PropertyType1 Description"
-            });
-
-            propertyType.Id.Should().BeGreaterThan(0);
-            context.PropertyTypes.Any(pt => pt.Id == propertyType.Id).Should().BeTrue();
+            context.PropertyTypes.Count().Should().Be(2);
 
             // Crear agente
             var agent = new AppUser
@@ -108,12 +94,7 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
 
             await identityContext.SaveChangesAsync();
 
-            identityContext.UserRoles
-                .Any(ur => ur.UserId == agent.Id && ur.RoleId == roleId)
-                .Should()
-                .BeTrue();
-
-            // Crear Property
+            // Crear Property asociada al PropertyType 1
             context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
@@ -121,42 +102,42 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
                 Price = 233,
                 Code = "12344",
                 Bedrooms = 2,
-                Description = "Decription",
+                Description = "Description",
                 SizeInMeters = 120,
                 Status = PropertyStatus.Available,
-                PropertyTypeId = propertyType.Id,
+                PropertyTypeId = 1,
                 SaleTypeId = 1
             });
 
             await context.SaveChangesAsync();
 
+            // Validación preliminar
             var createdProperty = context.Properties.FirstOrDefault();
             createdProperty.Should().NotBeNull();
-            createdProperty!.SaleTypeId.Should().Be(1);
-            createdProperty.PropertyTypeId.Should().Be(propertyType.Id);
-            createdProperty.AgentId.Should().Be(agent.Id);
+            createdProperty!.PropertyTypeId.Should().Be(1);
 
             // Act
-            var repository = new SaleTypeRepository(context);
-            var handler = new GetAllSaleTypeWithIncludeQueryHandler(repository, _mapper);
+            var repository = new PropertyTypeRepository(context);
+            var handler = new GetAllPropertyTypeWithIncludeQueryHandler(repository, _mapper);
 
-            var result = await handler.Handle(new GetAllSaleTypeWithIncludeQuery(), CancellationToken.None);
+            var result = await handler.Handle(new GetAllPropertyTypeWithIncludeQuery(), CancellationToken.None);
 
             // Assert
             result.Should().HaveCount(2);
 
-            result.Select(r => r.Name)
-                  .Should()
-                  .Contain(new[] { "Sale type1", "Sale type2" });
+            result.Select(r => r.Name).Should().Contain(new[]
+            {
+        "Property Type1",
+        "Property Type2"
+    });
 
-            // Validación del include mediante el contador
-            var saleType1 = result.First(r => r.Id == 1);
-            var saleType2 = result.First(r => r.Id == 2);
+            // Validar PropertiesCount
+            var ptype1 = result.First(r => r.Id == 1);
+            var ptype2 = result.First(r => r.Id == 2);
 
-            saleType1.PropertiesCount.Should().Be(1);
-            saleType2.PropertiesCount.Should().Be(0);
+            ptype1.PropertiesCount.Should().Be(1); // tiene 1 propiedad
+            ptype2.PropertiesCount.Should().Be(0); // no tiene propiedades
         }
-
 
 
         [Fact]
@@ -174,6 +155,4 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
             result.Should().BeEmpty();
         }
     }
-
-
-    }
+}

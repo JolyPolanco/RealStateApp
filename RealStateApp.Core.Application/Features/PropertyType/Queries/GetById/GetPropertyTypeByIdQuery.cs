@@ -3,12 +3,9 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RealStateApp.Core.Application.Dtos.Properties;
 using RealStateApp.Core.Application.Dtos.SaleType;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace RealStateApp.Core.Application.Features.PropertyType.Queries.GetById
 {
@@ -16,11 +13,11 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Queries.GetById
     {
         public required int Id { get; set; }
     }
-    public class GetSaleTypeByIdQueryHandler : IRequestHandler<GetPropertyTypeByIdQuery, PropertyTypeDto>
+    public class GetPropertyTypeByIdQueryHandler : IRequestHandler<GetPropertyTypeByIdQuery, PropertyTypeDto>
     {
-        private readonly ISaleTypeRepository _repository;
+        private readonly IPropertyTypeRepository _repository;
         private readonly IMapper _mapper;
-        public GetSaleTypeByIdQueryHandler(ISaleTypeRepository repository, IMapper mapper)
+        public GetPropertyTypeByIdQueryHandler(IPropertyTypeRepository repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
@@ -30,7 +27,7 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Queries.GetById
         {
             var listEntitiesQuery = _repository.GetAllQueryWithInclude(new List<string> { "Properties" });
             var entity = await listEntitiesQuery.FirstOrDefaultAsync(fd => fd.Id == request.Id, cancellationToken: cancellationToken);
-            if (entity == null) throw new ArgumentException("El id es inválido");
+            if (entity == null) throw new ApiException("Invalid Id");
 
             var dto = _mapper.Map<PropertyTypeDto>(entity);
             return dto;
