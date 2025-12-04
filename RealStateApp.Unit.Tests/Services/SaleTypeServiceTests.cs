@@ -353,33 +353,39 @@ namespace RealStateApp.Unit.Tests.Services
             await identityContext.SaveChangesAsync();
 
             // Propiedades
-            context.Properties.Add(new RealStateApp.Core.Domain.Property
+            context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
                 PropertyTypeId = propertyType.Id,
                 SaleTypeId = 1,
+                Description="",
+                Code="",
                 Bedrooms = 2,
                 Bathrooms = 1,
                 Price = 100
             });
 
-            context.Properties.Add(new RealStateApp.Core.Domain.Property
+            context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
                 PropertyTypeId = propertyType.Id,
                 SaleTypeId = 1,
+                Description = "",
+                Code = "",
                 Bedrooms = 3,
                 Bathrooms = 2,
                 Price = 200
             });
 
-            context.Properties.Add(new RealStateApp.Core.Domain.Property
+            context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
                 PropertyTypeId = propertyType.Id,
                 SaleTypeId = 2,
                 Bedrooms = 1,
                 Bathrooms = 1,
+                Description = "",
+                Code = "",
                 Price = 50
             });
 

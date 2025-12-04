@@ -55,7 +55,8 @@ namespace RealStateApp.Core.Application.Services
         public async  Task<List<AgentDto>>GetAgents()
         {
             var dictionary = await _propertyRepository.GetAgentsPropertiesCount();
-            return await _userService.GetUsersAgentOnly(dictionary);
+            var entities= await _userService.GetUsersAgentOnly(dictionary);
+            return entities.ToList();
         }
 
         public async Task<List<UserDto>> GetDevelopers()

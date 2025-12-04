@@ -30,7 +30,7 @@ namespace RealStateApp.Core.Application.Features.SaleType.Commands.DeleteSaleTyp
             var entity = await _repository.GetByIdAsync(request.Id);
 
             if (entity == null)
-                throw new ApiException("Entity  not found with this id");
+                throw new ApiException("Entity not found with this id");
 
             await _repository.DeleteAsync(request.Id);
             return Unit.Value;

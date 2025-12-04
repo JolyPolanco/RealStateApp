@@ -20,12 +20,12 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Queries.GetAllWith
     }
 
 
-    public class GetAllPropertyTypeQueryHandler : IRequestHandler<GetAllPropertyTypeWithIncludeQuery, IList<PropertyTypeDto>>
+    public class GetAllPropertyTypeWithIncludeQueryHandler : IRequestHandler<GetAllPropertyTypeWithIncludeQuery, IList<PropertyTypeDto>>
     {
         private IPropertyTypeRepository _repository;
         private IMapper _mapper;
 
-        public GetAllPropertyTypeQueryHandler(IPropertyTypeRepository repository, IMapper mapper)
+        public GetAllPropertyTypeWithIncludeQueryHandler(IPropertyTypeRepository repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

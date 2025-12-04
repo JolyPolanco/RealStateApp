@@ -35,10 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Agents\Commands\" />
-    <Folder Include="Features\Agents\Queries\" />
-    <Folder Include="Features\PropertyType\Commands\" />
-    <Folder Include="Features\PropertyType\Queries\" />
     <Folder Include="Features\Property\Commands\" />
     <Folder Include="Features\Property\Queries\" />
   </ItemGroup>

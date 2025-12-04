@@ -16,8 +16,7 @@ namespace RealStateWebApi.Controllers.v1
     public class ImprovementsController : BaseApiController
     {
         [Authorize(Roles = "ADMIN,DEVELOPER")]
-        public class SaleTypesController : BaseApiController
-        {
+        
 
             [HttpPost]
             [ProducesResponseType(StatusCodes.Status201Created)]
@@ -98,6 +97,6 @@ namespace RealStateWebApi.Controllers.v1
                 return NoContent();
             }
 
-        }
+        
     }
 }
