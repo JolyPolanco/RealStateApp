@@ -31,7 +31,7 @@ public class AdministratorsController : Controller
 
         var currentUserName = User.Identity?.Name;
         var currentUser = await _accountService.GetByUserName(currentUserName ?? "");
-        ViewBag.CurrentUserId = currentUser.Id;
+        ViewBag.CurrentUserId = currentUser!.Id;
 
         return View(vms);
     }

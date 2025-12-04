@@ -2,11 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RealStateApp.Infraestructure.Persistence.Contexts;
 using RealStateApp.Infraestructure.Persistence.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using FluentAssertions;
 
 namespace RealStateApp.Integration.Tests.Persistence.Repositories
@@ -84,7 +80,7 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
             //Act
             var saleType = await SaleTypeRepository.AddAsync(SaleType);
 
-            var result = await SaleTypeRepository.GetByIdAsync(saleType.Id);
+            var result = await SaleTypeRepository.GetByIdAsync(saleType!.Id);
 
 
             //Assert
@@ -129,7 +125,7 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
 
             //Act
             var saleType = await SaleTypeRepository.AddAsync(SaleType);
-            saleType.Name = "Updated saleType";
+            saleType!.Name = "Updated saleType";
             saleType.Description = "Updated Description";
 
             var updated = await SaleTypeRepository.UpdateAsync(saleType.Id, saleType);
@@ -159,7 +155,7 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
 
             //Act
             var saleType = await SaleTypeRepository.AddAsync(SaleType);
-            saleType.Name = "Updated saleType";
+            saleType!.Name = "Updated saleType";
             saleType.Description = "Updated Description";
 
             var updated = await SaleTypeRepository.UpdateAsync(9, saleType);
@@ -189,7 +185,7 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
             var saleType = await SaleTypeRepository.AddAsync(SaleType);
           
 
-            await SaleTypeRepository.DeleteAsync(saleType.Id);
+            await SaleTypeRepository.DeleteAsync(saleType!.Id);
             var entity= SaleTypeRepository.GetByIdAsync(saleType.Id);
 
             //Assert
