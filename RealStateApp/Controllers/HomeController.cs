@@ -33,7 +33,7 @@ namespace RealStateApp.Controllers
 
                 if (userSession != null)
                 {
-                    // Verificar que el usuario esté activo y confirmado
+                    // Verificar que el usuario estï¿½ activo y confirmado
                     if (userSession.IsActive && userSession.EmailConfirmed)
                     {
                         var roles = await userManager.GetRolesAsync(userSession);
@@ -43,7 +43,7 @@ namespace RealStateApp.Controllers
                         }
                     }
 
-                    // Si el usuario no está activo o no tiene email confirmado, cerrar sesión
+                    // Si el usuario no estï¿½ activo o no tiene email confirmado, cerrar sesiï¿½n
                     await accountServiceForWebApp.SignOutAsync();
                 }
             }
@@ -65,7 +65,7 @@ namespace RealStateApp.Controllers
             return role.ToUpper() switch
             {
                 "ADMIN" => RedirectToRoute(new { controller = "Home", action = "Index", area = "Administration" }),
-                "AGENT" => RedirectToRoute(new { controller = "Agents", action = "Index" }),
+                "AGENT" => RedirectToRoute(new { area = "Agents", controller = "Home", action = "Index" }),
                 "CLIENT" => RedirectToRoute(new { area = "Clients", controller = "Home", action = "Index" }),
                 _ => RedirectToRoute(new { controller = "Login", action = "Index" })
             };

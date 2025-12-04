@@ -241,13 +241,13 @@
                 </div>
 
                 <div class="mt-4 flex justify-center">
-                    <button id="open-chat-btn"
-                            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-lg transition">
+                    <a href="/Clients/Home/Chat/@Model.DetailsPropertyViewModel.Id"
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-lg transition">
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.97-4.03 9-9 9a8.96 8.96 0 01-4.95-1.46L3 21l1.46-3.06A8.96 8.96 0 013 12c0-4.97 4.03-9 9-9s9 4.03 9 9z" />
                         </svg>
-                        Mensajes
-                    </button>
+                        Chat con Agente
+                    </a>
                 </div>
             </div>
 
@@ -380,8 +380,94 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 
     <script>
+        const propertyId = @Model.DetailsPropertyViewModel.Id;
+        const agentId = '@Model.DetailsPropertyViewModel.AgentId';
+        const currentUserId = '@Model.CreateMessageViewModel.SenderUserId';
+        const chatContainer = chatPanel.querySelector('.p-3.flex-1');
+        
+        // ========== SignalR Setup ==========
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .withAutomaticReconnect()
+            .build();
+
+        // Función para agregar mensaje al chat
+        function addMessageToChatPanel(data) {
+            const isMine = data.senderId === currentUserId;
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `mb-3 flex ${isMine ? 'justify-end' : 'justify-start'}`;
+            msgDiv.setAttribute('data-message-id', data.id);
+            
+            msgDiv.innerHTML = `
+                <div class="px-3 py-2 rounded-lg text-sm ${isMine ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}">
+                    <div>${escapeHtml(data.content)}</div>
+                    <div class="text-xs ${isMine ? 'text-gray-200' : 'text-gray-500'} mt-1">${data.date}</div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Escapar HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Recibir mensajes en tiempo real
+        connection.on("ReceiveMessage", function (data) {
+            if (data.propertyId === propertyId) {
+                addMessageToChatPanel(data);
+                
+                // Limpiar indicador de "escribiendo"
+                document.getElementById('typingIndicator')?.remove();
+            }
+        });
+
+        // Indicador de "escribiendo"
+        connection.on("UserTyping", function (data) {
+            if (data.propertyId === propertyId && data.senderId !== currentUserId) {
+                let typingIndicator = document.getElementById('typingIndicator');
+                
+                if (data.isTyping) {
+                    if (!typingIndicator) {
+                        typingIndicator = document.createElement('div');
+                        typingIndicator.id = 'typingIndicator';
+                        typingIndicator.className = 'mb-3 flex justify-start';
+                        typingIndicator.innerHTML = `
+                            <div class="px-3 py-2 rounded-lg text-sm bg-gray-100 text-gray-600">
+                                <div class="flex items-center gap-2">
+                                    <span class="animate-pulse">●</span>
+                                    <span>${data.senderName} está escribiendo...</span>
+                                </div>
+                            </div>
+                        `;
+                        chatContainer.appendChild(typingIndicator);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                } else {
+                    typingIndicator?.remove();
+                }
+            }
+        });
+
+        // Iniciar conexión SignalR
+        connection.start()
+            .then(() => {
+                console.log("Conectado a SignalR");
+                return connection.invoke("JoinPropertyChat", propertyId);
+            })
+            .then(() => {
+                console.log(`Unido al chat de la propiedad ${propertyId}`);
+            })
+            .catch(err => console.error("Error de conexión:", err));
+
+        // ========== Slider de imágenes ==========
 
         (function () {
             const slides = document.querySelectorAll('#slides img');
@@ -476,28 +562,44 @@
 
 
 
-        //model del mensaje
+        // ========== Chat Panel & Message Form ==========
+        const chatPanel = document.getElementById('chat-panel');
+        const formMessage = document.getElementById("formMessage");
+        const messageTextarea = formMessage.querySelector('textarea[name="Content"]');
+        let typingTimer;
 
-                    const chatPanel = document.getElementById('chat-panel');
-
-
+        // Abrir chat panel
         document.getElementById('open-chat-btn')?.addEventListener('click', function () {
             chatPanel.classList.remove('hidden');
             const chatContainer = chatPanel.querySelector('.p-3.flex-1');
             chatContainer.scrollTop = chatContainer.scrollHeight;
         });
 
-
+        // Cerrar chat panel
         document.getElementById('close-chat')?.addEventListener('click', function () {
             chatPanel.classList.add('hidden');
         });
 
+        // Detectar cuando el usuario está escribiendo
+        messageTextarea.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            
+            // Notificar que está escribiendo
+            connection.invoke("NotifyTyping", propertyId, agentId, true)
+                .catch(err => console.error(err));
+            
+            // Después de 2 segundos sin escribir, notificar que dejó de escribir
+            typingTimer = setTimeout(() => {
+                connection.invoke("NotifyTyping", propertyId, agentId, false)
+                    .catch(err => console.error(err));
+            }, 2000);
+        });
 
-        document.getElementById("formMessage").addEventListener("submit", async function (e) {
+        // Enviar mensaje con SignalR
+        formMessage.addEventListener("submit", async function (e) {
             e.preventDefault();
 
-            const form = new FormData(this);
-            const content = form.get("Content")?.trim();
+            const content = messageTextarea.value.trim();
 
             if (!content) {
                 document.getElementById("msgError").innerText = "Debes escribir un mensaje válido antes de enviarlo.";
@@ -505,41 +607,15 @@
             }
 
             try {
-                const response = await fetch(this.action, {
-                    method: "POST",
-                    body: form,
-                    headers: {
-                        "RequestVerificationToken": form.get("__RequestVerificationToken")
-                    }
-                });
-
-                const result = await response.json();
-
-                if (!result.success) {
-                    document.getElementById("msgError").innerText = result.message;
-                    return;
-                }
-
-
-                const chatContainer = chatPanel.querySelector('.p-3.flex-1');
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'mb-3 flex justify-end';
-                msgDiv.innerHTML = `
-                    <div class="px-3 py-2 rounded-lg text-sm bg-blue-600 text-white">
-                        <div>${content}</div>
-                        <div class="text-xs text-gray-200 mt-1">${new Date().toLocaleString()}</div>
-                    </div>
-                `;
-                chatContainer.appendChild(msgDiv);
-
-
-                this.querySelector('textarea[name="Content"]').value = '';
-
-
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-
-
+                // Enviar a través de SignalR (que también guarda en BD)
+                await connection.invoke("SendMessage", propertyId, agentId, content);
+                
+                // Limpiar textarea y errores
+                messageTextarea.value = '';
                 document.getElementById("msgError").innerText = "";
+                
+                // Notificar que dejó de escribir
+                await connection.invoke("NotifyTyping", propertyId, agentId, false);
 
             } catch (err) {
                 console.error(err);
@@ -547,100 +623,15 @@
             }
         });
 
-        //
-
-
-                const chatContainer = document.getElementById('chat-messages');
-        const propertyId = '@Model.DetailsPropertyViewModel.Id';
-        const agentId = '@Model.DetailsPropertyViewModel.AgentId';
-        const currentUserId = '@Model.CreateMessageViewModel.SenderUserId';
-
-
-        async function updateChat() {
-            try {
-                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-                const res = await fetch('/Clients/Message/PartialMessages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        propertyId: propertyId,
-                        agentId: agentId,
-                        __RequestVerificationToken: token
-                    })
-                });
-
-                const html = await res.text();
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = html;
-
-
-                tempDiv.querySelectorAll('[data-id]').forEach(msg => {
-                    if (!chatContainer.querySelector(`[data-id="${msg.dataset.id}"]`)) {
-                        chatContainer.appendChild(msg);
-                    }
-                });
-
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-
-        setInterval(updateChat, 5000);
-
-
-        document.getElementById("formMessage").addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            const form = new FormData(this);
-            const content = form.get("Content")?.trim();
-
-            if (!content) {
-                document.getElementById("msgError").innerText = "Debes escribir un mensaje válido antes de enviarlo.";
-                return;
-            }
-
-            try {
-                const response = await fetch(this.action, {
-                    method: "POST",
-                    body: form,
-                    headers: {
-                        "RequestVerificationToken": form.get("__RequestVerificationToken")
-                    }
-                });
-
-                const result = await response.json();
-
-                if (!result.success) {
-                    document.getElementById("msgError").innerText = result.message;
-                    return;
-                }
-
-
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'mb-3 flex justify-end';
-                msgDiv.dataset.id = result.messageId;
-                msgDiv.innerHTML = `
-                    <div class="px-3 py-2 rounded-lg text-sm bg-blue-600 text-white">
-                        <div>${content}</div>
-                        <div class="text-xs text-gray-200 mt-1">${new Date().toLocaleString()}</div>
-                    </div>
-                `;
-                chatContainer.appendChild(msgDiv);
-
-                this.querySelector('textarea[name="Content"]').value = '';
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-                document.getElementById("msgError").innerText = "";
-
-            } catch (err) {
-                console.error(err);
-                document.getElementById("msgError").innerText = "Ocurrió un error inesperado, intenta nuevamente.";
-            }
+        // Limpiar al salir
+        window.addEventListener('beforeunload', function() {
+            connection.invoke("LeavePropertyChat", propertyId).catch(err => console.error(err));
         });
 
         // Scroll automático al cargar
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
     </script>
 }
 

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using RealStateApp.Core.Application.Dtos.Login;
@@ -23,7 +22,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailService _emailService;
 
-        public AccountServiceForWebApp(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager, IMapper mapper) : base(userManager, emailService, signInManager, mapper)
+        public AccountServiceForWebApp(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager) : base(userManager, emailService, signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -134,7 +133,11 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
             }
             
-            responseDto = _mapper.Map<LoginResponseDto>(user);
+            // Manual mapping from AppUser to LoginResponseDto (Clean Architecture)
+            responseDto.Id = user.Id;
+            responseDto.Email = user.Email ?? string.Empty;
+            responseDto.UserName = user.UserName ?? string.Empty;
+            responseDto.IsVerified = user.EmailConfirmed && user.IsActive;
             var rolesList = await _userManager.GetRolesAsync(user);
             responseDto.Roles = rolesList.ToList();
 

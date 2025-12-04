@@ -9,5 +9,6 @@ namespace RealStateApp.Core.Domain.Interfaces
 
         Task<PropertyImprovement> GetPropertyImprovementByPropertyId(int PropertyId);
         Task<List<PropertyImprovement>> GetListImprovementBYPorpertyId(int PropertyId);
+        Task DeleteByPropertyId(int propertyId);
     }
 }

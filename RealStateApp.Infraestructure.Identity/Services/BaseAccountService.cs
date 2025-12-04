@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using RealStateApp.Core.Application.Dtos.Email;
@@ -14,13 +13,11 @@ namespace RealStateApp.Infraestructure.Identity.Services
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IEmailService _emailService;
-        protected readonly IMapper _mapper;
 
-        public BaseAccountService(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager, IMapper mapper)
+        public BaseAccountService(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
             _emailService = emailService;
-            _mapper = mapper;
         }
 
         public async Task<RegisterUserResponseDto> RegisterAsync(SaveUserDto dto, string? origin)
@@ -117,7 +114,14 @@ namespace RealStateApp.Infraestructure.Identity.Services
                     });
                 }
 
-                response = _mapper.Map<RegisterUserResponseDto>(user);
+                // Manual mapping from AppUser to RegisterUserResponseDto (Clean Architecture)
+                response.Id = user.Id;
+                response.Email = user.Email ?? string.Empty;
+                response.UserName = user.UserName ?? string.Empty;
+                response.FirstName = user.FirstName;
+                response.LastName = user.LastName;
+                response.Dni = user.Dni;
+                response.IsVerified = user.EmailConfirmed;
                 response.Roles = new List<string> { dtoRole.ToUpper() };
                 
                 return response;

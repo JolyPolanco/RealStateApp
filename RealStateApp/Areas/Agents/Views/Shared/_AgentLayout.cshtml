@@ -1,6 +1,13 @@
-﻿@{
-    var profileImage = "~/Images/profile.jpg";
-    var hasProfileImage = true;
+﻿@using Microsoft.AspNetCore.Identity
+@using RealStateApp.Infraestructure.Identity.Entities
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var profileImage = user?.Photo ?? "~/Images/default-profile.jpg";
+    var hasProfileImage = !string.IsNullOrEmpty(user?.Photo);
+    var userName = user != null ? $"{user.FirstName} {user.LastName}" : "Usuario";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -31,10 +38,16 @@
             margin: 0;
             display: flex;
             flex-direction: column;
+            pointer-events: auto;
         }
 
         main {
-            flex: 1; /* Hace que main ocupe el espacio restante */
+            flex: 1;
+            pointer-events: auto;
+        }
+
+        header {
+            pointer-events: auto;
         }
 
         /* Navbar minimalista y profesional */
@@ -46,6 +59,8 @@
             margin: 1rem auto;
             max-width: 1200px;
             transition: box-shadow 0.3s;
+            z-index: 1030;
+            position: relative;
         }
 
             .navbar-custom:hover {
@@ -54,11 +69,19 @@
 
         .navbar-brand {
             font-weight: 700;
-            color: var(--accent-color);
+            color: var(--accent-color) !important;
             font-size: 1.5rem;
-            display: flex;
+            display: inline-flex;
             align-items: center;
+            text-decoration: none;
+            cursor: pointer;
+            pointer-events: auto;
         }
+
+            .navbar-brand:hover {
+                color: var(--accent-color) !important;
+                opacity: 0.8;
+            }
 
             .navbar-brand i {
                 font-size: 1.6rem;
@@ -66,23 +89,30 @@
             }
 
         .navbar-custom .nav-link {
-            color: var(--text-dark);
+            color: var(--text-dark) !important;
             font-weight: 500;
             transition: all 0.2s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 0.3rem;
             padding: 0.5rem 1rem;
             border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            pointer-events: auto;
         }
 
             .navbar-custom .nav-link:hover {
-                color: var(--accent-color);
+                color: var(--accent-color) !important;
                 background-color: var(--hover-bg);
             }
 
         .navbar-nav .nav-item + .nav-item {
-            margin-left: 1rem;
+            margin-left: 0.5rem;
+        }
+
+        .navbar-nav .nav-item {
+            pointer-events: auto;
         }
 
         .navbar-toggler {
@@ -90,8 +120,7 @@
         }
 
         .navbar-toggler-icon {
-            font-size: 1.5rem;
-            color: var(--accent-color);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(23, 162, 184, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
 
         /* Dropdown usuario */
@@ -99,6 +128,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.1);
             padding: 0.5rem 0;
+            z-index: 1050;
         }
 
         .dropdown-item {
@@ -106,12 +136,19 @@
             align-items: center;
             gap: 0.5rem;
             transition: all 0.2s;
+            cursor: pointer;
+            color: var(--text-dark) !important;
+            text-decoration: none;
         }
 
             .dropdown-item:hover {
                 background-color: var(--hover-bg);
-                color: var(--accent-color);
+                color: var(--accent-color) !important;
             }
+
+        .dropdown-toggle::after {
+            margin-left: 0.5rem;
+        }
 
         /* Imagen o icono de usuario */
         .user-icon {
@@ -134,8 +171,12 @@
         }
 
         /* Asegurar que los iconos se vean nítidos */
-        .bi {
+        i {
             vertical-align: middle;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.25rem rgba(23, 162, 184, 0.25);
         }
     </style>
 </head>
@@ -143,22 +184,28 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-custom">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">
+                <a class="navbar-brand" href="/Agents/Home/Index">
                     <i class="fi fi-sr-home-heart"></i> RealStateApp
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
-                    <i class="bi bi-list"></i>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu" aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarMenu">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="bi bi-house-door"></i> Inicio</a>
+                            <a class="nav-link" href="/Agents/Home/Index">
+                                <i class="fi fi-sr-home"></i> Home del agente
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="bi bi-tools"></i> Detalle de propiedades</a>
+                            <a class="nav-link" href="/Agents/Profile/Index">
+                                <i class="fi fi-sr-user"></i> Mi perfil
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="bi bi-tools"></i> Mantenimiento de Propiedades</a>
+                            <a class="nav-link" href="/Agents/Property/Index">
+                                <i class="fi fi-sr-building"></i> Mantenimiento de Propiedades
+                            </a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
@@ -168,14 +215,16 @@
                                 }
                                 else
                                 {
-                                    <i class="bi bi-person-circle fs-4 me-2" style="color: var(--accent-color);"></i>
+                                    <i class="fi fi-sr-circle-user fs-4 me-2" style="color: var(--accent-color);"></i>
                                 }
-                                Usuario
+                                @userName
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-person-circle"></i> Mi Perfil</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a></li>
+                                <li>
+                                    <a class="dropdown-item" href="/Login/Logout">
+                                        <i class="fi fi-sr-sign-out-alt"></i> Cerrar Sesión
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     </ul>

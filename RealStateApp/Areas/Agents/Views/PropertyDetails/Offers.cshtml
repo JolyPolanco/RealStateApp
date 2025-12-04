@@ -1,0 +1,146 @@
+@using RealStateApp.Core.Domain.Entities
+@using RealStateApp.Infraestructure.Identity.Entities
+@{
+    Layout = "_AgentLayout";
+    ViewData["Title"] = "Ofertas del Cliente";
+    var property = ViewBag.Property as Property;
+    var client = ViewBag.Client as AppUser;
+    var offers = ViewBag.Offers as List<Offer>;
+}
+
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="/Agents/PropertyDetails/Index/@property.Id" class="btn btn-secondary">
+            <i class="fi fi-sr-arrow-left"></i> Volver al Detalle
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fi fi-sr-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow">
+        <!-- Header -->
+        <div class="card-header bg-success text-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <span class="text-success fw-bold">@client.FirstName.Substring(0, 1)@client.LastName.Substring(0, 1)</span>
+                    </div>
+                    <div>
+                        <h3 class="h5 mb-0">Ofertas de @client.FirstName @client.LastName</h3>
+                        <p class="mb-0 small opacity-75">Propiedad: @property.Code</p>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="small">@client.Email</div>
+                    <div class="small opacity-75">@client.PhoneNumber</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de ofertas -->
+        <div class="card-body p-0">
+            @if (offers != null && offers.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha de Oferta</th>
+                                <th>Monto Ofrecido</th>
+                                <th>Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var offer in offers)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fi fi-sr-calendar text-muted me-2"></i>
+                                            @offer.Date.ToString("dd/MM/yyyy HH:mm")
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fi fi-sr-dollar text-success me-2"></i>
+                                            <strong class="text-success h6 mb-0">RD$ @offer.Amount.ToString("N2")</strong>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (offer.Status == RealStateApp.Core.Domain.Common.Enums.OfferStatus.Pending)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fi fi-sr-time me-1"></i>
+                                                Pendiente
+                                            </span>
+                                        }
+                                        else if (offer.Status == RealStateApp.Core.Domain.Common.Enums.OfferStatus.Accepted)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fi fi-sr-check-circle me-1"></i>
+                                                Aceptada
+                                            </span>
+                                        }
+                                        else if (offer.Status == RealStateApp.Core.Domain.Common.Enums.OfferStatus.Rejected)
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fi fi-sr-cross-circle me-1"></i>
+                                                Rechazada
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (offer.Status == RealStateApp.Core.Domain.Common.Enums.OfferStatus.Pending)
+                                        {
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <form method="post" action="/Agents/PropertyDetails/AcceptOffer" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="offerId" value="@offer.Id" />
+                                                    <button type="submit" 
+                                                            class="btn btn-success" 
+                                                            onclick="return confirm('¿Está seguro de que desea aceptar esta oferta?\n\nSe rechazarán todas las demás ofertas pendientes y la propiedad se marcará como vendida.');">
+                                                        <i class="fi fi-sr-check"></i> Aceptar
+                                                    </button>
+                                                </form>
+                                                
+                                                <form method="post" action="/Agents/PropertyDetails/RejectOffer" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="offerId" value="@offer.Id" />
+                                                    <button type="submit" 
+                                                            class="btn btn-danger" 
+                                                            onclick="return confirm('¿Está seguro de que desea rechazar esta oferta?');">
+                                                        <i class="fi fi-sr-cross"></i> Rechazar
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fi fi-sr-dollar text-muted display-4 mb-3 d-block"></i>
+                    <h3 class="h5 mb-2">No hay ofertas</h3>
+                    <p class="text-muted">Este cliente no ha realizado ofertas para esta propiedad.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
