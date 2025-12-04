@@ -126,7 +126,7 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
 
             //Act
             var saleType = await repository.AddAsync(improvement);
-            saleType.Name = "Updated improvement";
+            saleType!.Name = "Updated improvement";
             saleType.Description = "Updated Description";
 
             var updated = await repository.UpdateAsync(saleType.Id, saleType);
