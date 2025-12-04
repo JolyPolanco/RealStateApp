@@ -14,6 +14,7 @@ namespace RealStateApp.Core.Application.Mappings.EntitiesAndDtos
         public ImprovementToDtoMappingProfile()
         {
             CreateMap<Improvement, ImprovementDto>()
+                .ForMember(dest=>dest.PropertiesCount, opt=>opt.MapFrom(src=>src.PropertyImprovements!=null? src.PropertyImprovements.Count() : 0))
                 .ReverseMap();
         }
     }

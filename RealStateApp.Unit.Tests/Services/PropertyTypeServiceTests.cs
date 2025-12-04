@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RealStateApp.Core.Application.Dtos.Properties;
 using RealStateApp.Core.Application.Dtos.SaleType;
 using RealStateApp.Core.Application.Mappings.EntitiesAndDtos;
 using RealStateApp.Core.Application.Services;
@@ -10,16 +11,21 @@ using RealStateApp.Infraestructure.Identity.Contexts;
 using RealStateApp.Infraestructure.Identity.Entities;
 using RealStateApp.Infraestructure.Persistence.Contexts;
 using RealStateApp.Infraestructure.Persistence.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace RealStateApp.Unit.Tests.Services
 {
-    public class SaleTypeServiceTests
+    public class PropertyTypeServiceTests
     {
         private readonly DbContextOptions<IdentityContext> _IdentitydbOptions;
         private readonly IMapper _mapper;
         private readonly DbContextOptions<RealStateContext> _dbOptions;
 
-        public SaleTypeServiceTests()
+        public PropertyTypeServiceTests()
         {
             _dbOptions = new DbContextOptionsBuilder<RealStateContext>()
                 .UseInMemoryDatabase($"RealStateDb_{Guid.NewGuid()}")
@@ -28,7 +34,7 @@ namespace RealStateApp.Unit.Tests.Services
             var logger = LoggerFactory.Create(b => b.AddConsole());
             var mapping = new MapperConfiguration(cfg =>
             {
-                cfg.AddProfile<SaleTypeToDtoMappingProfile>();
+                cfg.AddProfile<PropertyTypeToDtoMappingProfile>();
             }, logger);
             _IdentitydbOptions = new DbContextOptionsBuilder<IdentityContext>()
              .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
@@ -36,11 +42,11 @@ namespace RealStateApp.Unit.Tests.Services
             _mapper = mapping.CreateMapper();
         }
 
-        private SaleTypeService CreateService()
+        private PropertyTypeService CreateService()
         {
             var context = new RealStateContext(_dbOptions);
-            var repo = new SaleTypeRepository(context);
-            return new SaleTypeService(repo, _mapper);
+            var repo = new PropertyTypeRepository(context);
+            return new PropertyTypeService(repo, _mapper);
         }
 
 
@@ -49,7 +55,7 @@ namespace RealStateApp.Unit.Tests.Services
         {
             var service = CreateService();
 
-            var dto = new SaleTypeDto
+            var dto = new PropertyTypeDto
             {
                 Name = "Test",
                 Description = "Description"
@@ -65,21 +71,21 @@ namespace RealStateApp.Unit.Tests.Services
         public async Task AddAsync_Should_ReturnNull_When_Exception()
         {
             var service = CreateService();
-            SaleTypeDto dto = null!;
+            PropertyTypeDto dto = null!;
 
             var result = await service.AddAsync(dto);
 
             result.Should().BeNull();
         }
 
-      
+
 
         [Fact]
         public async Task UpdateAsync_Should_UpdateEntity_When_Exists()
         {
             var service = CreateService();
 
-            var added = await service.AddAsync(new SaleTypeDto
+            var added = await service.AddAsync(new PropertyTypeDto
             {
                 Name = "Initial",
                 Description = "Initial"
@@ -98,7 +104,7 @@ namespace RealStateApp.Unit.Tests.Services
         {
             var service = CreateService();
 
-            var dto = new SaleTypeDto
+            var dto = new PropertyTypeDto
             {
                 Id = 999,
                 Name = "Ghost",
@@ -110,13 +116,13 @@ namespace RealStateApp.Unit.Tests.Services
             result.Should().BeNull();
         }
 
-  
+
 
         [Fact]
         public async Task DeleteAsync_Should_RemoveEntity()
         {
             var service = CreateService();
-            var added = await service.AddAsync(new SaleTypeDto
+            var added = await service.AddAsync(new PropertyTypeDto
             {
                 Name = "ToDelete",
                 Description = "Temp"
@@ -140,13 +146,13 @@ namespace RealStateApp.Unit.Tests.Services
                 .WithMessage("Entity not found with this id");
         }
 
- 
+
 
         [Fact]
         public async Task GetByIdAsync_Should_ReturnDto_When_Exists()
         {
             var service = CreateService();
-            var added = await service.AddAsync(new SaleTypeDto
+            var added = await service.AddAsync(new PropertyTypeDto
             {
                 Name = "Type1",
                 Description = "Test"
@@ -175,8 +181,8 @@ namespace RealStateApp.Unit.Tests.Services
         {
             var service = CreateService();
 
-            await service.AddAsync(new SaleTypeDto { Name = "A", Description = "1" });
-            await service.AddAsync(new SaleTypeDto { Name = "B", Description = "2" });
+            await service.AddAsync(new PropertyTypeDto { Name = "A", Description = "1" });
+            await service.AddAsync(new PropertyTypeDto { Name = "B", Description = "2" });
 
             var list = await service.GetAllList();
 
@@ -200,7 +206,7 @@ namespace RealStateApp.Unit.Tests.Services
         {
             var service = CreateService();
 
-            await service.AddAsync(new SaleTypeDto { Name = "A", Description = "1" });
+            await service.AddAsync(new PropertyTypeDto { Name = "A", Description = "1" });
 
             var result = await service.GetAllListWithInclude(new List<string> { "Properties" });
 
@@ -208,20 +214,20 @@ namespace RealStateApp.Unit.Tests.Services
             result!.Count.Should().Be(1);
         }
 
-     
+
 
         [Fact]
         public async Task UpdateRangeAsync_Should_UpdateMultipleEntities()
         {
             var service = CreateService();
 
-            var a = await service.AddAsync(new SaleTypeDto { Name = "A", Description = "1" });
-            var b = await service.AddAsync(new SaleTypeDto { Name = "B", Description = "2" });
+            var a = await service.AddAsync(new PropertyTypeDto { Name = "A", Description = "1" });
+            var b = await service.AddAsync(new PropertyTypeDto { Name = "B", Description = "2" });
 
             a!.Name = "A1";
             b!.Name = "B1";
 
-            await service.UpdateRangeAsync(new List<SaleTypeDto> { a, b });
+            await service.UpdateRangeAsync(new List<PropertyTypeDto> { a, b });
 
             var all = await service.GetAllList();
 
@@ -235,10 +241,10 @@ namespace RealStateApp.Unit.Tests.Services
         {
             var service = CreateService();
 
-            var a = await service.AddAsync(new SaleTypeDto { Name = "A", Description = "1" });
-            var b = await service.AddAsync(new SaleTypeDto { Name = "B", Description = "2" });
+            var a = await service.AddAsync(new PropertyTypeDto { Name = "A", Description = "1" });
+            var b = await service.AddAsync(new PropertyTypeDto { Name = "B", Description = "2" });
 
-            await service.DeleteRangeAsync(new List<SaleTypeDto> { a!, b! });
+            await service.DeleteRangeAsync(new List<PropertyTypeDto> { a!, b! });
 
             var all = await service.GetAllList();
 
@@ -248,7 +254,7 @@ namespace RealStateApp.Unit.Tests.Services
 
 
 
-    
+
 
         [Fact]
         public async Task GetByIdAsync_Should_ReturnDto_When_EntityExists()
@@ -256,9 +262,9 @@ namespace RealStateApp.Unit.Tests.Services
             // Arrange
             var service = CreateService();
 
-            var added = await service.AddAsync(new SaleTypeDto
+            var added = await service.AddAsync(new PropertyTypeDto
             {
-                Name = "SaleTest",
+                Name = "Test",
                 Description = "Test Description"
             });
 
@@ -268,7 +274,7 @@ namespace RealStateApp.Unit.Tests.Services
             // Assert
             result.Should().NotBeNull();
             result!.Id.Should().Be(added.Id);
-            result.Name.Should().Be("SaleTest");
+            result.Name.Should().Be("Test");
         }
 
         [Fact]
@@ -283,15 +289,15 @@ namespace RealStateApp.Unit.Tests.Services
 
 
 
-    
+
         [Fact]
-        public async Task GetAllList_Should_Return_All_SaleTypes()
+        public async Task GetAllList_Should_Return_All_PropertyTypes()
         {
             // Arrange
             var service = CreateService();
 
-            await service.AddAsync(new SaleTypeDto { Name = "Type1", Description = "D1" });
-            await service.AddAsync(new SaleTypeDto { Name = "Type2", Description = "D2" });
+            await service.AddAsync(new PropertyTypeDto { Name = "Type1", Description = "D1" });
+            await service.AddAsync(new PropertyTypeDto { Name = "Type2", Description = "D2" });
 
             // Act
             var result = await service.GetAllList();
@@ -319,25 +325,20 @@ namespace RealStateApp.Unit.Tests.Services
 
 
 
-
         [Fact]
-        public async Task GetAllWithInclude_ShouldReturnDtos_WithCorrectPropertiesCount()
+        public async Task GetAllWithInclude_ShouldReturnPropertyTypeDtos_WithCorrectPropertiesCount()
         {
             // Arrange
             using var context = new RealStateContext(_dbOptions);
 
-            // Crear SaleTypes
-            var type1 = new SaleType { Id = 1, Name = "Venta", Description = "D1" };
-            var type2 = new SaleType { Id = 2, Name = "Renta", Description = "D2" };
-            context.SaleTypes.AddRange(type1, type2);
+            // Seed inicial — PropertyTypes existentes
+            var type1 = new PropertyType { Id = 1, Name = "Casa", Description = "D1" };
+            var type2 = new PropertyType { Id = 2, Name = "Apartamento", Description = "D2" };
 
-            // Crear PropertyType
-            var repoPropertyType = new PropertyTypeRepository(context);
-            var propertyType = await repoPropertyType.AddAsync(
-                new PropertyType { Name = "Casa", Description = "Desc Casa" }
-            );
+            context.PropertyTypes.AddRange(type1, type2);
+            await context.SaveChangesAsync();
 
-            // Crear agente mínimo
+            // Agente mínimo
             using var identityContext = new IdentityContext(_IdentitydbOptions);
 
             var agent = new AppUser
@@ -352,14 +353,14 @@ namespace RealStateApp.Unit.Tests.Services
             identityContext.Users.Add(agent);
             await identityContext.SaveChangesAsync();
 
-            // Propiedades
+            // Propiedades para Type1
             context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
-                PropertyTypeId = propertyType!.Id,
+                PropertyTypeId = 1,
+                Description= "Description",
+                Code="123",
                 SaleTypeId = 1,
-                Description="",
-                Code="",
                 Bedrooms = 2,
                 Bathrooms = 1,
                 Price = 100
@@ -368,35 +369,36 @@ namespace RealStateApp.Unit.Tests.Services
             context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
-                PropertyTypeId = propertyType.Id,
-                SaleTypeId = 1,
-                Description = "",
-                Code = "",
+                Code ="123",
+                Description="Description",
+                PropertyTypeId = 1,
+                SaleTypeId = 2,
                 Bedrooms = 3,
                 Bathrooms = 2,
                 Price = 200
             });
 
+            // 1 propiedad para Type2
             context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
-                PropertyTypeId = propertyType.Id,
-                SaleTypeId = 2,
+                Code="123",
+                Description="Description",
+                PropertyTypeId = 2,
+                SaleTypeId = 1,
                 Bedrooms = 1,
                 Bathrooms = 1,
-                Description = "",
-                Code = "",
                 Price = 50
             });
 
             await context.SaveChangesAsync();
 
             // Crear repositorio y servicio
-            var saleTypeRepository = new SaleTypeRepository(context);
-            var service = new SaleTypeService(saleTypeRepository, _mapper);
+            var repository = new PropertyTypeRepository(context);
+            var service = new PropertyTypeService(repository, _mapper);
 
             // Act
-            var result = await service.GetAllListWithInclude(new List<string> { "Properties"});
+            var result = await service.GetAllListWithInclude(new List<string> { "Properties" });
 
             // Assert
             result.Should().HaveCount(2);
@@ -409,7 +411,7 @@ namespace RealStateApp.Unit.Tests.Services
 
             result.Select(r => r.Name)
                   .Should()
-                  .Contain(new[] { "Venta", "Renta" });
+                  .Contain(new[] { "Casa", "Apartamento" });
         }
 
 
@@ -433,7 +435,7 @@ namespace RealStateApp.Unit.Tests.Services
             // Arrange
             var service = CreateService();
 
-            await service.AddAsync(new SaleTypeDto
+            await service.AddAsync(new PropertyTypeDto
             {
                 Name = "TypeX",
                 Description = "DescX"
@@ -446,6 +448,5 @@ namespace RealStateApp.Unit.Tests.Services
             result.Should().NotBeNull();
             result!.Count.Should().Be(1);
         }
-
     }
 }

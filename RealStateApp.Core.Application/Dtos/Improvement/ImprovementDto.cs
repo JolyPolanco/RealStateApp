@@ -12,5 +12,6 @@ namespace RealStateApp.Core.Application.Dtos.Improvement
         public required string Name { get; set; }
         public required string Description { get; set; }
 
+        public int? PropertiesCount { get; set; }
     }
 }

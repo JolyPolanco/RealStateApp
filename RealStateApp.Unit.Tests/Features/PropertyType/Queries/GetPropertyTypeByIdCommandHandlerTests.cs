@@ -70,7 +70,7 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
                 Description = "PropertyType1 Description"
             });
 
-            propertyType.Id.Should().BeGreaterThan(0);
+            propertyType!.Id.Should().BeGreaterThan(0);
             context.PropertyTypes.Any(pt => pt.Id == propertyType.Id).Should().BeTrue();
 
             // Crear agente
