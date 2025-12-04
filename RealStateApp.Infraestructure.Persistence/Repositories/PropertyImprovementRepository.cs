@@ -37,5 +37,15 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
                 .ToListAsync();
 
         }
+
+        public async Task DeleteByPropertyId(int propertyId)
+        {
+            var improvements = await context.Set<PropertyImprovement>()
+                .Where(pi => pi.PropertyId == propertyId)
+                .ToListAsync();
+            
+            context.Set<PropertyImprovement>().RemoveRange(improvements);
+            await context.SaveChangesAsync();
+        }
     }
 }

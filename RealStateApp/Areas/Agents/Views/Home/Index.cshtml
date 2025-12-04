@@ -1,3 +1,82 @@
-﻿@{
+﻿@model List<RealStateApp.Core.Application.ViewModels.Properties.AgentPropertyViewModel>
+
+@{
     Layout = "_AgentLayout";
+    ViewData["Title"] = "Mis Propiedades";
 }
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Mis Propiedades</h2>
+            <p class="text-muted">Todas las propiedades que has creado</p>
+        </div>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            <h4>No tienes propiedades registradas</h4>
+            <p>Comienza creando tu primera propiedad desde el menú de mantenimiento.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var property in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm property-card" onclick="window.location.href='/Agents/PropertyDetails/Index/@property.Id'" style="cursor: pointer;">
+                        @if (!string.IsNullOrEmpty(property.MainPhoto))
+                        {
+                            <img src="@property.MainPhoto" class="card-img-top" alt="@property.Code" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fi fi-sr-home" style="font-size: 4rem; color: #ccc;"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">@property.Code</h5>
+                                @if (property.Status == RealStateApp.Core.Domain.Common.Enums.PropertyStatus.Sold)
+                                {
+                                    <span class="badge bg-danger">Vendida</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Disponible</span>
+                                }
+                            </div>
+                            <p class="text-muted mb-1"><small>@property.PropertyTypeName - @property.SaleTypeName</small></p>
+                            <h4 class="text-primary mb-3">RD$ @property.Price.ToString("N2")</h4>
+                            <div class="d-flex justify-content-between text-muted mb-2">
+                                <span><i class="fi fi-sr-bed"></i> @property.Bedrooms hab.</span>
+                                <span><i class="fi fi-sr-shower"></i> @property.Bathrooms baños</span>
+                                <span><i class="fi fi-sr-expand-arrows-alt"></i> @property.SizeInMeters m²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .property-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15) !important;
+    }
+
+    .card-img-top {
+        border-bottom: 1px solid #eee;
+    }
+</style>

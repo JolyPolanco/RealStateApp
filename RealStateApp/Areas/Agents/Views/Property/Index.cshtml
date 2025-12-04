@@ -1,0 +1,106 @@
+@model List<RealStateApp.Core.Application.ViewModels.Properties.AgentPropertyViewModel>
+
+@{
+    Layout = "_AgentLayout";
+    ViewData["Title"] = "Mantenimiento de Propiedades";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Mantenimiento de Propiedades</h2>
+            <p class="text-muted">Gestiona tus propiedades disponibles</p>
+        </div>
+        <div class="col-auto">
+            <a href="/Agents/Property/Create" class="btn btn-primary">
+                <i class="fi fi-sr-plus"></i> Nueva Propiedad
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            <h4>No tienes propiedades disponibles</h4>
+            <p>Comienza creando tu primera propiedad haciendo clic en el botón "Nueva Propiedad".</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var property in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm property-card" onclick="window.location.href='/Agents/PropertyDetails/Index/@property.Id'" style="cursor: pointer;">
+                        @if (!string.IsNullOrEmpty(property.MainPhoto))
+                        {
+                            <img src="@property.MainPhoto" class="card-img-top" alt="@property.Code" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fi fi-sr-home" style="font-size: 4rem; color: #ccc;"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@property.Code</h5>
+                            <p class="text-muted mb-1"><small>@property.PropertyTypeName - @property.SaleTypeName</small></p>
+                            <h4 class="text-primary mb-3">RD$ @property.Price.ToString("N2")</h4>
+                            <div class="d-flex justify-content-between text-muted mb-3">
+                                <span><i class="fi fi-sr-bed"></i> @property.Bedrooms</span>
+                                <span><i class="fi fi-sr-shower"></i> @property.Bathrooms</span>
+                                <span><i class="fi fi-sr-expand-arrows-alt"></i> @property.SizeInMeters m²</span>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a href="/Agents/Property/Edit/@property.Id" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">
+                                    <i class="fi fi-sr-edit"></i> Editar
+                                </a>
+                                <a href="/Agents/Property/ConfirmDelete/@property.Id" class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation();">
+                                    <i class="fi fi-sr-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .property-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .property-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15) !important;
+    }
+
+    .card-img-top {
+        border-bottom: 1px solid #eee;
+    }
+
+    .btn-outline-primary:hover,
+    .btn-outline-danger:hover {
+        transform: none;
+    }
+</style>

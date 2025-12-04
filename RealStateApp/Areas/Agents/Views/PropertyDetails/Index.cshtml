@@ -1,0 +1,204 @@
+@using RealStateApp.Core.Domain.Entities
+@using RealStateApp.Infraestructure.Identity.Entities
+@{
+    Layout = "_AgentLayout";
+    ViewData["Title"] = "Detalle de Propiedad";
+    var property = ViewBag.Property as Property;
+    var clientsWithMessages = ViewBag.ClientsWithMessages as List<AppUser>;
+    var clientsWithOffers = ViewBag.ClientsWithOffers as List<AppUser>;
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 fw-bold">Detalle de la Propiedad</h1>
+            <p class="text-muted">Gestión de ofertas y mensajes de clientes</p>
+        </div>
+        <a href="/Agents/Property/Index" class="btn btn-secondary">
+            <i class="fi fi-sr-arrow-left"></i> Volver a Mis Propiedades
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Columna principal -->
+        <div class="col-lg-8">
+            <!-- Información de la propiedad -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Propiedad @property.Code</h2>
+                </div>
+
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                        <i class="fi fi-sr-dollar text-primary fs-4"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Precio</div>
+                                    <div class="fw-bold h5 mb-0">RD$ @property.Price.ToString("N2")</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-success bg-opacity-10 p-3 rounded">
+                                        <i class="fi fi-sr-expand-arrows-alt text-success fs-4"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Tamaño</div>
+                                    <div class="fw-bold h5 mb-0">@property.SizeInMeters m²</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-info bg-opacity-10 p-3 rounded">
+                                        <i class="fi fi-sr-bed text-info fs-4"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Habitaciones</div>
+                                    <div class="fw-bold h5 mb-0">@property.Bedrooms</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                        <i class="fi fi-sr-shower text-warning fs-4"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Baños</div>
+                                    <div class="fw-bold h5 mb-0">@property.Bathrooms</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-secondary bg-opacity-10 p-3 rounded">
+                                        <i class="fi fi-sr-document text-secondary fs-4"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Código</div>
+                                    <div class="fw-bold h5 mb-0">@property.Code</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3 p-3 bg-light rounded">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="@(property.Status == RealStateApp.Core.Domain.Common.Enums.PropertyStatus.Available ? "bg-success" : "bg-danger") bg-opacity-10 p-3 rounded">
+                                        <i class="fi fi-sr-check-circle @(property.Status == RealStateApp.Core.Domain.Common.Enums.PropertyStatus.Available ? "text-success" : "text-danger") fs-4"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Estado</div>
+                                    @if (property.Status == RealStateApp.Core.Domain.Common.Enums.PropertyStatus.Available)
+                                    {
+                                        <div class="fw-bold h5 mb-0 text-success">Disponible</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="fw-bold h5 mb-0 text-danger">Vendida</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div>
+                        <h3 class="h6 fw-bold mb-2">Descripción</h3>
+                        <p class="text-muted">@property.Description</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna lateral -->
+        <div class="col-lg-4">
+            <!-- Sección de Mensajes -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="fi fi-sr-comment me-2"></i>
+                    <h5 class="mb-0">Mensajes de Clientes</h5>
+                </div>
+                <div class="card-body p-2">
+                    @if (clientsWithMessages != null && clientsWithMessages.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var client in clientsWithMessages)
+                            {
+                                <a href="/Agents/PropertyDetails/Chat/@property.Id?clientId=@client.Id" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0 me-3">
+                                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <span class="text-primary fw-bold">@client.FirstName.Substring(0, 1)@client.LastName.Substring(0, 1)</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">@client.FirstName @client.LastName</h6>
+                                            <small class="text-muted">@client.Email</small>
+                                        </div>
+                                        <i class="fi fi-sr-angle-right text-muted"></i>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3 mb-0">No hay mensajes de clientes para esta propiedad.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Sección de Ofertas -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white d-flex align-items-center">
+                    <i class="fi fi-sr-dollar me-2"></i>
+                    <h5 class="mb-0">Ofertas de Clientes</h5>
+                </div>
+                <div class="card-body p-2">
+                    @if (clientsWithOffers != null && clientsWithOffers.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var client in clientsWithOffers)
+                            {
+                                <a href="/Agents/PropertyDetails/Offers/@property.Id?clientId=@client.Id" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0 me-3">
+                                            <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <span class="text-success fw-bold">@client.FirstName.Substring(0, 1)@client.LastName.Substring(0, 1)</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">@client.FirstName @client.LastName</h6>
+                                            <small class="text-muted">@client.Email</small>
+                                        </div>
+                                        <i class="fi fi-sr-angle-right text-muted"></i>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-3 mb-0">No hay ofertas de clientes para esta propiedad.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

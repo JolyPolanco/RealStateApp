@@ -1,0 +1,252 @@
+@using RealStateApp.Core.Domain.Entities
+@using RealStateApp.Infraestructure.Identity.Entities
+@{
+    Layout = "_ClientLayout";
+    ViewData["Title"] = "Chat con Agente";
+    var property = ViewBag.Property as Property;
+    var agent = ViewBag.Agent as AppUser;
+    var messages = ViewBag.Messages as List<Message>;
+}
+
+<section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="mb-4">
+        <a href="/Clients/Home/DetailsProperty?propertyId=@property.Id" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Volver al Detalle
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white rounded-full flex items-center justify-center w-12 h-12">
+                        <span class="text-blue-600 font-bold text-lg">@agent.FirstName.Substring(0, 1)@agent.LastName.Substring(0, 1)</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold">@agent.FirstName @agent.LastName</h3>
+                        <p class="text-sm text-blue-100">Propiedad: @property.Code</p>
+                    </div>
+                </div>
+                <div class="text-right text-sm">
+                    <div>@agent.Email</div>
+                    <div class="text-blue-100">@agent.PhoneNumber</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="chatContainer" class="bg-gray-50 p-4 overflow-y-auto" style="height: 500px;">
+            @if (messages != null && messages.Any())
+            {
+                @foreach (var message in messages)
+                {
+                    @if (message.SenderUserId == ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                    {
+                        <!-- Mensaje del cliente (derecha) -->
+                        <div class="flex justify-end mb-3">
+                            <div style="max-width: 70%;">
+                                <div class="bg-blue-600 text-white rounded-2xl rounded-tr-none px-4 py-2 shadow">
+                                    <p class="text-sm">@message.Content</p>
+                                </div>
+                                <div class="text-gray-500 text-right mt-1 text-xs">@message.Date.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Mensaje del agente (izquierda) -->
+                        <div class="flex justify-start mb-3">
+                            <div style="max-width: 70%;">
+                                <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none px-4 py-2 shadow">
+                                    <p class="text-sm text-gray-800">@message.Content</p>
+                                </div>
+                                <div class="text-gray-500 mt-1 text-xs">@message.Date.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+            else
+            {
+                <div class="flex items-center justify-center h-full">
+                    <div class="text-center text-gray-400">
+                        <svg class="h-16 w-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.97-4.03 9-9 9a8.96 8.96 0 01-4.95-1.46L3 21l1.46-3.06A8.96 8.96 0 013 12c0-4.97 4.03-9 9-9s9 4.03 9 9z" />
+                        </svg>
+                        <p class="text-lg font-semibold mb-2">No hay mensajes en esta conversación</p>
+                        <p class="text-sm">Envía el primer mensaje para comenzar</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Typing Indicator se creará dinámicamente -->
+        </div>
+
+        <!-- Input area -->
+        <div class="bg-white border-t p-4">
+            <form id="chatForm">
+                <input type="hidden" name="propertyId" value="@property.Id" />
+                <input type="hidden" name="agentId" value="@agent.Id" />
+                
+                <div class="flex gap-2">
+                    <textarea id="messageInput" 
+                              name="content" 
+                              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" 
+                              rows="2" 
+                              placeholder="Escribe tu mensaje..." 
+                              required></textarea>
+                    
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                        Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        const propertyId = @property.Id;
+        const agentId = '@agent.Id';
+        const currentUserId = '@ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const chatForm = document.getElementById('chatForm');
+        
+        // Crear conexión SignalR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .withAutomaticReconnect()
+            .build();
+
+        // Función para agregar mensaje al chat
+        function addMessageToChat(data) {
+            const isCurrentUser = data.senderId === currentUserId;
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-3`;
+            messageDiv.setAttribute('data-message-id', data.id);
+            
+            messageDiv.innerHTML = `
+                <div style="max-width: 70%;">
+                    <div class="${isCurrentUser ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none' : 'bg-white border border-gray-200 rounded-2xl rounded-tl-none'} px-4 py-2 shadow">
+                        <p class="text-sm ${isCurrentUser ? '' : 'text-gray-800'}">${escapeHtml(data.content)}</p>
+                    </div>
+                    <div class="text-gray-500 ${isCurrentUser ? 'text-right' : ''} mt-1 text-xs">${data.date}</div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Escapar HTML para prevenir XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Recibir mensajes
+        // Recibir mensajes
+        connection.on("ReceiveMessage", function (data) {
+            // Solo procesar mensajes de esta propiedad
+            if (data.propertyId === propertyId) {
+                addMessageToChat(data);
+                
+                // Limpiar indicador de "escribiendo"
+                document.getElementById('typingIndicator')?.remove();
+            }
+        });
+
+        // Indicador de "escribiendo" - igual que en agente
+        connection.on("UserTyping", function (data) {
+            if (data.propertyId === propertyId && data.senderId !== currentUserId) {
+                let typingIndicator = document.getElementById('typingIndicator');
+                
+                if (data.isTyping) {
+                    if (!typingIndicator) {
+                        typingIndicator = document.createElement('div');
+                        typingIndicator.id = 'typingIndicator';
+                        typingIndicator.className = 'flex justify-start mb-3';
+                        typingIndicator.innerHTML = `
+                            <div style="max-width: 70%;">
+                                <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none px-4 py-2 shadow">
+                                    <p class="text-sm text-gray-600">
+                                        <span class="inline-block">
+                                            <span class="inline-block w-2 h-2 bg-gray-400 rounded-full animate-bounce mr-1" style="animation-delay: 0s"></span>
+                                            <span class="inline-block w-2 h-2 bg-gray-400 rounded-full animate-bounce mr-1" style="animation-delay: 0.2s"></span>
+                                            <span class="inline-block w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                                        </span>
+                                        Escribiendo...
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                        chatContainer.appendChild(typingIndicator);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                } else {
+                    typingIndicator?.remove();
+                }
+            }
+        });
+        // Conectar
+        connection.start()
+            .then(function () {
+                return connection.invoke("JoinPropertyChat", propertyId);
+            })
+            .then(function () {
+                console.log(`Unido al chat de la propiedad ${propertyId}`);
+            })
+            .catch(function (err) {
+                console.error('Error al conectar con SignalR:', err.toString());
+            });
+
+        // Enviar mensaje
+        chatForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            
+            const content = messageInput.value.trim();
+            if (!content) return;
+
+            try {
+                await connection.invoke("SendMessage", propertyId, agentId, content);
+                messageInput.value = '';
+                messageInput.focus();
+                
+                // Notificar que dejó de escribir
+                await connection.invoke("NotifyTyping", propertyId, agentId, false);
+            } catch (err) {
+                console.error('Error al enviar mensaje:', err);
+                alert('No se pudo enviar el mensaje. Por favor, intenta de nuevo.');
+            }
+        });
+
+        // Detectar escritura
+        let typingTimeout;
+        messageInput.addEventListener('input', function () {
+            connection.invoke("NotifyTyping", propertyId, agentId, true)
+                .catch(err => console.error('Error al notificar escritura:', err));
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                connection.invoke("NotifyTyping", propertyId, agentId, false)
+                    .catch(err => console.error('Error al notificar fin de escritura:', err));
+            }, 2000);
+        });
+
+        // Auto-scroll al cargar
+        window.addEventListener('load', function () {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+    </script>
+}

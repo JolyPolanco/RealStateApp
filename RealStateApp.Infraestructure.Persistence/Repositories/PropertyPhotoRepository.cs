@@ -38,6 +38,16 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
             return await context.Set<PropertyPhoto>().FirstOrDefaultAsync(p => p.PropertyId == PropertyId);
 
         }
+
+        public async Task<Property?> GetPropertyWithDetails(int propertyId)
+        {
+            return await context.Set<Property>()
+                .Include(p => p.PropertyType)
+                .Include(p => p.SaleType)
+                .Include(p => p.Photos)
+                .Include(p => p.PropertyImprovements)
+                .FirstOrDefaultAsync(p => p.Id == propertyId);
+        }
     }
 
 

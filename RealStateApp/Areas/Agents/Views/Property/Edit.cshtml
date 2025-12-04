@@ -1,0 +1,9 @@
+@model RealStateApp.Core.Application.ViewModels.Properties.SavePropertyViewModel
+
+@{
+    Layout = "_AgentLayout";
+    ViewData["Title"] = "Editar Propiedad";
+}
+
+<!-- Reutilizamos la vista Create con el modelo de edición -->
+@await Html.PartialAsync("Create", Model)

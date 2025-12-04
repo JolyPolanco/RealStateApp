@@ -1,0 +1,94 @@
+@model RealStateApp.Core.Application.ViewModels.Properties.AgentPropertyViewModel
+
+@{
+    Layout = "_AgentLayout";
+    ViewData["Title"] = "Confirmar Eliminación";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card delete-card shadow">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        <i class="fi fi-sr-triangle-warning text-warning" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h3 class="mb-3">¿Está seguro?</h3>
+                    <p class="text-muted mb-4">
+                        ¿Está seguro que desea eliminar esta propiedad?<br />
+                        <strong>Esta acción no se puede deshacer.</strong>
+                    </p>
+
+                    <div class="property-info bg-light p-3 rounded mb-4">
+                        <h5 class="mb-2">@Model.Code</h5>
+                        <p class="text-muted mb-1">@Model.PropertyTypeName - @Model.SaleTypeName</p>
+                        <h4 class="text-primary mb-0">RD$ @Model.Price.ToString("N2")</h4>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/Agents/Property/Index" class="btn btn-cancel px-4">
+                            Cancelar
+                        </a>
+                        
+                        <form action="/Agents/Property/Delete/@Model.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-confirm px-4">
+                                Aceptar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .delete-card {
+        border-radius: 1rem;
+        border: 1px solid #e4e6eb;
+        background: #ffffff;
+        transition: all .25s ease-in-out;
+    }
+
+    .delete-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 26px rgba(0,0,0,0.12);
+    }
+
+    .btn-cancel {
+        background-color: #f3f4f6;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e5e7eb;
+        border-color: #9ca3af;
+        color: #1f2937;
+    }
+
+    .btn-confirm {
+        background-color: #dc3545;
+        border: 1px solid #dc3545;
+        color: white;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-confirm:hover {
+        background-color: #bb2d3b;
+        border-color: #bb2d3b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    }
+
+    .property-info {
+        border-left: 4px solid #17A2B8;
+    }
+</style>

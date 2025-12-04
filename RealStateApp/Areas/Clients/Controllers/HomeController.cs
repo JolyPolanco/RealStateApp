@@ -12,6 +12,7 @@ using RealStateApp.Core.Application.ViewModels.offer;
 using RealStateApp.Core.Application.ViewModels.Properties;
 using RealStateApp.Core.Domain.Common.Enums;
 using RealStateApp.Infraestructure.Identity.Entities;
+using RealStateApp.Core.Domain.Interfaces;
 
 namespace RealStateApp.Areas.Clients.Controllers
 {
@@ -27,11 +28,14 @@ namespace RealStateApp.Areas.Clients.Controllers
         private readonly IMapper mapper;
         private readonly IPropertyService propertyService;
         private readonly UserManager<AppUser> userManager;
+        private readonly IPropertyRepository _propertyRepository;
+        private readonly IMessageRepository _messageRepository;
 
 
 
         public HomeController(IHomeClienteService _homeClienteService, IFavoritePropertyService _favoritePropertyService, IMapper mapper,
-            IMessageService messageService, IOfferService _offerService, UserManager<AppUser> userManager, IPropertyService propertyService)
+            IMessageService messageService, IOfferService _offerService, UserManager<AppUser> userManager, IPropertyService propertyService,
+            IPropertyRepository propertyRepository, IMessageRepository messageRepository)
         {
 
             this.mapper = mapper;
@@ -41,6 +45,8 @@ namespace RealStateApp.Areas.Clients.Controllers
             this._offerService = _offerService;
             this.propertyService = propertyService;
             this.userManager = userManager;
+            this._propertyRepository = propertyRepository;
+            this._messageRepository = messageRepository;
         }
 
 
@@ -212,6 +218,35 @@ namespace RealStateApp.Areas.Clients.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Chat(int id)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Index", "Login", new { area = "" });
+            }
+
+            var property = await _propertyRepository.GetByIdAsync(id);
+            if (property == null)
+            {
+                return NotFound();
+            }
+
+            var agent = await userManager.FindByIdAsync(property.AgentId);
+            if (agent == null)
+            {
+                return NotFound();
+            }
+
+            var messages = await _messageRepository.GetMessagesByPropertyAndClient(id, user.Id);
+
+            ViewBag.Property = property;
+            ViewBag.Agent = agent;
+            ViewBag.Messages = messages.OrderBy(m => m.Date).ToList();
+
+            return View();
+        }
 
 
     }
