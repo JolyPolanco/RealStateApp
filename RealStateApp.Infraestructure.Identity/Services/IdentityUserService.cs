@@ -61,6 +61,20 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
 
         }
+        public virtual async Task<bool> SetStatus(string id, bool status)
+        {
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user != null)
+            {
+                user.IsActive = status;
+                await _userManager.UpdateAsync(user);
+                return true;
+            }
+
+            return false;
+        }
         public async Task<UserDto?> GetByDni(string dni)
         {
             var cleanDocumentId = dni?.Trim().Replace("-", "").Replace(" ", "") ?? "";
@@ -94,7 +108,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
         }
 
 
-        public async Task<List<AgentDto>> GetUsersAgentOnly(Dictionary<string, int> dictionary)
+        public async Task<IList<AgentDto>> GetUsersAgentOnly(Dictionary<string, int> dictionary)
         {
             var agents = await _userManager.GetUsersInRoleAsync(AppRoles.AGENT.ToString());
 
@@ -200,11 +214,45 @@ namespace RealStateApp.Infraestructure.Identity.Services
             return await GetInactiveByRoleCount(AppRoles.DEVELOPER.ToString());
 
         }
+        public async Task<UserDto?> GetById(string Id)
+        {
+
+            var user = await _userManager.Users
+                .Where(r => r.Id== Id)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var rolesList = await _userManager.GetRolesAsync(user);
+            var role = EnumMapper<AppRoles>.FromString(rolesList.First());
+
+            var userDto = new UserDto()
+            {
+                Id = user.Id,
+                Email = user.Email ?? "",
+                LastName = user.LastName,
+                FirstName = user.FirstName,
+                UserName = user.UserName ?? "",
+                Dni = user.Dni!,
+                IsVerified = user.EmailConfirmed,
+                IsActive = user.IsActive,
+                Role = EnumMapper<AppRoles>.ToString(role)
+            };
+
+            return userDto;
+        }
+
+
 
         public async Task<List<UserDto>> GetUsersAgentnOnly()
         {
             return await GetUsersByRole("AGENT", EnumMapper<AppRoles>.ToString(AppRoles.AGENT));
         }
+
+       
     }
 
 }

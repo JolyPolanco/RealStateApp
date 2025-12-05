@@ -27,8 +27,6 @@ namespace RealStateApp.Core.Application.Services
             try
             {
 
-
-
                 var messages = await messageRepository.GetAllQuery()
                 .Where(m => m.PropertyId == propertyId &&
                 (

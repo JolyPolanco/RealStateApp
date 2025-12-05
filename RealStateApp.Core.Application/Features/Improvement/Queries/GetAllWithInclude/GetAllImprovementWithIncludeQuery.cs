@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace RealStateApp.Core.Application.Features.Improvement.Queries.GetAllWithInclude
 {
-    public class GetAllImprovementWithIncludeQuery: IRequest<ImprovementResponseDto>
+    public class GetAllImprovementWithIncludeQuery: IRequest<IList<ImprovementDto>>
     {
     
     }
 
-    public class GetAllWithIncludeImprovementQueryHandler : IRequestHandler<GetAllImprovementWithIncludeQuery, ImprovementResponseDto>
+    public class GetAllWithIncludeImprovementQueryHandler : IRequestHandler<GetAllImprovementWithIncludeQuery, IList<ImprovementDto>>
     {
         private readonly IImprovementRepository _improvementRepository;
         private readonly IMapper _mapper;
@@ -28,16 +28,13 @@ namespace RealStateApp.Core.Application.Features.Improvement.Queries.GetAllWithI
             _improvementRepository = improvementRepository;
             _mapper = mapper;
         }
-        public async Task<ImprovementResponseDto> Handle(GetAllImprovementWithIncludeQuery request, CancellationToken cancellationToken)
+        public async Task<IList<ImprovementDto>> Handle(GetAllImprovementWithIncludeQuery request, CancellationToken cancellationToken)
         {
             var listEntitiesQuery = _improvementRepository.GetAllQueryWithInclude(new List<string> { "PropertyImprovements" });
 
             var listEntityDtos = await listEntitiesQuery.ProjectTo<ImprovementDto>(_mapper.ConfigurationProvider).ToListAsync();
 
-            return new ImprovementResponseDto
-            {
-                Improvements = listEntityDtos
-            };
+            return listEntityDtos;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿
-
 using AutoMapper;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +12,6 @@ using RealStateApp.Core.Application.Mappings.EntitiesAndDtos;
 using RealStateApp.Core.Application.Services;
 using RealStateApp.Core.Domain.Common.Enums;
 using RealStateApp.Core.Domain.Entities;
-using RealStateApp.Core.Domain.Interfaces;
 using RealStateApp.Infraestructure.Identity.Contexts;
 using RealStateApp.Infraestructure.Identity.Entities;
 using RealStateApp.Infraestructure.Persistence.Contexts;

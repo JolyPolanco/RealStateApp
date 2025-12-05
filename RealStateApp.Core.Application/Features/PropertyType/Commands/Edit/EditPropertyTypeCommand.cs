@@ -32,7 +32,7 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Commands.Edit
             Domain.Entities.PropertyType? getEntity = await _repository.GetByIdAsync(request.Id);
 
             if (getEntity == null)
-                throw new ArgumentNullException("Tipo de propiedad no encontrada con ese Id");
+                throw new ArgumentNullException("Property type not found with this id");
 
             Domain.Entities.PropertyType? entity = new()
             {

@@ -92,7 +92,7 @@ namespace RealStateApp.Areas.Administration.Controllers
             var user = await _accountService.GetById(id);
 
             ViewBag.IsActivateMode = false;
-            ViewBag.UserName = $"{user.FirstName} {user.LastName}";
+            ViewBag.UserName = $"{user!.FirstName} {user.LastName}";
             return View("ChangeState", id);
         }
 
@@ -102,7 +102,7 @@ namespace RealStateApp.Areas.Administration.Controllers
             var user = await _accountService.GetById(id);
 
             ViewBag.IsActivateMode = true;
-            ViewBag.UserName = $"{user.FirstName} {user.LastName}";
+            ViewBag.UserName = $"{user!.FirstName} {user.LastName}";
             return View("ChangeState", id);
         }
 

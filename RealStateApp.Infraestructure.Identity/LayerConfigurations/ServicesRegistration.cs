@@ -120,6 +120,10 @@ namespace RealStateApp.Infraestructure.Identity.LayerConfigurations
 
             #endregion
 
+            services.AddScoped<IUserService, IdentityUserService>();
+            services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
+            services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
+
         }
         public static void AddIdentityLayerForWebApp(this IServiceCollection services, IConfiguration config)
         {
@@ -192,8 +196,7 @@ namespace RealStateApp.Infraestructure.Identity.LayerConfigurations
             #region Services
             services.AddScoped<IAccountServiceForWebApp, AccountServiceForWebApp>();
             services.AddScoped<IUserService, IdentityUserService>();
-
-
+            services.AddScoped<IAccountServiceForWebApi, AccountServiceForWebApi>();
             #endregion
 
 

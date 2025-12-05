@@ -9,11 +9,9 @@ namespace RealStateApp.Core.Domain.Interfaces
 {
     public interface IOfferRepository : IGenericRepository<Offer>
     {
-
-
         Task<List<Offer>> GetListByIdClientAndPropertyIdAsync(string ClientId, int propertyId);
         Task<List<Offer>> GetListByPropertyIdAsync(int propertyId);
-
-
+        Task<List<Offer>> GetOffersByPropertyId(int propertyId);
+        Task<List<Offer>> GetOffersByPropertyAndClient(int propertyId, string clientId);
     }
 }

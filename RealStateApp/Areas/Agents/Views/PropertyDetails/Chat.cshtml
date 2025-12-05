@@ -1,0 +1,253 @@
+@using RealStateApp.Core.Domain.Entities
+@using RealStateApp.Infraestructure.Identity.Entities
+@{
+    Layout = "_AgentLayout";
+    ViewData["Title"] = "Chat con Cliente";
+    var property = ViewBag.Property as Property;
+    var client = ViewBag.Client as AppUser;
+    var messages = ViewBag.Messages as List<Message>;
+}
+
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="/Agents/PropertyDetails/Index/@property.Id" class="btn btn-secondary">
+            <i class="fi fi-sr-arrow-left"></i> Volver al Detalle
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <!-- Header -->
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <span class="text-primary fw-bold">@client.FirstName.Substring(0, 1)@client.LastName.Substring(0, 1)</span>
+                    </div>
+                    <div>
+                        <h3 class="h5 mb-0">@client.FirstName @client.LastName</h3>
+                        <p class="mb-0 small opacity-75">Propiedad: @property.Code</p>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="small">@client.Email</div>
+                    <div class="small opacity-75">@client.PhoneNumber</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="chatContainer" class="card-body bg-light" style="height: 500px; overflow-y: auto;">
+            @if (messages != null && messages.Any())
+            {
+                @foreach (var message in messages)
+                {
+                    @if (message.SenderUserId == ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                    {
+                        <!-- Mensaje del agente (derecha) -->
+                        <div class="d-flex justify-content-end mb-3">
+                            <div style="max-width: 70%;">
+                                <div class="bg-primary text-white rounded-3 px-3 py-2 shadow-sm">
+                                    <p class="mb-0 small">@message.Content</p>
+                                </div>
+                                <div class="text-muted text-end mt-1" style="font-size: 0.75rem;">@message.Date.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Mensaje del cliente (izquierda) -->
+                        <div class="d-flex justify-content-start mb-3">
+                            <div style="max-width: 70%;">
+                                <div class="bg-white border rounded-3 px-3 py-2 shadow-sm">
+                                    <p class="mb-0 small">@message.Content</p>
+                                </div>
+                                <div class="text-muted mt-1" style="font-size: 0.75rem;">@message.Date.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <div class="text-center text-muted">
+                        <i class="fi fi-sr-comment-alt fs-1 mb-3 d-block"></i>
+                        <p class="h5 mb-2">No hay mensajes en esta conversación</p>
+                        <p class="small">Envía el primer mensaje para comenzar</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Input area -->
+        <div class="card-footer bg-white">
+            <form method="post" action="/Agents/PropertyDetails/SendMessage">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="propertyId" value="@property.Id" />
+                <input type="hidden" name="clientId" value="@client.Id" />
+                
+                <div class="input-group">
+                    <textarea name="content" 
+                              class="form-control" 
+                              rows="2" 
+                              placeholder="Escribe tu mensaje..." 
+                              required></textarea>
+                    
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fi fi-sr-paper-plane me-2"></i>
+                        Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        const propertyId = @property.Id;
+        const clientId = '@client.Id';
+        const currentUserId = '@ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+        const chatContainer = document.getElementById('chatContainer');
+        
+        // Crear conexión SignalR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .withAutomaticReconnect()
+            .build();
+
+        // Función para agregar mensaje al chat
+        function addMessageToChat(data) {
+            const isCurrentUser = data.senderId === currentUserId;
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `d-flex ${isCurrentUser ? 'justify-content-end' : 'justify-content-start'} mb-3`;
+            messageDiv.setAttribute('data-message-id', data.id);
+            
+            messageDiv.innerHTML = `
+                <div style="max-width: 70%;">
+                    <div class="${isCurrentUser ? 'bg-primary text-white' : 'bg-white border'} rounded-3 px-3 py-2 shadow-sm">
+                        <p class="mb-0 small">${escapeHtml(data.content)}</p>
+                    </div>
+                    <div class="text-muted ${isCurrentUser ? 'text-end' : ''} mt-1" style="font-size: 0.75rem;">${data.date}</div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Escapar HTML para prevenir XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Recibir mensajes
+        connection.on("ReceiveMessage", function (data) {
+            // Solo procesar mensajes de esta propiedad
+            if (data.propertyId === propertyId) {
+                addMessageToChat(data);
+                
+                // Limpiar indicador de "escribiendo"
+                document.getElementById('typingIndicator')?.remove();
+            }
+        });
+
+        // Indicador de "escribiendo"
+        connection.on("UserTyping", function (data) {
+            if (data.propertyId === propertyId && data.senderId !== currentUserId) {
+                let typingIndicator = document.getElementById('typingIndicator');
+                
+                if (data.isTyping) {
+                    if (!typingIndicator) {
+                        typingIndicator = document.createElement('div');
+                        typingIndicator.id = 'typingIndicator';
+                        typingIndicator.className = 'd-flex justify-content-start mb-3';
+                        typingIndicator.innerHTML = `
+                            <div style="max-width: 70%;">
+                                <div class="bg-white border rounded-3 px-3 py-2 shadow-sm">
+                                    <p class="mb-0 small text-muted">
+                                        <i class="spinner-border spinner-border-sm me-1"></i>
+                                        ${data.senderName} está escribiendo...
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                        chatContainer.appendChild(typingIndicator);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                } else {
+                    typingIndicator?.remove();
+                }
+            }
+        });
+
+        // Iniciar conexión
+        connection.start()
+            .then(() => {
+                console.log("Conectado a SignalR");
+                // Unirse al grupo de esta propiedad
+                return connection.invoke("JoinPropertyChat", propertyId);
+            })
+            .then(() => {
+                console.log(`Unido al chat de la propiedad ${propertyId}`);
+            })
+            .catch(err => console.error("Error de conexión:", err));
+
+        // Manejo del formulario
+        const form = document.querySelector('form');
+        const textarea = form.querySelector('textarea[name="content"]');
+        let typingTimer;
+
+        // Detectar cuando el usuario está escribiendo
+        textarea.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            
+            // Notificar que está escribiendo
+            connection.invoke("NotifyTyping", propertyId, clientId, true)
+                .catch(err => console.error(err));
+            
+            // Después de 2 segundos sin escribir, notificar que dejó de escribir
+            typingTimer = setTimeout(() => {
+                connection.invoke("NotifyTyping", propertyId, clientId, false)
+                    .catch(err => console.error(err));
+            }, 2000);
+        });
+
+        // Enviar mensaje
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const content = textarea.value.trim();
+            if (!content) return;
+
+            try {
+                // Enviar a través de SignalR (que también guarda en BD)
+                await connection.invoke("SendMessage", propertyId, clientId, content);
+                
+                // Limpiar textarea
+                textarea.value = '';
+                
+                // Notificar que dejó de escribir
+                await connection.invoke("NotifyTyping", propertyId, clientId, false);
+            } catch (err) {
+                console.error("Error al enviar mensaje:", err);
+                alert("Error al enviar el mensaje. Por favor, intenta de nuevo.");
+            }
+        });
+
+        // Auto-scroll al cargar
+        window.onload = function() {
+            if (chatContainer) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        };
+
+        // Limpiar al salir
+        window.addEventListener('beforeunload', function() {
+            connection.invoke("LeavePropertyChat", propertyId).catch(err => console.error(err));
+        });
+    </script>
+}

@@ -21,7 +21,6 @@ namespace RealStateApp.Core.Application.LayerConfigurations
             services.AddScoped<IPropertyService, PropertyService>();
             services.AddScoped<IPropertyTypeService, PropertyTypeService>();
 
-            services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IAdministrationService, AdministrationService>();
             services.AddScoped<IImpromentService, ImprovementService>();
             services.AddScoped<ISaleTypeService, SaleTypeService>();
@@ -31,6 +30,8 @@ namespace RealStateApp.Core.Application.LayerConfigurations
             services.AddScoped<IOfferService, OfferService>();
             services.AddScoped<IHomeClienteService, HomeClientService>();
             services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IAgentService, AgentService>();
+      
 
             services.AddMediatR(opt => opt.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 

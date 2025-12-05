@@ -27,8 +27,6 @@ namespace RealStateApp.Areas.Clients.Controllers
         
         }
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOffer(CreateOfferViewModel vm)
@@ -57,31 +55,6 @@ namespace RealStateApp.Areas.Clients.Controllers
                 redirectUrl = Url.Action("DetailsProperty", "Home", new { area = "Clients", propertyId = vm.Id })
             });
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     }
 }

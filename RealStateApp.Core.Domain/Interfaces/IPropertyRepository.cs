@@ -10,10 +10,15 @@ namespace RealStateApp.Core.Domain.Interfaces
     public interface IPropertyRepository : IGenericRepository<Property>
     {
         Task DeleteAgentProperties(string AgentId);
+        public Task<int> GetAgentPropertiesCount(string id);
         Task<Dictionary<string, int>> GetAgentsPropertiesCount();
 
+
         Task<List<Property>> GetListByAgentId(string AgenteId);
+
+        Task<int> GetAvailablePropertiesCount();
+
         Task<Property> GetByCode(string code);
-      
+        Task<int> GetSoldPropertiesCount();
     }
 }

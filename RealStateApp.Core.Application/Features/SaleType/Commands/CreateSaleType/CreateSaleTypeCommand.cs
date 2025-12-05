@@ -40,7 +40,7 @@ namespace RealStateApp.Core.Application.Features.SaleType.Commands.CreateSaleTyp
             entity = await _saleTypeRepository.AddAsync(entity);
 
             if (entity == null)
-                throw new ApiException("Internal server error", (int)HttpStatusCode.InternalServerError);
+                throw new ApiException("Error creating sale type", (int)HttpStatusCode.InternalServerError);
             return entity.Id;
         }
     }
