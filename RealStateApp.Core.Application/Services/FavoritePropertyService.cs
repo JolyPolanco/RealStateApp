@@ -79,8 +79,13 @@ namespace RealStateApp.Core.Application.Services
                 {
 
                     await favoritePropertyRepository.DeleteAsync(entity.Id);
+                    return;
 
                 }
+
+
+
+                throw new Exception();
 
             }
             catch (Exception ex)

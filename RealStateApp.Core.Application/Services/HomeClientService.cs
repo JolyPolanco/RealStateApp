@@ -23,7 +23,7 @@ namespace RealStateApp.Core.Application.Services
         private readonly IFavoritePropertyRepository favoritePropertyRepository;
         private readonly IUserService userService;
 
-        public HomeClientService(IGenericRepository<Property> repo,
+        public HomeClientService(
                                 IMapper mapper,
                                 IPropertyRepository propertyRepository,
                                 IPropertyTypeRepository propertyTypeRepository,
@@ -35,7 +35,7 @@ namespace RealStateApp.Core.Application.Services
                                 IFavoritePropertyRepository favoritePropertyRepository,
                                  IUserService userService
             )
-                                : base(repo, mapper)
+                                : base(propertyRepository, mapper)
         {
 
             this.propertyRepository = propertyRepository;
@@ -265,6 +265,7 @@ namespace RealStateApp.Core.Application.Services
                 query = query.Where(p => p.Bathrooms == Bathrooms.Value);
 
 
+
             var result = await query
                 .Include(p => p.PropertyType)
                 .Include(p => p.SaleType)
@@ -283,6 +284,8 @@ namespace RealStateApp.Core.Application.Services
                     TypeProperty = p.PropertyType.Name,
                 })
                 .ToListAsync();
+
+
 
             if (!string.IsNullOrWhiteSpace(userId))
             {
@@ -424,7 +427,7 @@ namespace RealStateApp.Core.Application.Services
 
 
 
-                if(Agents == null || Agents.Count < 0)
+                if(Agents == null || Agents.Count == 0)
                 {
                     return new List<AgentDataDto>();
                 }

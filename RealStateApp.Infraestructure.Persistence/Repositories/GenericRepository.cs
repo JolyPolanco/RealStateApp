@@ -22,6 +22,10 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
         public virtual async Task<Entity> AddAsync(Entity entity)
         {
 
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+
             await _context.Set<Entity>().AddAsync(entity);
             await _context.SaveChangesAsync();
             return entity;
@@ -58,6 +62,7 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
             await _context.SaveChangesAsync();
 
         }
+
 
 
         public virtual async Task DeleteRangeAsync(List<Entity> entities)

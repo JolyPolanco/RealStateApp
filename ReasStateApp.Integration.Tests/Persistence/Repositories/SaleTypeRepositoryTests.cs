@@ -243,6 +243,7 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
         }
 
 
+
         [Fact]
 
         public async Task GetAllAsync_Should_Return_Empty_When_No_SaleTypes()
