@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RealStateApp.Core.Application.Dtos.FavoriteProperty;
+using RealStateApp.Core.Application.Dtos.Properties;
 using RealStateApp.Core.Application.Interfaces;
+using RealStateApp.Core.Domain.Common.Enums;
 using RealStateApp.Core.Domain.Entities;
 using RealStateApp.Core.Domain.Interfaces;
-
 
 namespace RealStateApp.Core.Application.Services
 {
@@ -12,15 +14,17 @@ namespace RealStateApp.Core.Application.Services
 
 
         private readonly IFavoritePropertyRepository favoritePropertyRepository;
+        private readonly IPropertyRepository propertyRepository;
         private readonly IMapper mapper;
 
 
 
 
-        public FavoritePropertyService(IFavoritePropertyRepository repo, IMapper mapper) : base(repo, mapper)
+        public FavoritePropertyService(IFavoritePropertyRepository repo, IMapper mapper, IPropertyRepository propertyRepository) : base(repo, mapper)
         {
 
             this.favoritePropertyRepository = repo;
+            this.propertyRepository = propertyRepository;
             this.mapper = mapper;
 
 
@@ -35,23 +39,23 @@ namespace RealStateApp.Core.Application.Services
             {
 
 
-                var FavoriteProperty = await favoritePropertyRepository.GetFavoriteByIdClientAndByIdProperty(entityDto.ClientId,entityDto.PropertyId);
+                var FavoriteProperty = await favoritePropertyRepository.GetFavoriteByIdClientAndByIdProperty(entityDto.ClientId, entityDto.PropertyId);
 
 
-                if (FavoriteProperty  == null)
+                if (FavoriteProperty == null)
                 {
 
 
                     var entity = mapper.Map<FavoriteProperty>(entityDto);
-                    var favoriteProperty =  await favoritePropertyRepository.AddAsync(entity);
+                    var favoriteProperty = await favoritePropertyRepository.AddAsync(entity);
                     var dto = mapper.Map<CreateFavoritePropertyDto>(favoriteProperty);
                     return dto;
                 }
 
                 return null;
-              
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
                 return default;
@@ -71,19 +75,24 @@ namespace RealStateApp.Core.Application.Services
 
                 var entity = await favoritePropertyRepository.GetByIdAsync(id);
 
-                if(entity != null)
+                if (entity != null)
                 {
 
-                    await favoritePropertyRepository.DeleteAsync(entity.Id); 
+                    await favoritePropertyRepository.DeleteAsync(entity.Id);
+                    return;
 
                 }
 
+
+
+                throw new Exception();
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
 
-                throw new Exception(ex.Message); 
+                throw new Exception(ex.Message);
 
             }
         }
@@ -91,5 +100,78 @@ namespace RealStateApp.Core.Application.Services
 
 
 
+        public async Task<List<DataPropertyDto>> GetListPropertyFavoriteAsync(string client)
+        {
+            try
+            {
+
+                var list = new List<DataPropertyDto>();
+                var favorities = await favoritePropertyRepository.GetListFavoriteByIdClient(client);
+
+
+                if(favorities == null || favorities.Count == 0)
+                {
+                    return new List<DataPropertyDto>(); 
+                }
+
+
+
+
+                var ListPropertyFavorite = await propertyRepository.GetAllQuery()
+                  .Include(p => p.PropertyType)
+                  .Include(p => p.SaleType)
+                  .Include(p => p.Photos)
+                  .Where(p => p.Status == PropertyStatus.Available)
+                  .OrderByDescending(p => p.Id)
+                  .ToListAsync();
+
+
+                if(ListPropertyFavorite == null || ListPropertyFavorite.Count == 0)
+                {
+
+                    return new List<DataPropertyDto>();
+                
+                }
+
+
+
+                foreach (var item in favorities)
+                {
+
+                    var entity = ListPropertyFavorite!.FirstOrDefault(s => s.Id == item.PropertyId);
+                  
+
+                    if (entity != null)
+                    {
+
+                        var dto = mapper.Map<DataPropertyDto>(entity);
+                        dto.SaleType = entity.SaleType.Name;
+                        dto.TypeProperty =entity.PropertyType.Name;
+                        dto.FavoriteId = item.Id;
+                        dto.IsFavorite = true;
+                        dto.Photo = entity.Photos.FirstOrDefault(d => d.PropertyId == item.PropertyId)!.ImageUrl;
+
+                        list.Add(dto);
+                       
+                    }
+                }
+
+
+                if(list.Count < 0 || list == null) {  return new List<DataPropertyDto>(); }
+
+                return list;
+           
+            }
+            catch (Exception ex)
+            {
+
+
+                return new List<DataPropertyDto>();
+            
+            
+            }
+
+
+        }
     }
 }

@@ -3,19 +3,20 @@
 using AutoMapper;
 using RealStateApp.Core.Application.Dtos.Message;
 using RealStateApp.Core.Application.ViewModels.Message;
+using RealStateApp.Core.Domain.Entities;
 using System.Runtime.InteropServices;
 
 namespace RealStateApp.Core.Application.Mappings.DtosAndViewModels
 {
-    public class MessageDtosAndMappingProfile : Profile
+    public class MessageAndDtoMappingProfile : Profile
     {
 
-        public MessageDtosAndMappingProfile()
+        public MessageAndDtoMappingProfile()
         {
         
         
            
-             CreateMap<CreateMessageDto, MessageDtosAndMappingProfile>()
+             CreateMap<CreateMessageDto, MessageAndDtoMappingProfile>()
                 .ReverseMap();
            
              CreateMap<CreateMessageDto, CreateMessageViewModel>()
@@ -23,11 +24,16 @@ namespace RealStateApp.Core.Application.Mappings.DtosAndViewModels
            
              CreateMap<DataConversactionDto, DataConversactionViewModel>()
                 .ReverseMap();
-        
-        
-        
-        
-        
+
+
+            CreateMap<Message, CreateMessageDto>()
+               .ReverseMap();
+
+
+
+
+
+
         }
 
 

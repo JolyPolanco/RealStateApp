@@ -31,6 +31,7 @@ namespace RealStateApp.Core.Application.LayerConfigurations
             services.AddScoped<IHomeClienteService, HomeClientService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IAgentService, AgentService>();
+      
 
             services.AddMediatR(opt => opt.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 

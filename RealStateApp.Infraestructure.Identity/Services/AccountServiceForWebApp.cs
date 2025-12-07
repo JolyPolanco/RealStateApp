@@ -144,6 +144,9 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
             return responseDto;
         }
+
+
+
         public async Task<UserDto?> GetByUserName(string name)
         {
 
@@ -174,6 +177,54 @@ namespace RealStateApp.Infraestructure.Identity.Services
 
             return userDto;
         }
+
+
+        public async Task<List<UserDto>> GetByNameAsync(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return new List<UserDto>();
+
+         
+            var normalizedSearch = name.Replace("-", "").Replace(" ", "").ToLower();
+
+            var users = await _userManager.Users
+                .Where(u =>
+                    (u.FirstName + " " + u.LastName).Replace("-", "").Replace(" ", "").ToLower().Contains(normalizedSearch)
+                    || u.FirstName.Replace("-", "").Replace(" ", "").ToLower().Contains(normalizedSearch)
+                    || u.LastName.Replace("-", "").Replace(" ", "").ToLower().Contains(normalizedSearch) && u.IsActive == true
+                )
+                .ToListAsync();
+
+            if (!users.Any())
+                return new List<UserDto>();
+
+            var userDtos = new List<UserDto>();
+
+            foreach (var user in users)
+            {
+                var rolesList = await _userManager.GetRolesAsync(user);
+                var role = rolesList.Any() ? EnumMapper<AppRoles>.FromString(rolesList.First()) : AppRoles.AGENT;
+
+                userDtos.Add(new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email ?? "",
+                    LastName = user.LastName,
+                    FirstName = user.FirstName,
+                    UserName = user.UserName ?? "",
+                    Dni = user.Dni ?? "",
+                    IsVerified = user.EmailConfirmed,
+                    IsActive = user.IsActive,
+                    Photo = user.Photo,
+                    Role = EnumMapper<AppRoles>.ToString(role)
+                });
+            }
+
+            return userDtos;
+        }
+
+
+
         public async Task<UserDto?> GetById(string id)
         {
 
@@ -298,5 +349,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
                 return response;
             }
         }
+
+      
     }
 }

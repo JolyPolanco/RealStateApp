@@ -1,9 +1,10 @@
 ﻿
 
-namespace RealStateApp.Core.Application.ViewModels.Properties
+namespace RealStateApp.Core.Application.ViewModels.GeneralLayout
 {
-    public class DataPropertyViewModel
+    public class DataPropertyHomeViewModel
     {
+
         public int Id { get; set; }
         public required string Code { get; set; }
         public required decimal Price { get; set; }
@@ -14,8 +15,7 @@ namespace RealStateApp.Core.Application.ViewModels.Properties
         public required string TypeProperty { get; set; }
         public required string SaleType { get; set; }
 
-        public bool IsFavorite { get; set; }
-        public int FavoriteId { get; set; }
+        //
         public string? ClientId { get; set; }
         public string? AgentId { get; set; }
 

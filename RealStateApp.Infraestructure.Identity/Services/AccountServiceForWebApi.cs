@@ -6,13 +6,10 @@ using RealStateApp.Core.Application.Dtos.Login;
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Domain.Settings;
 using RealStateApp.Infraestructure.Identity.Entities;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace RealStateApp.Infraestructure.Identity.Services
 {

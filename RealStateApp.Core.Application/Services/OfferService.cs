@@ -107,6 +107,36 @@ namespace RealStateApp.Core.Application.Services
 
 
 
+        public override async Task DeleteAsync(int id)
+        {
+            try
+            {
+
+                var entity = await offerRepository.GetByIdAsync(id);
+
+                if (entity != null)
+                {
+
+                    await offerRepository.DeleteAsync(entity.Id);
+                    return;
+
+                }
+
+
+                throw new Exception();
+
+            }
+            catch (Exception ex)
+            {
+
+
+                throw new Exception(ex.Message);
+
+            }
+        }
+
+
+
 
     }
 }

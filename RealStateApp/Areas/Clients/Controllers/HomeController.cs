@@ -1,15 +1,16 @@
 ﻿using AutoMapper;
-using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RealStateApp.Core.Application.Dtos.FavoriteProperty;
 using RealStateApp.Core.Application.Dtos.Properties;
+using RealStateApp.Core.Application.Dtos.User;
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Application.ViewModels.FavoriteProperty;
 using RealStateApp.Core.Application.ViewModels.Message;
 using RealStateApp.Core.Application.ViewModels.offer;
 using RealStateApp.Core.Application.ViewModels.Properties;
+using RealStateApp.Core.Application.ViewModels.User;
 using RealStateApp.Core.Domain.Common.Enums;
 using RealStateApp.Infraestructure.Identity.Entities;
 using RealStateApp.Core.Domain.Interfaces;
@@ -84,7 +85,7 @@ namespace RealStateApp.Areas.Clients.Controllers
                 TempData["Error"] = "Ocurrio un error al intentar ver los detalles de esta propiedad";
                 return View("Index");
             }
-            bool DisableButtoOffer = await _offerService.IsOfferActive(user!.Id,propertyId);
+            bool DisableButtoOffer = await _offerService.IsOfferActive(user!.Id, propertyId);
             var detailproperty = await propertyService.GetByIdAsync(propertyId);
             var details = await _homeClienteService.ListDetailProperty(propertyId);
             var ListOffer = await _offerService.GetListByIdClientAndPropertyIdAsync(user!.Id, propertyId);
@@ -146,7 +147,7 @@ namespace RealStateApp.Areas.Clients.Controllers
                         map = mapper.Map<List<DataPropertyViewModel>>(new List<DataPropertyDto> { dto });
                     }
 
-                    return PartialView("_PropertyList", new PropertyListViewModel() { DataProperties = map});
+                    return PartialView("_PropertyList", new PropertyListViewModel() { DataProperties = map });
                 }
                 catch
                 {
@@ -162,7 +163,7 @@ namespace RealStateApp.Areas.Clients.Controllers
 
             var MapData = mapper.Map<List<DataPropertyViewModel>>(data);
 
-            return PartialView("_PropertyList", new PropertyListViewModel() {  DataProperties = MapData});
+            return PartialView("_PropertyList", new PropertyListViewModel() { DataProperties = MapData });
         }
 
 
@@ -185,14 +186,14 @@ namespace RealStateApp.Areas.Clients.Controllers
             {
 
                 TempData["Error"] = "Ocurrio un error al intentar marcar como favorita esta propiedad";
-                return RedirectToAction("Index");
+                return Redirect(vm.ReturnUrl!);
             }
 
 
             var Favorite = mapper.Map<CreateFavoritePropertyDto>(vm);
             await _favoritePropertyService.AddAsync(Favorite);
             TempData["Succes"] = "Propiedad marcada como favorita exitosamente";
-            return RedirectToAction("Index");
+            return Redirect(vm.ReturnUrl!);
         }
 
 
@@ -201,21 +202,21 @@ namespace RealStateApp.Areas.Clients.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarkAsNoFavorite(int id)
+        public async Task<IActionResult> MarkAsNoFavorite(int id, string ReturnUrl)
         {
 
             if (id <= 0)
             {
 
                 TempData["Error"] = "Ocurrio un error al intentar marcar esta propiedad como no favorita";
-                return RedirectToAction("Index");
+                return Redirect(ReturnUrl);
 
             }
 
 
             await _favoritePropertyService.DeleteAsync(id);
             TempData["Succes"] = "Propiedad desmarcada de favorita exitosamente";
-            return RedirectToAction("Index");
+            return Redirect(ReturnUrl);
         }
 
         [HttpGet]
@@ -246,6 +247,157 @@ namespace RealStateApp.Areas.Clients.Controllers
             ViewBag.Messages = messages.OrderBy(m => m.Date).ToList();
 
             return View();
+        }
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> Agents()
+        {
+
+        
+
+            var agents = await _homeClienteService.ListAgentAsync();
+           
+            if (agents == null || agents.Count < 0)
+            {
+
+                TempData["Error"] = "Ocurrio un error al cargar los agentes";
+                return View();
+            }
+
+
+            var ListAgents =  agents.Select(s => new AgentDataViewModel()
+            {
+                Id = s.Id,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                UrlImage = s.UrlImage
+            }).ToList();
+
+
+            var vm = new AgentDataListViewModel() { Agents = ListAgents };
+
+            return View(vm);
+        }
+
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> FilterAgents(string name)
+        {
+
+
+            var agents = await _homeClienteService.GetAgentByName(name);
+
+            if (agents == null || agents.Count < 0)
+            {
+
+                TempData["Error"] = "Ocurrio un error al obtener el agente";
+                return View("Agents");
+            }
+
+
+
+            var ListAgents = agents.Select(s => new AgentDataViewModel()
+            {
+                Id = s.Id,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                UrlImage = s.UrlImage
+            }).ToList();
+
+
+            var vm = new AgentDataListViewModel() { Agents = ListAgents };
+
+            return View("Agents", vm);
+        }
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> FilterAgentsAjax(string name)
+        {
+            var agents = await _homeClienteService.GetAgentByName(name);
+
+            if (agents == null || !agents.Any())
+                agents = new List<AgentDataDto>();
+
+            var ListAgents = agents.Select(s => new AgentDataViewModel()
+            {
+                Id = s.Id,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                UrlImage = s.UrlImage
+            }).ToList();
+
+            var vm = new AgentDataListViewModel() { Agents = ListAgents };
+
+            return PartialView("_AgentList", vm);
+        }
+
+
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> AgentProperty(string agentId)
+        {
+
+            var user = await userManager.GetUserAsync(User);
+
+
+            var DataFavorite = new CreateFavoriteViewModel() { ClientId = user!.Id, PropertyId = 0, Id = 0, FavoriteId = 0, IsFavorite = false };
+
+            var Properties = await _homeClienteService.ListPropertyAgentAsync(agentId,user!.Id);
+
+            if (Properties == null || Properties.Count < 0)
+            {
+
+                TempData["Error"] = "Ocurrio un error al obtener la propieda del agente";
+                return View("Agents");
+            }
+
+
+
+            var ListAgents = mapper.Map<List<DataPropertyViewModel>>(Properties);
+           
+
+            var vm = new PropertyListViewModel() { DataProperties = ListAgents };
+
+            return View(vm);
+        }
+
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> FavoriteProperty()
+        {
+
+
+            var user = await userManager.GetUserAsync(User);
+
+            var PropertyFavorite = await _favoritePropertyService.GetListPropertyFavoriteAsync(user!.Id);
+
+            if (PropertyFavorite == null || PropertyFavorite.Count < 0)
+            {
+
+                TempData["Error"] = "Ocurrio un error al carga las propiedades favoritas";
+                return View();
+            }
+
+            var ListAgents = mapper.Map<List<DataPropertyViewModel>>(PropertyFavorite);
+
+            var vm = new PropertyListViewModel() { DataProperties = ListAgents };
+
+            return View(vm);
         }
 
 

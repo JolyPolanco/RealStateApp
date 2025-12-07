@@ -11,6 +11,7 @@ namespace RealStateApp.Core.Application.Interfaces
         Task<UserDto?> GetByUserName(string name);
         Task<UserResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto dto);
         Task<UserResponseDto> ResetPasswordAsync(ResetPasswordRequestDto dto);
+        Task<List<UserDto>> GetByNameAsync(string name);
         Task SignOutAsync();
     }
 }

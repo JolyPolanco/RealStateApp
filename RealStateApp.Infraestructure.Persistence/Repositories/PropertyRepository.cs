@@ -3,11 +3,7 @@ using RealStateApp.Core.Domain.Common.Enums;
 using RealStateApp.Core.Domain.Entities;
 using RealStateApp.Core.Domain.Interfaces;
 using RealStateApp.Infraestructure.Persistence.Contexts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace RealStateApp.Infraestructure.Persistence.Repositories
 {
@@ -47,6 +43,12 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
             return await _context.Set<Property>().FirstOrDefaultAsync(s => s.Code == code);
         }
 
+
+        public async Task<List<Property>> GetListByAgentId(string AgenteId)
+        {
+            return await _context.Set<Property>().Where(s => s.AgentId == AgenteId
+            && s.Status == Core.Domain.Common.Enums.PropertyStatus.Available).ToListAsync();
+        }
         public async  Task<int> GetAgentPropertiesCount(string id)
         {
             return await _context.Set<Property>().Where(r=>r.AgentId == id).CountAsync();
@@ -62,6 +64,7 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
         public async Task<int> GetSoldPropertiesCount()
         {
             return await _context.Set<Property>().Where(r => r.Status == PropertyStatus.Sold).CountAsync();
+
         }
     }
 }

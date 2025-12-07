@@ -2,11 +2,12 @@
 @inject UserManager<AppUser> UserManager
 
 @{
-    var defaultProfileImage = "~/Images/profile.jpg";
+    var defaultProfileImage = "https://i.pinimg.com/originals/aa/13/91/aa13915873372c1bb99ff81fbc17f611.jpg";
     var hasProfileImage = true;
  
     var user = await UserManager.GetUserAsync(User);
     var profileImage = user?.Photo ?? defaultProfileImage;
+    
 }
 
 
@@ -42,7 +43,8 @@
     <header class="bg-gradient-to-br from-black via-gray-900 to-gray-800 shadow-xl rounded-b-xl">
 
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#" class="flex items-center gap-2 text-white font-bold text-xl">
+            <a hasp-area="Clients" asp-controller="Home" asp-action="Index"
+            class="flex items-center gap-2 text-white font-bold text-xl">
                 <i class="fi fi-sr-home-heart"></i> RealStateApp
             </a>
 
@@ -52,12 +54,12 @@
                     <i class="fi fi-sr-home"></i> HOME
                 </a>
 
-                <a asp-area="Clients" asp-controller="Agent" asp-action="Index"
+                <a asp-area="Clients" asp-controller="Home" asp-action="Agents"
                    class="px-3 py-2 rounded-lg hover:bg-white/10 hover:text-white flex items-center gap-1 text-white transition">
                     <i class="fi fi-sr-users"></i> Agentes
                 </a>
 
-                <a asp-area="Clients" asp-controller="Property" asp-action="Index"
+                <a asp-area="Clients" asp-controller="Home" asp-action="FavoriteProperty"
                    class="px-3 py-2 rounded-lg hover:bg-white/10 hover:text-white flex items-center gap-1 text-white transition">
                     <i class="fi fi-sr-building"></i> Mi Propiedades
                 </a>

@@ -30,6 +30,7 @@ builder.Services.AddPersistenceLayer(builder.Configuration);
 builder.Services.AddSharedLayer(builder.Configuration);
 builder.Services.AddIdentityLayerForWebApp(builder.Configuration);
 
+
 var app = builder.Build();
 
 // Execute Seeds
@@ -58,7 +59,7 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Home}/{action=DataProperty}/{id?}")
     .WithStaticAssets();
 
 app.MapHub<ChatHub>("/chatHub");
