@@ -22,7 +22,7 @@ namespace RealStateApp.Infraestructure.Identity.Services
         private readonly SignInManager<AppUser> _signInManager;
         private readonly JwtSettings _jwtSettings;
 
-        public AccountServiceForWebApi(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager, IOptions<JwtSettings> jwtSettings, IMapper mapper) : base(userManager, emailService, signInManager, mapper)
+        public AccountServiceForWebApi(UserManager<AppUser> userManager, IEmailService emailService, SignInManager<AppUser> signInManager, IOptions<JwtSettings> jwtSettings, IMapper mapper) : base(userManager, emailService, signInManager)
         {
             _userManager = userManager;
             _signInManager= signInManager;
