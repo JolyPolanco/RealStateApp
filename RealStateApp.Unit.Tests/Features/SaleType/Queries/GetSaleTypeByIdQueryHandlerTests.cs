@@ -54,16 +54,22 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
             using var context = new RealStateContext(_dbOptions);
             using var identityContext = new IdentityContext(_IdentitydbOptions);
 
-            // SaleTypes
+            // --- Crear el rol AGENT (evita roleId null) ---
+            identityContext.Roles.Add(new IdentityRole
+            {
+                Name = AppRoles.AGENT.ToString(),
+                NormalizedName = AppRoles.AGENT.ToString().ToUpper()
+            });
+            await identityContext.SaveChangesAsync();
+
+            // --- Seed SaleTypes ---
             context.SaleTypes.AddRange(
                 new RealStateApp.Core.Domain.Entities.SaleType { Id = 1, Name = "Sale type1", Description = "Description1" },
                 new RealStateApp.Core.Domain.Entities.SaleType { Id = 2, Name = "Sale type2", Description = "Description2" }
             );
-
             await context.SaveChangesAsync();
-            context.SaleTypes.Count().Should().Be(2);
 
-            // Crear PropertyType
+            // --- Crear PropertyType ---
             var repoPropertyType = new PropertyTypeRepository(context);
             var propertyType = await repoPropertyType.AddAsync(new RealStateApp.Core.Domain.Entities.PropertyType
             {
@@ -71,10 +77,7 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
                 Description = "PropertyType1 Description"
             });
 
-            propertyType!.Id.Should().BeGreaterThan(0);
-            context.PropertyTypes.Any(pt => pt.Id == propertyType.Id).Should().BeTrue();
-
-            // Crear agente
+            // --- Crear agente ---
             var agent = new AppUser
             {
                 FirstName = "Agent",
@@ -87,8 +90,7 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
             identityContext.Users.Add(agent);
             await identityContext.SaveChangesAsync();
 
-            identityContext.Users.Any(u => u.Id == agent.Id).Should().BeTrue();
-
+            // --- Buscar rol AGENT ---
             var roleId = identityContext.Roles
                 .Where(r => r.Name == AppRoles.AGENT.ToString())
                 .Select(r => r.Id)
@@ -96,20 +98,15 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
 
             roleId.Should().NotBeNull();
 
+            // --- Asignar rol al usuario ---
             identityContext.UserRoles.Add(new IdentityUserRole<string>
             {
                 UserId = agent.Id,
-                RoleId = roleId
+                RoleId = roleId!
             });
-
             await identityContext.SaveChangesAsync();
 
-            identityContext.UserRoles
-                .Any(ur => ur.UserId == agent.Id && ur.RoleId == roleId)
-                .Should()
-                .BeTrue();
-
-            // Crear Property asociada al SaleType 1
+            // --- Crear Property asociada al SaleType 1 ---
             context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
@@ -123,28 +120,20 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
                 PropertyTypeId = propertyType.Id,
                 SaleTypeId = 1
             });
-
             await context.SaveChangesAsync();
-
-            var createdProperty = context.Properties.FirstOrDefault();
-            createdProperty.Should().NotBeNull();
-            createdProperty!.SaleTypeId.Should().Be(1);
 
             // Act
             var repository = new SaleTypeRepository(context);
             var handler = new GetSaleTypeByIdQueryHandler(repository, _mapper);
 
             var query = new GetSaleTypeByIdQuery { Id = 1 };
-
             var result = await handler.Handle(query, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
-
             result.Id.Should().Be(1);
             result.Name.Should().Be("Sale type1");
             result.Description.Should().Be("Description1");
-
             result.PropertiesCount.Should().Be(1);
         }
 

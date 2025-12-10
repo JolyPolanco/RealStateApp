@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace RealStateApp.Integration.Tests.Persistence.Repositories
 {
-    public class PropertyRepositoryTests
+    public class PropertyTypeRepositoryTests
     {
         private readonly DbContextOptions<RealStateContext> _dbContextOptions;
 
 
-        public PropertyRepositoryTests()
+        public PropertyTypeRepositoryTests()
         {
             _dbContextOptions = new DbContextOptionsBuilder<RealStateContext>()
                 .UseInMemoryDatabase(databaseName: $"RealStateAppTest_{Guid.NewGuid()}")
@@ -188,7 +188,7 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
 
 
             await repository.DeleteAsync(savedEntity!.Id);
-            var entity = repository.GetByIdAsync(savedEntity.Id);
+            var entity = await repository.GetByIdAsync(savedEntity.Id);
 
             //Assert
             entity.Should().BeNull();

@@ -37,71 +37,8 @@ namespace RealStateApp.Unit.Tests.Features.Agents.Queries
                 _mapperMock.Object
             );
         }
-
         [Fact]
         public async Task Handle_ShouldReturnAgentDto_WhenAgentExists()
-        {
-            // Arrange
-            var agentId = Guid.NewGuid().ToString();
-
-            var agentEntity = new AppUser
-            {
-                Id = agentId,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@domain.com",
-            };
-
-            var mappedDto = new AgentDto
-            {
-                Id = agentId,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@domain.com",
-            };
-
-            var dto = new UserDto
-            {
-                Id = agentId,
-                UserName="UserName",
-                Dni="2023450933",
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john@domain.com",
-                Role="AGENT"
-            };
-
-            _userServiceMock
-                .Setup(s => s.GetById(agentId))
-                .ReturnsAsync(dto);
-
-
-            _propertyRepositoryMock
-                .Setup(r => r.GetAgentPropertiesCount(agentId))
-                .ReturnsAsync(5);
-
-            _mapperMock
-                .Setup(m => m.Map<AgentDto>(agentEntity))
-                .Returns(mappedDto);
-
-            var query = new GetAgentByIdQuery { Id = agentId };
-
-            // Act
-            var result = await _handler.Handle(query, CancellationToken.None);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(agentId, result.Id);
-            Assert.Equal(5, result.PropertiesCount);
-
-            _userServiceMock.Verify(s => s.GetById(agentId), Times.Once);
-            _propertyRepositoryMock.Verify(r => r.GetAgentPropertiesCount(agentId), Times.Once);
-            _mapperMock.Verify(m => m.Map<AgentDto>(agentEntity), Times.Once);
-        }
-
-
-        [Fact]
-        public async Task Handle_ShouldThrowApiException_WhenAgentDoesNotExist()
         {
             // Arrange
             var agentId = Guid.NewGuid().ToString();
@@ -117,9 +54,57 @@ namespace RealStateApp.Unit.Tests.Features.Agents.Queries
                 Role = "AGENT"
             };
 
+            var mappedDto = new AgentDto
+            {
+                Id = agentId,
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john@domain.com"
+            };
+
             _userServiceMock
                 .Setup(s => s.GetById(agentId))
                 .ReturnsAsync(dto);
+
+            _propertyRepositoryMock
+                .Setup(r => r.GetAgentPropertiesCount(agentId))
+                .ReturnsAsync(5);
+
+            // El handler usa UserDto, no AppUser → se ajusta el mock
+            _mapperMock
+                .Setup(m => m.Map<AgentDto>(It.IsAny<UserDto>()))
+                .Returns(mappedDto);
+
+            var query = new GetAgentByIdQuery { Id = agentId };
+
+            // Act
+            var result = await _handler.Handle(query, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(agentId, result.Id);
+            Assert.Equal(5, result.PropertiesCount);
+
+            _userServiceMock.Verify(s => s.GetById(agentId), Times.Once);
+            _propertyRepositoryMock.Verify(r => r.GetAgentPropertiesCount(agentId), Times.Once);
+
+            _mapperMock.Verify(
+                m => m.Map<AgentDto>(It.IsAny<UserDto>()),
+                Times.Once
+            );
+        }
+
+
+        [Fact]
+        public async Task Handle_ShouldThrowApiException_WhenAgentDoesNotExist()
+        {
+            // Arrange
+            var agentId = Guid.NewGuid().ToString();
+
+            // El servicio debe devolver null para simular que el agente no existe
+            _userServiceMock
+                .Setup(s => s.GetById(agentId))
+                .ReturnsAsync((UserDto)null);
 
             var query = new GetAgentByIdQuery { Id = agentId };
 
@@ -133,4 +118,4 @@ namespace RealStateApp.Unit.Tests.Features.Agents.Queries
         }
     }
 
-}
+    }

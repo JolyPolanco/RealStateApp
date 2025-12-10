@@ -34,9 +34,7 @@ namespace RealStateApp.Unit.Tests.Features.Agents.Queries
             );
         }
 
-        // -----------------------------------------------------------
-        // ✔️ 1. CASO POSITIVO
-        // -----------------------------------------------------------
+       
         [Fact]
         public async Task Handle_ShouldReturnAgentsList_WhenDataIsValid()
         {
@@ -63,7 +61,6 @@ namespace RealStateApp.Unit.Tests.Features.Agents.Queries
 
             var query = new GetAllAgentsListQuery();
 
-            // Act
             var result = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
@@ -74,9 +71,7 @@ namespace RealStateApp.Unit.Tests.Features.Agents.Queries
             _userServiceMock.Verify(s => s.GetUsersAgentOnly(propertyCount), Times.Once);
         }
 
-        // -----------------------------------------------------------
-        // ✔️ 2. CASO NEGATIVO
-        // -----------------------------------------------------------
+     
         [Fact]
         public async Task Handle_ShouldThrowApiException_WhenUsersListIsNull()
         {

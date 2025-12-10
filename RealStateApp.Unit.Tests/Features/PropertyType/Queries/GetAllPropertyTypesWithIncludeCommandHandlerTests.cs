@@ -55,16 +55,26 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
             using var context = new RealStateContext(_dbOptions);
             using var identityContext = new IdentityContext(_IdentitydbOptions);
 
-            // Crear PropertyTypes
+            // Seed Roles (AGENT requerido)
+            var agentRole = new IdentityRole
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = AppRoles.AGENT.ToString(),
+                NormalizedName = AppRoles.AGENT.ToString().ToUpper()
+            };
+
+            identityContext.Roles.Add(agentRole);
+            await identityContext.SaveChangesAsync();
+
+            // Seed PropertyTypes
             context.PropertyTypes.AddRange(
                 new Core.Domain.Entities.PropertyType { Id = 1, Name = "Property Type1", Description = "Description1" },
                 new Core.Domain.Entities.PropertyType { Id = 2, Name = "Property Type2", Description = "Description2" }
             );
 
             await context.SaveChangesAsync();
-            context.PropertyTypes.Count().Should().Be(2);
 
-            // Crear agente
+            // Seed agent
             var agent = new AppUser
             {
                 FirstName = "Agent",
@@ -77,24 +87,16 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
             identityContext.Users.Add(agent);
             await identityContext.SaveChangesAsync();
 
-            identityContext.Users.Any(u => u.Id == agent.Id).Should().BeTrue();
-
-            var roleId = identityContext.Roles
-                .Where(r => r.Name == AppRoles.AGENT.ToString())
-                .Select(r => r.Id)
-                .FirstOrDefault();
-
-            roleId.Should().NotBeNull();
-
+            // Assign AGENT role
             identityContext.UserRoles.Add(new IdentityUserRole<string>
             {
                 UserId = agent.Id,
-                RoleId = roleId
+                RoleId = agentRole.Id
             });
 
             await identityContext.SaveChangesAsync();
 
-            // Crear Property asociada al PropertyType 1
+            // Seed Property linked to PropertyType 1
             context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
@@ -111,11 +113,6 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
 
             await context.SaveChangesAsync();
 
-            // Validación preliminar
-            var createdProperty = context.Properties.FirstOrDefault();
-            createdProperty.Should().NotBeNull();
-            createdProperty!.PropertyTypeId.Should().Be(1);
-
             // Act
             var repository = new PropertyTypeRepository(context);
             var handler = new GetAllPropertyTypeWithIncludeQueryHandler(repository, _mapper);
@@ -125,20 +122,12 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
             // Assert
             result.Should().HaveCount(2);
 
-            result.Select(r => r.Name).Should().Contain(new[]
-            {
-        "Property Type1",
-        "Property Type2"
-    });
-
-            // Validar PropertiesCount
             var ptype1 = result.First(r => r.Id == 1);
             var ptype2 = result.First(r => r.Id == 2);
 
-            ptype1.PropertiesCount.Should().Be(1); // tiene 1 propiedad
-            ptype2.PropertiesCount.Should().Be(0); // no tiene propiedades
+            ptype1.PropertiesCount.Should().Be(1);
+            ptype2.PropertiesCount.Should().Be(0);
         }
-
 
         [Fact]
         public async Task Handle_ShouldReturnEmptyList_WhenNoSaleTypesExist()

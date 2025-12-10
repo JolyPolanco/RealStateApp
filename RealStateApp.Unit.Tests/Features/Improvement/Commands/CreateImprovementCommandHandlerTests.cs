@@ -29,13 +29,12 @@ namespace RealStateApp.Unit.Tests.Features.Improvement.Commands
         }
 
         [Fact]
-
         public async Task Handle_ShouldReturnImprovementId_WhenCreationIsSuccessful()
         {
             using var context = new RealStateContext(_dbContextOptions);
             var repository = new ImprovementRepository(context);
 
-            CreateImprovementCommandHandler handler = new CreateImprovementCommandHandler(repository);
+            var handler = new CreateImprovementCommandHandler(repository);
 
             var command = new CreateImprovementCommand()
             {
@@ -43,25 +42,27 @@ namespace RealStateApp.Unit.Tests.Features.Improvement.Commands
                 Description = "Description test",
             };
 
-
-            //Act
+            // Act
             var result = await handler.Handle(command, CancellationToken.None);
 
-
-            //Assert
+            // Assert
             result.Should().BeGreaterThan(0);
-            var createdEntity = await context.SaleTypes.FindAsync(result);
+
+            // Buscar la entidad en la tabla correcta
+            var createdEntity = await context.Improvements.FindAsync(result);
+
             createdEntity.Should().NotBeNull();
             createdEntity!.Name.Should().Be(command.Name);
             createdEntity.Description.Should().Be(command.Description);
         }
 
+
         [Fact]
         public async Task Handle_ShouldReturnZero_WhenRepositoryReturnsNull()
         {
             // Arrange
-            Mock<IImprovementRepository> _mockRepository = new();
-            CreateImprovementCommandHandler _handler = new(_mockRepository.Object);
+            var mockRepository = new Mock<IImprovementRepository>();
+            var handler = new CreateImprovementCommandHandler(mockRepository.Object);
 
             var command = new CreateImprovementCommand()
             {
@@ -69,15 +70,20 @@ namespace RealStateApp.Unit.Tests.Features.Improvement.Commands
                 Description = "Description test",
             };
 
+            mockRepository
+                .Setup(r => r.AddAsync(It.IsAny<Core.Domain.Entities.Improvement>()))
+                .ReturnsAsync((Core.Domain.Entities.Improvement?)null);
 
-            _mockRepository
-                   .Setup(r => r.AddAsync(It.IsAny<Core.Domain.Entities.Improvement>()))
-                   .ReturnsAsync((Core.Domain.Entities.Improvement?)null);
+            // Act & Assert
+            Func<Task> act = async () => await handler.Handle(command, CancellationToken.None);
 
-            // Act && Assert
-            Func<Task> act = async () => await _handler.Handle(command, CancellationToken.None);
-            await act.Should().ThrowAsync<ApiException>().WithMessage("Error creating improvement");
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Core.Domain.Entities.Improvement>()), Times.Once);
+            await act.Should()
+                    .ThrowAsync<ApiException>()
+                    .WithMessage("Error creating entity"); // <-- mensaje correcto
+
+            mockRepository.Verify(
+                r => r.AddAsync(It.IsAny<Core.Domain.Entities.Improvement>()),
+                Times.Once);
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace RealStateApp.Core.Application.Features.Improvement.Commands.EditImprov
             Domain.Entities.Improvement? getEntity = await _improvementRepository.GetByIdAsync(request.Id);
 
             if (getEntity == null)
-                throw new ArgumentNullException("Mejora no encontrada con ese Id");
+                throw new ApiException("Entity not found with Id");
 
             Domain.Entities.Improvement? entity = new()
             {

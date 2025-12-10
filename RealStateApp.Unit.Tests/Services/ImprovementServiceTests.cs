@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RealStateApp.Core.Application.Dtos.Improvement;
 using RealStateApp.Core.Application.Dtos.SaleType;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Application.Mappings.EntitiesAndDtos;
 using RealStateApp.Core.Application.Services;
 using RealStateApp.Core.Domain.Entities;
@@ -142,7 +143,7 @@ namespace RealStateApp.Unit.Tests.Services
             Func<Task> act = async () => await service.DeleteAsync(999);
 
             await act.Should()
-                .ThrowAsync<ArgumentException>()
+                .ThrowAsync<ApiException>()
                 .WithMessage("Entity not found with this id");
         }
 
@@ -208,7 +209,7 @@ namespace RealStateApp.Unit.Tests.Services
 
             await service.AddAsync(new ImprovementDto { Name = "A", Description = "1" });
 
-            var result = await service.GetAllListWithInclude(new List<string> { "Properties" });
+            var result = await service.GetAllListWithInclude(new List<string> { "PropertyImprovements" });
 
             result.Should().NotBeNull();
             result!.Count.Should().Be(1);
@@ -226,6 +227,7 @@ namespace RealStateApp.Unit.Tests.Services
 
             a!.Name = "A1";
             b!.Name = "B1";
+            service = CreateService();
 
             await service.UpdateRangeAsync(new List<ImprovementDto> { a, b });
 
@@ -243,6 +245,7 @@ namespace RealStateApp.Unit.Tests.Services
 
             var a = await service.AddAsync(new ImprovementDto { Name = "A", Description = "1" });
             var b = await service.AddAsync(new ImprovementDto { Name = "B", Description = "2" });
+            service = CreateService();
 
             await service.DeleteRangeAsync(new List<ImprovementDto> { a!, b! });
 
@@ -432,7 +435,7 @@ namespace RealStateApp.Unit.Tests.Services
             var service = CreateService();
 
             // Act
-            var result = await service.GetAllListWithInclude(new List<string> { "Properties" });
+            var result = await service.GetAllListWithInclude(new List<string> { "PropertyImprovements" });
 
             // Assert
             result.Should().NotBeNull();

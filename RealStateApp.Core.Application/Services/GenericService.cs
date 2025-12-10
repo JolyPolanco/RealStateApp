@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Domain.Interfaces;
 
@@ -19,20 +20,16 @@ namespace RealStateApp.Core.Application.Services
 
 
 
-        public virtual async Task<EntityDto?> AddAsync(EntityDto entityDto)
+        public virtual async Task<EntityDto?> AddAsync(EntityDto ?entityDto)
         {
-            try
-            {
-
+            
+               if(entityDto == null)  return null;
                 var entity = _mapper.Map<Entity>(entityDto);
                 await _repo.AddAsync(entity);
                 var dto = _mapper.Map<Entity, EntityDto>(entity);
                 return dto;
-            }
-            catch
-            {
-                return default;
-            }
+            
+           
         }
 
 
@@ -40,14 +37,12 @@ namespace RealStateApp.Core.Application.Services
 
         public virtual async Task DeleteAsync(int id)
         {
-            try
-            {
+            var entity = await _repo.GetByIdAsync(id);
 
-                await _repo.DeleteAsync(id);
-            }
-            catch
-            {
-            }
+            if (entity == null)
+                throw new ApiException("Entity not found with this id");
+
+            await _repo.DeleteAsync(id);
         }
 
 
@@ -66,16 +61,11 @@ namespace RealStateApp.Core.Application.Services
 
         public async Task DeleteRangeAsync(List<EntityDto> entityDtos)
         {
-            try
-            {
-                var entities = _mapper.Map<List<Entity>>(entityDtos);
+              var entities = _mapper.Map<List<Entity>>(entityDtos);
               await  _repo.DeleteRangeAsync(entities);
-            }
+            
 
-            catch
-            {
-
-            }
+           
         }
 
 

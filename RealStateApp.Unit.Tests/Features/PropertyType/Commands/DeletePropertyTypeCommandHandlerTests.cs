@@ -59,7 +59,7 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Commands
             using var context = new RealStateContext(_dbContextOptions);
             var repository = new PropertyTypeRepository(context);
             var handler = new DeletePropertyTypeCommandHandler(repository);
-            var command = new DeletePropertyTypeCommand { Id = 999 };
+            var command = new DeletePropertyTypeCommand { Id = 9999 };
 
             // Act
             Func<Task> act = async () => await handler.Handle(command, CancellationToken.None);

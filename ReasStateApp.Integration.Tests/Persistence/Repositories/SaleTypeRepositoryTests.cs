@@ -186,7 +186,7 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
           
 
             await SaleTypeRepository.DeleteAsync(saleType!.Id);
-            var entity= SaleTypeRepository.GetByIdAsync(saleType.Id);
+            var entity= await SaleTypeRepository.GetByIdAsync(saleType.Id);
 
             //Assert
             entity.Should().BeNull();

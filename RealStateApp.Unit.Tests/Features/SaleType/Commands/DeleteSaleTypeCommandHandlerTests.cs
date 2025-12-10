@@ -66,7 +66,7 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Commands
 
             // Assert
             await act.Should().ThrowAsync<ApiException>()
-                .WithMessage("Entity  not found with this id");
+                .WithMessage("Entity not found with this id");
         }
     }
 
