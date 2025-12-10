@@ -9,6 +9,12 @@
 	  <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Features\Message\**" />
+    <EmbeddedResource Remove="Features\Message\**" />
+    <None Remove="Features\Message\**" />
+  </ItemGroup>
+
 
 		
 	
@@ -34,7 +40,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Agents\Queries\GetAgentPropertiesDetails\" />
-    <Folder Include="Features\Message\" />
     <Folder Include="Features\Property\Commands\EditProperty\" />
     <Folder Include="Features\Property\Commands\DeleteProperty\" />
     <Folder Include="Features\Property\Queries\GetAllWithInclude\" />

@@ -53,16 +53,15 @@ namespace RealStateApp.Infraestructure.Identity.Services
                 return responseDto;
 
             }
-            JwtSecurityToken jwtSecurityToken =  GenerateJwtToken(user);
-
+            
             var rolesList = await _userManager.GetRolesAsync(user);
-
+            JwtSecurityToken jwtSecurityToken =  GenerateJwtToken(user, rolesList);
 
             responseDto.AccessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
             return responseDto;
         }
-        private JwtSecurityToken GenerateJwtToken(AppUser user)
+        private JwtSecurityToken GenerateJwtToken(AppUser user, IList<string> roles)
         {
             var claims = new List<Claim>
     {
@@ -70,6 +69,12 @@ namespace RealStateApp.Infraestructure.Identity.Services
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim("uid", user.Id)
     };
+
+            // Agregar roles al token JWT
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));

@@ -13,8 +13,6 @@ namespace RealStateWebApi.Controllers.v1
         public class LoginController() : BaseApiController
         {
 
-
-
             [AllowAnonymous]
             [ProducesResponseType(StatusCodes.Status200OK)]
             [ProducesResponseType(StatusCodes.Status500InternalServerError)]
