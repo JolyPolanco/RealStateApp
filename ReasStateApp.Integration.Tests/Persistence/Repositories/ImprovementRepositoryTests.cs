@@ -189,7 +189,7 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
 
 
             await repository.DeleteAsync(improvement.Id);
-            var entity = repository.GetByIdAsync(improvement.Id);
+            var entity = await repository.GetByIdAsync(improvement.Id);
 
             //Assert
             entity.Should().BeNull();

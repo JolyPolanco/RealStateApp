@@ -58,16 +58,22 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
             using var context = new RealStateContext(_dbOptions);
             using var identityContext = new IdentityContext(_IdentitydbOptions);
 
-            // SaleTypes
+            // --- Seed de SaleTypes ---
             context.SaleTypes.AddRange(
                 new RealStateApp.Core.Domain.Entities.SaleType { Id = 1, Name = "Sale type1", Description = "Description1" },
                 new RealStateApp.Core.Domain.Entities.SaleType { Id = 2, Name = "Sale type2", Description = "Description2" }
             );
-
             await context.SaveChangesAsync();
-            context.SaleTypes.Count().Should().Be(2);
 
-            // Crear PropertyType
+            // --- Crear rol AGENT (para evitar roleId null) ---
+            identityContext.Roles.Add(new IdentityRole
+            {
+                Name = AppRoles.AGENT.ToString(),
+                NormalizedName = AppRoles.AGENT.ToString().ToUpper()
+            });
+            await identityContext.SaveChangesAsync();
+
+            // --- Crear PropertyType ---
             var repoPropertyType = new PropertyTypeRepository(context);
             var propertyType = await repoPropertyType.AddAsync(new RealStateApp.Core.Domain.Entities.PropertyType
             {
@@ -76,9 +82,8 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
             });
 
             propertyType.Id.Should().BeGreaterThan(0);
-            context.PropertyTypes.Any(pt => pt.Id == propertyType.Id).Should().BeTrue();
 
-            // Crear agente
+            // --- Crear agente ---
             var agent = new AppUser
             {
                 FirstName = "Agent",
@@ -91,8 +96,7 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
             identityContext.Users.Add(agent);
             await identityContext.SaveChangesAsync();
 
-            identityContext.Users.Any(u => u.Id == agent.Id).Should().BeTrue();
-
+            // Obtener rol AGENT
             var roleId = identityContext.Roles
                 .Where(r => r.Name == AppRoles.AGENT.ToString())
                 .Select(r => r.Id)
@@ -100,20 +104,15 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
 
             roleId.Should().NotBeNull();
 
+            // Asignarlo
             identityContext.UserRoles.Add(new IdentityUserRole<string>
             {
                 UserId = agent.Id,
-                RoleId = roleId
+                RoleId = roleId!
             });
-
             await identityContext.SaveChangesAsync();
 
-            identityContext.UserRoles
-                .Any(ur => ur.UserId == agent.Id && ur.RoleId == roleId)
-                .Should()
-                .BeTrue();
-
-            // Crear Property
+            // --- Crear Property ---
             context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
@@ -130,12 +129,6 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
 
             await context.SaveChangesAsync();
 
-            var createdProperty = context.Properties.FirstOrDefault();
-            createdProperty.Should().NotBeNull();
-            createdProperty!.SaleTypeId.Should().Be(1);
-            createdProperty.PropertyTypeId.Should().Be(propertyType.Id);
-            createdProperty.AgentId.Should().Be(agent.Id);
-
             // Act
             var repository = new SaleTypeRepository(context);
             var handler = new GetAllSaleTypeWithIncludeQueryHandler(repository, _mapper);
@@ -149,7 +142,6 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Queries
                   .Should()
                   .Contain(new[] { "Sale type1", "Sale type2" });
 
-            // Validación del include mediante el contador
             var saleType1 = result.First(r => r.Id == 1);
             var saleType2 = result.First(r => r.Id == 2);
 

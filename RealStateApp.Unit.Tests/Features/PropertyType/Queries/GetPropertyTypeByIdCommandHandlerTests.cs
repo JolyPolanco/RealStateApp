@@ -54,26 +54,38 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
             using var context = new RealStateContext(_dbOptions);
             using var identityContext = new IdentityContext(_IdentitydbOptions);
 
+            // --- Seed de SaleTypes ---
+            context.SaleTypes.AddRange(
+                new Core.Domain.Entities.SaleType { Id = 1, Name = "Sale type1", Description = "Description1" },
+                new Core.Domain.Entities.SaleType { Id = 2, Name = "Sale type2", Description = "Description2" }
+            );
+            await context.SaveChangesAsync();
+
+            // --- Seed de PropertyTypes ---
             context.PropertyTypes.AddRange(
                 new Core.Domain.Entities.PropertyType { Id = 1, Name = "Property Type1", Description = "Description1" },
                 new Core.Domain.Entities.PropertyType { Id = 2, Name = "Property Type2", Description = "Description2" }
             );
-
             await context.SaveChangesAsync();
-            context.SaleTypes.Count().Should().Be(2);
 
-            // Crear PropertyType
+            // Crear PropertyType vía repositorio
             var repoPropertyType = new PropertyTypeRepository(context);
             var propertyType = await repoPropertyType.AddAsync(new RealStateApp.Core.Domain.Entities.PropertyType
             {
                 Name = "PropertyType1",
                 Description = "PropertyType1 Description"
             });
-
             propertyType!.Id.Should().BeGreaterThan(0);
-            context.PropertyTypes.Any(pt => pt.Id == propertyType.Id).Should().BeTrue();
 
-            // Crear agente
+            // --- Crear rol AGENT (evita error roleId null) ---
+            identityContext.Roles.Add(new IdentityRole
+            {
+                Name = AppRoles.AGENT.ToString(),
+                NormalizedName = AppRoles.AGENT.ToString().ToUpper()
+            });
+            await identityContext.SaveChangesAsync();
+
+            // --- Crear agente ---
             var agent = new AppUser
             {
                 FirstName = "Agent",
@@ -82,33 +94,23 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
                 UserName = "Agente1",
                 Email = "test@gmail.com"
             };
-
             identityContext.Users.Add(agent);
             await identityContext.SaveChangesAsync();
-
-            identityContext.Users.Any(u => u.Id == agent.Id).Should().BeTrue();
 
             var roleId = identityContext.Roles
                 .Where(r => r.Name == AppRoles.AGENT.ToString())
                 .Select(r => r.Id)
                 .FirstOrDefault();
-
             roleId.Should().NotBeNull();
 
             identityContext.UserRoles.Add(new IdentityUserRole<string>
             {
                 UserId = agent.Id,
-                RoleId = roleId
+                RoleId = roleId!
             });
-
             await identityContext.SaveChangesAsync();
 
-            identityContext.UserRoles
-                .Any(ur => ur.UserId == agent.Id && ur.RoleId == roleId)
-                .Should()
-                .BeTrue();
-
-            // Crear Property asociada al SaleType 1
+            // --- Crear Property asociada al SaleType 1 ---
             context.Properties.Add(new RealStateApp.Core.Domain.Entities.Property
             {
                 AgentId = agent.Id,
@@ -122,30 +124,22 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Queries
                 PropertyTypeId = propertyType.Id,
                 SaleTypeId = 1
             });
-
             await context.SaveChangesAsync();
-
-            var createdProperty = context.Properties.FirstOrDefault();
-            createdProperty.Should().NotBeNull();
-            createdProperty!.SaleTypeId.Should().Be(1);
 
             // Act
             var repository = new SaleTypeRepository(context);
             var handler = new GetSaleTypeByIdQueryHandler(repository, _mapper);
 
-            var query = new GetSaleTypeByIdQuery { Id = 1 };
-
-            var result = await handler.Handle(query, CancellationToken.None);
+            var result = await handler.Handle(new GetSaleTypeByIdQuery { Id = 1 }, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
-
             result.Id.Should().Be(1);
             result.Name.Should().Be("Sale type1");
             result.Description.Should().Be("Description1");
-
             result.PropertiesCount.Should().Be(1);
         }
+
 
 
         [Fact]

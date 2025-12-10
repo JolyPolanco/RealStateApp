@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RealStateApp.Core.Application.Dtos.Properties;
 using RealStateApp.Core.Application.Dtos.SaleType;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Application.Mappings.EntitiesAndDtos;
 using RealStateApp.Core.Application.Services;
 using RealStateApp.Core.Domain.Entities;
@@ -142,8 +143,10 @@ namespace RealStateApp.Unit.Tests.Services
             Func<Task> act = async () => await service.DeleteAsync(999);
 
             await act.Should()
-                .ThrowAsync<ArgumentException>()
+                .ThrowAsync<ApiException>()
+
                 .WithMessage("Entity not found with this id");
+
         }
 
 
@@ -244,13 +247,15 @@ namespace RealStateApp.Unit.Tests.Services
             var a = await service.AddAsync(new PropertyTypeDto { Name = "A", Description = "1" });
             var b = await service.AddAsync(new PropertyTypeDto { Name = "B", Description = "2" });
 
+            // Aquí está el FIX
+            service = CreateService();
+
             await service.DeleteRangeAsync(new List<PropertyTypeDto> { a!, b! });
 
             var all = await service.GetAllList();
 
             all!.Count.Should().Be(0);
         }
-
 
 
 

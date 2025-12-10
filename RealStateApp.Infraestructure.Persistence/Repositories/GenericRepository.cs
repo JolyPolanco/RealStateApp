@@ -117,11 +117,22 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
             }
             return entry;
         }
-
         public async Task UpdateRangeAsync(List<Entity> entities)
         {
-            _context.Set<Entity>().UpdateRange(entities);
+            // limpiar todo el tracking de EF
+            _context.ChangeTracker.Clear();
+
+            var dbSet = _context.Set<Entity>();
+
+            foreach (var entity in entities)
+            {
+                dbSet.Attach(entity);
+                _context.Entry(entity).State = EntityState.Modified;
+            }
+
             await _context.SaveChangesAsync();
         }
+
+
     }
 }

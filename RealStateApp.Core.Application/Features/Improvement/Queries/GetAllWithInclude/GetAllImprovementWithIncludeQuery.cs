@@ -30,11 +30,16 @@ namespace RealStateApp.Core.Application.Features.Improvement.Queries.GetAllWithI
         }
         public async Task<IList<ImprovementDto>> Handle(GetAllImprovementWithIncludeQuery request, CancellationToken cancellationToken)
         {
-            var listEntitiesQuery = _improvementRepository.GetAllQueryWithInclude(new List<string> { "PropertyImprovements" });
+            var listEntitiesQuery = _improvementRepository.GetAllQueryWithInclude(
+                new List<string> { "PropertyImprovements" });
 
-            var listEntityDtos = await listEntitiesQuery.ProjectTo<ImprovementDto>(_mapper.ConfigurationProvider).ToListAsync();
+            // Cambiar ToListAsync por ToList
+            var listEntityDtos = listEntitiesQuery
+                .ProjectTo<ImprovementDto>(_mapper.ConfigurationProvider)
+                .ToList();
 
             return listEntityDtos;
         }
+
     }
 }

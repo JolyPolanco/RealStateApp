@@ -27,32 +27,32 @@ namespace RealStateApp.Unit.Tests.Features.PropertyType.Commands
         }
 
         [Fact]
-
         public async Task Handle_ShouldReturnPropertyTypeId_WhenCreationIsSuccessful()
         {
             using var context = new RealStateContext(_dbContextOptions);
             var repository = new PropertyTypeRepository(context);
 
-            CreatePropertyTypeCommandHandler handler = new CreatePropertyTypeCommandHandler(repository);
+            var handler = new CreatePropertyTypeCommandHandler(repository);
 
             var command = new CreatePropertyTypeCommand()
             {
-                Name = "Propertype test",
+                Name = "Property type test",
                 Description = "Description test",
             };
 
-
-            //Act
+            // Act
             var result = await handler.Handle(command, CancellationToken.None);
 
-
-            //Assert
+            // Assert
             result.Should().BeGreaterThan(0);
-            var createdEntity = await context.SaleTypes.FindAsync(result);
+
+            var createdEntity = await context.PropertyTypes.FindAsync(result);
+
             createdEntity.Should().NotBeNull();
             createdEntity!.Name.Should().Be(command.Name);
             createdEntity.Description.Should().Be(command.Description);
         }
+
 
         [Fact]
         public async Task Handle_ShouldReturnZero_WhenRepositoryReturnsNull()

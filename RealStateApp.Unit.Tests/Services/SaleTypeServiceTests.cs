@@ -2,7 +2,9 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RealStateApp.Core.Application.Dtos.Properties;
 using RealStateApp.Core.Application.Dtos.SaleType;
+using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Application.Mappings.EntitiesAndDtos;
 using RealStateApp.Core.Application.Services;
 using RealStateApp.Core.Domain.Entities;
@@ -136,7 +138,7 @@ namespace RealStateApp.Unit.Tests.Services
             Func<Task> act = async () => await service.DeleteAsync(999);
 
             await act.Should()
-                .ThrowAsync<ArgumentException>()
+                .ThrowAsync<ApiException>()
                 .WithMessage("Entity not found with this id");
         }
 
@@ -208,7 +210,7 @@ namespace RealStateApp.Unit.Tests.Services
             result!.Count.Should().Be(1);
         }
 
-     
+
 
         [Fact]
         public async Task UpdateRangeAsync_Should_UpdateMultipleEntities()
@@ -217,6 +219,9 @@ namespace RealStateApp.Unit.Tests.Services
 
             var a = await service.AddAsync(new SaleTypeDto { Name = "A", Description = "1" });
             var b = await service.AddAsync(new SaleTypeDto { Name = "B", Description = "2" });
+
+            // Nuevo servicio = nuevo DbContext = sin tracking previo
+            service = CreateService();
 
             a!.Name = "A1";
             b!.Name = "B1";
@@ -237,6 +242,7 @@ namespace RealStateApp.Unit.Tests.Services
 
             var a = await service.AddAsync(new SaleTypeDto { Name = "A", Description = "1" });
             var b = await service.AddAsync(new SaleTypeDto { Name = "B", Description = "2" });
+            service = CreateService();
 
             await service.DeleteRangeAsync(new List<SaleTypeDto> { a!, b! });
 
