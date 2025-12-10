@@ -29,13 +29,13 @@ namespace RealStateApp.Integration.Tests.Persistence.Repositories
 
 
             dbContextOptions = new DbContextOptionsBuilder<RealStateContext>()
-                .UseInMemoryDatabase(databaseName: $"DBcontextTestFavoriteProperty")
+                .UseInMemoryDatabase(databaseName: $"DBcontextTestFavoriteProperty_{Guid.NewGuid()}")
                 .Options;
 
 
 
             identityContextOptions = new DbContextOptionsBuilder<IdentityContext>()
-                .UseInMemoryDatabase(databaseName: $"dbIdentityTestFavoriteProperty")
+                .UseInMemoryDatabase(databaseName: $"dbIdentityTestFavoriteProperty_{Guid.NewGuid()}")
                 .Options;
 
         }
