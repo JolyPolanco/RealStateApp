@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using RealStateApp.Core.Application.Exceptions;
-using RealStateApp.Core.Application.Features.Property.Commands.CreateProperty;
 using RealStateApp.Core.Application.Features.SaleType.Commands.CreateSaleType;
 using RealStateApp.Core.Domain.Interfaces;
 using RealStateApp.Infraestructure.Persistence.Contexts;
@@ -29,7 +28,7 @@ namespace RealStateApp.Unit.Tests.Features.SaleType.Commands
             using var context = new RealStateContext(_dbContextOptions);
             var repository = new SaleTypeRepository(context);
 
-            CreatePropertyCommandHandler handler = new CreatePropertyCommandHandler(repository);
+            CreateSaleTypeCommandHandler handler = new CreateSaleTypeCommandHandler(repository);
 
             var command = new CreateSaleTypeCommand()
             {

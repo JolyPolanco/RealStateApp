@@ -1,15 +1,9 @@
 ﻿using AutoMapper;
 using MediatR;
-using RealStateApp.Core.Application.Dtos.Improvement;
 using RealStateApp.Core.Application.Dtos.User;
 using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Application.Interfaces;
 using RealStateApp.Core.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RealStateApp.Core.Application.Features.Agents.Queries.GetById
 {
@@ -34,12 +28,12 @@ namespace RealStateApp.Core.Application.Features.Agents.Queries.GetById
         }
         public async Task<AgentDto> Handle(GetAgentByIdQuery request, CancellationToken cancellationToken)
         {
+            var userBase = await _userService.GetById(request.Id ?? "");
 
-            var userBase = await _userService.GetById(request.Id??"");
+            if (userBase == null) 
+                throw new ApiException($"Agent not found with Id: {request.Id}");
 
             var PropertiesCount = await _propertyRepository.GetAgentPropertiesCount(request.Id);
-
-            if (userBase == null) throw new ApiException("Agent not found with Id");
 
             var dto = _mapper.Map<AgentDto>(userBase);
             dto.PropertiesCount = PropertiesCount;

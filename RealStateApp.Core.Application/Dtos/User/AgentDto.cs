@@ -20,12 +20,10 @@ namespace RealStateApp.Core.Application.Dtos.User
 
         public required string FirstName { get; set; }
         [JsonProperty("apellido")]
-
         public required string LastName { get; set; }
-        [JsonProperty("cedula")]
 
-       
- 
+        [JsonProperty("telefono")]
+        public string? PhoneNumber { get; set; }
 
         public bool IsActive { get; set; }
 

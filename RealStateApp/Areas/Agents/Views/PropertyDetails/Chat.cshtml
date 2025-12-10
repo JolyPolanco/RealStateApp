@@ -111,13 +111,11 @@
         const currentUserId = '@ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
         const chatContainer = document.getElementById('chatContainer');
         
-        // Crear conexión SignalR
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/chatHub")
             .withAutomaticReconnect()
             .build();
 
-        // Función para agregar mensaje al chat
         function addMessageToChat(data) {
             const isCurrentUser = data.senderId === currentUserId;
             const messageDiv = document.createElement('div');
@@ -137,16 +135,13 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // Escapar HTML para prevenir XSS
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // Recibir mensajes
         connection.on("ReceiveMessage", function (data) {
-            // Solo procesar mensajes de esta propiedad
             if (data.propertyId === propertyId) {
                 addMessageToChat(data);
                 
@@ -184,11 +179,9 @@
             }
         });
 
-        // Iniciar conexión
         connection.start()
             .then(() => {
                 console.log("Conectado a SignalR");
-                // Unirse al grupo de esta propiedad
                 return connection.invoke("JoinPropertyChat", propertyId);
             })
             .then(() => {
@@ -196,27 +189,24 @@
             })
             .catch(err => console.error("Error de conexión:", err));
 
-        // Manejo del formulario
         const form = document.querySelector('form');
         const textarea = form.querySelector('textarea[name="content"]');
         let typingTimer;
 
-        // Detectar cuando el usuario está escribiendo
         textarea.addEventListener('input', function() {
             clearTimeout(typingTimer);
             
-            // Notificar que está escribiendo
             connection.invoke("NotifyTyping", propertyId, clientId, true)
                 .catch(err => console.error(err));
             
-            // Después de 2 segundos sin escribir, notificar que dejó de escribir
+          
             typingTimer = setTimeout(() => {
                 connection.invoke("NotifyTyping", propertyId, clientId, false)
                     .catch(err => console.error(err));
             }, 2000);
         });
 
-        // Enviar mensaje
+
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -224,13 +214,10 @@
             if (!content) return;
 
             try {
-                // Enviar a través de SignalR (que también guarda en BD)
                 await connection.invoke("SendMessage", propertyId, clientId, content);
                 
-                // Limpiar textarea
                 textarea.value = '';
                 
-                // Notificar que dejó de escribir
                 await connection.invoke("NotifyTyping", propertyId, clientId, false);
             } catch (err) {
                 console.error("Error al enviar mensaje:", err);
@@ -238,14 +225,12 @@
             }
         });
 
-        // Auto-scroll al cargar
         window.onload = function() {
             if (chatContainer) {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
         };
 
-        // Limpiar al salir
         window.addEventListener('beforeunload', function() {
             connection.invoke("LeavePropertyChat", propertyId).catch(err => console.error(err));
         });
