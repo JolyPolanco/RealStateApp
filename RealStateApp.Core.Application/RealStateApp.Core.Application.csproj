@@ -39,7 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Agents\Queries\GetAgentPropertiesDetails\" />
     <Folder Include="Features\Property\Commands\EditProperty\" />
     <Folder Include="Features\Property\Commands\DeleteProperty\" />
     <Folder Include="Features\Property\Queries\GetAllWithInclude\" />
