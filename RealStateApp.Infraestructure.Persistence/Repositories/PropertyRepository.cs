@@ -46,8 +46,13 @@ namespace RealStateApp.Infraestructure.Persistence.Repositories
 
         public async Task<List<Property>> GetListByAgentId(string AgenteId)
         {
-            return await _context.Set<Property>().Where(s => s.AgentId == AgenteId
-            && s.Status == Core.Domain.Common.Enums.PropertyStatus.Available).ToListAsync();
+            return await _context.Set<Property>()
+                .Include(p => p.PropertyType)
+                .Include(p => p.SaleType)
+                .Include(p => p.PropertyImprovements)
+                    .ThenInclude(pi => pi.Improvement)
+                .Where(s => s.AgentId == AgenteId)
+                .ToListAsync();
         }
         public async  Task<int> GetAgentPropertiesCount(string id)
         {
