@@ -23,7 +23,7 @@ namespace RealStateApp.Core.Application.Features.Property.Queries.GetAll
         private readonly IUserService _userService;
 
         public GetAllPropertiesQueryHandler(
-            IPropertyRepository propertyRepository, 
+            IPropertyRepository propertyRepository,
             IMapper mapper,
             IUserService userService)
         {
@@ -34,6 +34,7 @@ namespace RealStateApp.Core.Application.Features.Property.Queries.GetAll
 
         public async Task<IList<PropertyApiDto>> Handle(GetAllPropertiesQuery request, CancellationToken cancellationToken)
         {
+            // Obtener todas las propiedades incluyendo sus relaciones
             var propertiesQuery = _propertyRepository.GetAllQueryWithInclude(new List<string>
             {
                 "PropertyType",
@@ -46,12 +47,13 @@ namespace RealStateApp.Core.Application.Features.Property.Queries.GetAll
 
             foreach (var property in properties)
             {
+                // Mapear la entidad Property a DTO
                 var dto = _mapper.Map<PropertyApiDto>(property);
-                
-                // Obtener el nombre del agente usando UserService
+
+                // Obtener nombre del agente para cada propiedad
                 var agent = await _userService.GetById(property.AgentId);
                 dto.AgentName = agent != null ? $"{agent.FirstName} {agent.LastName}" : "Unknown";
-                
+
                 propertyDtos.Add(dto);
             }
 

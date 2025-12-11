@@ -8,38 +8,68 @@ using System.Net;
 namespace RealStateApp.Core.Application.Features.Property.Commands.CreateProperty
 {
     /// <summary>
-    /// Parameters for creating a property
+    /// Comando para crear una propiedad nueva.
     /// </summary>
+    /// <remarks>
+    /// Ejemplo de request:
+    /// POST /api/v1/properties
+    /// {
+    ///   "price": 250000,
+    ///   "sizeInMeters": 120,
+    ///   "bedrooms": 3,
+    ///   "bathrooms": 2,
+    ///   "description": "Hermosa casa con patio amplio",
+    ///   "propertyTypeId": 1,
+    ///   "saleTypeId": 2,
+    ///   "agentId": "123e4567-e89b-12d3-a456-426614174000",
+    ///   "improvementIds": [1, 3]
+    /// }
+    ///
+    /// Respuesta exitosa:
+    /// 201 Created
+    /// {
+    ///   "id": 101
+    /// }
+    ///
+    /// Respuesta si falla:
+    /// 400 Bad Request
+    /// {
+    ///   "message": "El tipo de propiedad no existe"
+    /// }
+    /// </remarks>
     public class CreatePropertyCommand : IRequest<int>
     {
-        [SwaggerParameter(Description = "Price of the property")]
+        [SwaggerParameter(Description = "Precio de la propiedad")]
         public decimal Price { get; set; }
 
-        [SwaggerParameter(Description = "Size in square meters")]
+        [SwaggerParameter(Description = "Tamaño en metros cuadrados")]
         public double SizeInMeters { get; set; }
 
-        [SwaggerParameter(Description = "Number of bedrooms")]
+        [SwaggerParameter(Description = "Número de habitaciones")]
         public int Bedrooms { get; set; }
 
-        [SwaggerParameter(Description = "Number of bathrooms")]
+        [SwaggerParameter(Description = "Número de baños")]
         public int Bathrooms { get; set; }
 
-        [SwaggerParameter(Description = "Property description")]
+        [SwaggerParameter(Description = "Descripción de la propiedad")]
         public required string Description { get; set; }
 
-        [SwaggerParameter(Description = "Property type ID")]
+        [SwaggerParameter(Description = "ID del tipo de propiedad")]
         public int PropertyTypeId { get; set; }
 
-        [SwaggerParameter(Description = "Sale type ID")]
+        [SwaggerParameter(Description = "ID del tipo de venta")]
         public int SaleTypeId { get; set; }
 
-        [SwaggerParameter(Description = "Agent ID")]
+        [SwaggerParameter(Description = "ID del agente que publica la propiedad")]
         public required string AgentId { get; set; }
 
-        [SwaggerParameter(Description = "List of improvement IDs")]
+        [SwaggerParameter(Description = "Lista de IDs de mejoras aplicables")]
         public List<int> ImprovementIds { get; set; } = new List<int>();
     }
 
+    /// <summary>
+    /// Handler para crear una propiedad.
+    /// </summary>
     public class CreatePropertyCommandHandler : IRequestHandler<CreatePropertyCommand, int>
     {
         private readonly IPropertyRepository _propertyRepository;
@@ -58,17 +88,17 @@ namespace RealStateApp.Core.Application.Features.Property.Commands.CreatePropert
 
         public async Task<int> Handle(CreatePropertyCommand request, CancellationToken cancellationToken)
         {
-            // Validar que exista el PropertyType
+            // Validar existencia de PropertyType
             var propertyType = await _propertyTypeRepository.GetByIdAsync(request.PropertyTypeId);
             if (propertyType == null)
                 throw new ApiException("El tipo de propiedad no existe", (int)HttpStatusCode.BadRequest);
 
-            // Validar que exista el SaleType
+            // Validar existencia de SaleType
             var saleType = await _saleTypeRepository.GetByIdAsync(request.SaleTypeId);
             if (saleType == null)
                 throw new ApiException("El tipo de venta no existe", (int)HttpStatusCode.BadRequest);
 
-            // Generar código único de 6 caracteres
+            // Generar código único
             string code = await GenerateUniqueCodeAsync();
 
             Domain.Entities.Property entity = new()
@@ -91,7 +121,7 @@ namespace RealStateApp.Core.Application.Features.Property.Commands.CreatePropert
             if (entity == null)
                 throw new ApiException("Error creating property", (int)HttpStatusCode.InternalServerError);
 
-            // Agregar mejoras si se especificaron
+            // Agregar mejoras si se especifican
             if (request.ImprovementIds.Any())
             {
                 foreach (var improvementId in request.ImprovementIds)
@@ -121,7 +151,6 @@ namespace RealStateApp.Core.Application.Features.Property.Commands.CreatePropert
                     .Select(s => s[random.Next(s.Length)]).ToArray());
 
                 var existingProperty = await _propertyRepository.GetByCode(code);
-                
                 if (existingProperty == null)
                     break;
 
