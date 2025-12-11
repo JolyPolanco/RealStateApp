@@ -8,6 +8,7 @@ using RealStateApp.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,7 +32,7 @@ namespace RealStateApp.Core.Application.Features.SaleType.Queries.GetById
         {
             var listEntitiesQuery = _repository.GetAllQueryWithInclude(new List<string> { "Properties" });
             var entity = await listEntitiesQuery.FirstOrDefaultAsync(fd => fd.Id == request.Id, cancellationToken: cancellationToken);
-            if (entity == null) throw new ApiException("Sale Type not found with Id");
+            if (entity == null) throw new ApiException("Sale Type not found with Id",(int)HttpStatusCode.NotFound);
 
             var dto = _mapper.Map<SaleTypeDto>(entity);
             return dto;

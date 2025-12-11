@@ -5,6 +5,7 @@ using RealStateApp.Core.Application.Dtos.Properties;
 using RealStateApp.Core.Application.Dtos.SaleType;
 using RealStateApp.Core.Application.Exceptions;
 using RealStateApp.Core.Domain.Interfaces;
+using System.Net;
 
 
 namespace RealStateApp.Core.Application.Features.PropertyType.Queries.GetById
@@ -27,7 +28,7 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Queries.GetById
         {
             var listEntitiesQuery = _repository.GetAllQueryWithInclude(new List<string> { "Properties" });
             var entity = await listEntitiesQuery.FirstOrDefaultAsync(fd => fd.Id == request.Id, cancellationToken: cancellationToken);
-            if (entity == null) throw new ApiException("Invalid Id");
+            if (entity == null) throw new ApiException("Invalid Id",(int)HttpStatusCode.NotFound);
 
             var dto = _mapper.Map<PropertyTypeDto>(entity);
             return dto;

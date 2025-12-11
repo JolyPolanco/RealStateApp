@@ -7,6 +7,7 @@ using RealStateApp.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@ namespace RealStateApp.Core.Application.Features.Improvement.Queries.GetById
         {
             var listEntitiesQuery = _improvementRepository.GetAllQueryWithInclude(new List<string> { "PropertyImprovements" });
              var entity= await listEntitiesQuery.FirstOrDefaultAsync(fd=>fd.Id==request.Id, cancellationToken:cancellationToken);
-            if (entity == null) throw new ApiException("Entity Not found with this id");
+            if (entity == null) throw new ApiException("Entity Not found with this id",(int)HttpStatusCode.NotFound);
 
             var dto= _mapper.Map<ImprovementDto>(entity);
             return dto;

@@ -4,6 +4,7 @@ using RealStateApp.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,7 +34,7 @@ namespace RealStateApp.Core.Application.Features.PropertyType.Commands.Edit
             Domain.Entities.PropertyType? getEntity = await _repository.GetByIdAsync(request.Id);
 
             if (getEntity == null)
-                throw new ApiException("Property type not found with this id");
+                throw new ApiException("Property type not found with this id",(int)HttpStatusCode.NotFound);
 
             Domain.Entities.PropertyType? entity = new()
             {

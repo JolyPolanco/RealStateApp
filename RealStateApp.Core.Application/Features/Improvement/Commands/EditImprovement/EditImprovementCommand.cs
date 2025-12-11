@@ -4,6 +4,7 @@ using RealStateApp.Core.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@ namespace RealStateApp.Core.Application.Features.Improvement.Commands.EditImprov
             Domain.Entities.Improvement? getEntity = await _improvementRepository.GetByIdAsync(request.Id);
 
             if (getEntity == null)
-                throw new ApiException("Entity not found with Id");
+                throw new ApiException("Entity not found with Id",(int)HttpStatusCode.NotFound);
 
             Domain.Entities.Improvement? entity = new()
             {
