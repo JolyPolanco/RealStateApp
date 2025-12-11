@@ -7,36 +7,41 @@ namespace RealStateApp.Core.Application.Features.Property.Commands.CreatePropert
         public CreatePropertyCommandValidator()
         {
             RuleFor(x => x.Price)
-                .NotNull().WithMessage("El precio es requerido")
-                .GreaterThan(0).WithMessage("El precio debe ser mayor a 0");
+                .NotNull().WithMessage("Price is required")
+                .GreaterThan(0).WithMessage("Price must be greater than 0");
 
             RuleFor(x => x.SizeInMeters)
-                .NotNull().WithMessage("El tamaño en metros es requerido")
-                .GreaterThan(0).WithMessage("El tamaño debe ser mayor a 0");
+                .NotNull().WithMessage("Size in meters is required")
+                .GreaterThan(0).WithMessage("Size must be greater than 0");
 
             RuleFor(x => x.Bedrooms)
-                .NotNull().WithMessage("La cantidad de habitaciones es requerida")
-                .GreaterThanOrEqualTo(0).WithMessage("La cantidad de habitaciones debe ser mayor o igual a 0");
+                .NotNull().WithMessage("Number of bedrooms is required")
+                .GreaterThanOrEqualTo(0).WithMessage("Number of bedrooms must be greater than or equal to 0");
 
             RuleFor(x => x.Bathrooms)
-                .NotNull().WithMessage("La cantidad de baños es requerida")
-                .GreaterThanOrEqualTo(0).WithMessage("La cantidad de baños debe ser mayor o igual a 0");
+                .NotNull().WithMessage("Number of bathrooms is required")
+                .GreaterThanOrEqualTo(0).WithMessage("Number of bathrooms must be greater than or equal to 0");
 
             RuleFor(x => x.Description)
-                .NotEmpty().WithMessage("La descripción es requerida")
-                .NotNull().WithMessage("La descripción es requerida");
+                .NotEmpty().WithMessage("Description is required")
+                .NotNull().WithMessage("Description is required");
 
             RuleFor(x => x.PropertyTypeId)
-                .NotNull().WithMessage("El tipo de propiedad es requerido")
-                .GreaterThan(0).WithMessage("El tipo de propiedad debe ser válido");
+                .NotNull().WithMessage("Property type is required")
+                .GreaterThan(0).WithMessage("Property type must be valid");
 
             RuleFor(x => x.SaleTypeId)
-                .NotNull().WithMessage("El tipo de venta es requerido")
-                .GreaterThan(0).WithMessage("El tipo de venta debe ser válido");
+                .NotNull().WithMessage("Sale type is required")
+                .GreaterThan(0).WithMessage("Sale type must be valid");
 
             RuleFor(x => x.AgentId)
-                .NotEmpty().WithMessage("El ID del agente es requerido")
-                .NotNull().WithMessage("El ID del agente es requerido");
+              .NotNull()
+              .WithMessage("Agent ID is required")
+
+              .NotEmpty()
+              .WithMessage("Agent ID is required")
+              .Must(id => Guid.TryParse(id, out _))
+              .WithMessage("Agent ID must be a valid GUID");
         }
     }
 }

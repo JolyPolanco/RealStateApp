@@ -7,9 +7,9 @@ namespace RealStateApp.Core.Application.Features.Property.Commands.DeletePropert
         public DeletePropertyCommandValidator()
         {
             RuleFor(x => x.Code)
-                .NotEmpty().WithMessage("El código es requerido")
-                .NotNull().WithMessage("El código es requerido")
-                .Length(6, 6).WithMessage("El código debe tener 6 caracteres");
+                .NotNull().WithMessage("Code is required")
+                .NotEmpty().WithMessage("Code is required")
+                .Length(6, 6).WithMessage("Code must be 6 characters long");
         }
     }
 }
