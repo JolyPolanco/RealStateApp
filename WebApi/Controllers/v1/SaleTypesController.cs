@@ -31,16 +31,16 @@ namespace RealStateWebApi.Controllers.v1
             return Created();
         }
 
-        [HttpPut("{Id}")]
+        [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN")]
 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public async Task<IActionResult >Update(int Id, EditSaleTypeCommand command)
+        public async Task<IActionResult >Update(int id, EditSaleTypeCommand command)
         {
-            if (Id != command.Id)
+            if (id != command.Id)
             {
                 return BadRequest("The ID in the URL does not match the request body.");
             }
@@ -70,27 +70,27 @@ namespace RealStateWebApi.Controllers.v1
             return Ok(response);
         }
 
-        [HttpGet("{Id}")]
+        [HttpGet("{id}")]
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status200OK)]
 
-        public async Task<IActionResult> GetById([FromRoute] int Id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var response = await Mediator.Send(new GetSaleTypeByIdQuery() { Id=Id});
+            var response = await Mediator.Send(new GetSaleTypeByIdQuery() { Id=id});
             if (response==null) return NoContent();
             return Ok(response);
         }
 
-        [HttpDelete("{Id}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "ADMIN")]
 
-        public async Task<IActionResult> Delete([FromRoute]int Id)
+        public async Task<IActionResult> Delete([FromRoute]int id)
         {
-             await Mediator.Send(new DeleteSaleTypeCommand() { Id = Id });
+             await Mediator.Send(new DeleteSaleTypeCommand() { Id = id });
             return NoContent();
         }
 
