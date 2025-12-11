@@ -70,7 +70,6 @@ namespace RealStateApp.Unit.Tests.Features.Agents.Queries
                 .Setup(r => r.GetAgentPropertiesCount(agentId))
                 .ReturnsAsync(5);
 
-            // El handler usa UserDto, no AppUser → se ajusta el mock
             _mapperMock
                 .Setup(m => m.Map<AgentDto>(It.IsAny<UserDto>()))
                 .Returns(mappedDto);
@@ -101,7 +100,6 @@ namespace RealStateApp.Unit.Tests.Features.Agents.Queries
             // Arrange
             var agentId = Guid.NewGuid().ToString();
 
-            // El servicio debe devolver null para simular que el agente no existe
             _userServiceMock
                 .Setup(s => s.GetById(agentId))
                 .ReturnsAsync((UserDto)null);
@@ -113,7 +111,7 @@ namespace RealStateApp.Unit.Tests.Features.Agents.Queries
                 _handler.Handle(query, CancellationToken.None)
             );
 
-            Assert.Equal("Agent not found with Id", ex.Message);
+            Assert.Equal("Agent not found with this Id", ex.Message);
             _userServiceMock.Verify(s => s.GetById(agentId), Times.Once);
         }
     }
