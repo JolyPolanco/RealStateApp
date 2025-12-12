@@ -5,6 +5,7 @@ using RealStateApp.Core.Application.Features.Property.Queries.GetAll;
 using RealStateApp.Core.Application.Features.Property.Queries.GetAllWithInclude;
 using RealStateApp.Core.Application.Features.Property.Queries.GetByCode;
 using RealStateApp.Core.Application.Features.Property.Queries.GetById;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealStateWebApi.Controllers.v1
 {
@@ -23,6 +24,10 @@ namespace RealStateWebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [SwaggerOperation(
+            Summary = "Obtiene todas las propiedades",
+            Description = "Devuelve una lista de todas las propiedades registradas en el sistema."
+        )]
         public async Task<IActionResult> GetAll()
         {
             var response = await Mediator.Send(new GetAllPropertiesQuery());
@@ -44,6 +49,10 @@ namespace RealStateWebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [SwaggerOperation(
+            Summary = "Obtiene todas las propiedades con relaciones incluidas",
+            Description = "Devuelve una lista de todas las propiedades junto con sus PropertyType, SaleType e Improvements."
+        )]  
         public async Task<IActionResult> GetAllWithInclude()
         {
             var response = await Mediator.Send(new GetAllPropertiesWithIncludeQuery());
@@ -66,6 +75,10 @@ namespace RealStateWebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [SwaggerOperation(
+            Summary = "Obtiene una propiedad por Id",
+            Description = "Devuelve los datos de una propiedad específica utilizando su Id."
+        )]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var response = await Mediator.Send(new GetPropertyByIdQuery { Id = id });
@@ -88,6 +101,10 @@ namespace RealStateWebApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [SwaggerOperation(
+            Summary = "Obtiene una propiedad por Código",
+            Description = "Devuelve los datos de una propiedad específica utilizando su código único de 6 caracteres."
+        )]
         public async Task<IActionResult> GetByCode([FromRoute] string code)
         {
             var response = await Mediator.Send(new GetPropertyByCodeQuery { Code = code });
